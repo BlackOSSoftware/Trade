@@ -1,15 +1,27 @@
-import { onMessage } from "firebase/messaging";
-import { messaging } from "./firebase";
+import { getMessaging, onMessage } from "firebase/messaging";
+import { app } from "./firebase";
 
 export const listenForegroundMessages = () => {
-  if (!messaging) return;
+  if (typeof window === "undefined") return;
+  if (!("Notification" in window)) return;
 
-  onMessage(messaging, (payload) => {
-  console.log("🔥 FOREGROUND FCM RECEIVED:", payload);
+  try {
+    const messaging = getMessaging(app);
 
-  new Notification(payload.data?.title || "Notification", {
-    body: payload.data?.body || "",
-    icon: "/icon.png",
-  });
-});
+    onMessage(messaging, (payload) => {
+      console.log("🔥 FOREGROUND FCM RECEIVED:", payload);
+
+      if (Notification.permission === "granted") {
+        new Notification(
+          payload.data?.title || "Notification",
+          {
+            body: payload.data?.body || "",
+            icon: "/icon.png",
+          }
+        );
+      }
+    });
+  } catch (err) {
+    console.error("Foreground FCM error:", err);
+  }
 };
