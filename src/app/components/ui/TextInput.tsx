@@ -9,6 +9,7 @@ type PremiumInputProps = {
   value: string;
   onChange: (v: string) => void;
   icon?: LucideIcon;
+  required?: boolean | undefined
 };
 
 export function PremiumInput({
@@ -17,6 +18,7 @@ export function PremiumInput({
   value,
   onChange,
   icon: Icon,
+  required = false,
 }: PremiumInputProps) {
   const filled = value.length > 0;
   const [showPassword, setShowPassword] = useState(false);
@@ -36,6 +38,7 @@ export function PremiumInput({
       <input
         type={inputType}
         value={value}
+        required={required}  
         onChange={(e) => onChange(e.target.value)}
         className={`
           peer w-full rounded-lg border border-[var(--border-glass)]
