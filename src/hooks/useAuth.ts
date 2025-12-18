@@ -64,3 +64,5 @@ export const useVerifyEmail = () =>
     mutationFn: (payload: { token: string }) =>
       authService.verifyEmail(payload),
   });
+
+  

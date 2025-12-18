@@ -75,3 +75,67 @@ export function PremiumInput({
     </div>
   );
 }
+export function DateInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="relative">
+      <input
+        type="date"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="
+          w-full rounded-lg border border-[var(--border-glass)]
+          bg-[var(--bg-card)]
+          px-3 pt-5 pb-2 text-sm outline-none
+          focus:border-[var(--primary)]
+          focus:ring-1 focus:ring-[var(--primary)]
+        "
+      />
+      <label
+        className="
+          absolute left-3 -top-2 bg-[var(--bg-card)]
+          px-1 text-xs text-[var(--text-muted)]
+        "
+      >
+        {label}
+      </label>
+    </div>
+  );
+}
+export function GenderSelect({
+  value,
+  onChange,
+}: {
+  value?: "MALE" | "FEMALE";
+  onChange: (v: "MALE" | "FEMALE") => void;
+}) {
+  return (
+    <div className="flex gap-2">
+      {(["MALE", "FEMALE"] as const).map((g) => (
+        <button
+          key={g}
+          type="button"
+          onClick={() => onChange(g)}
+          className={`
+            flex-1 px-4 py-3 rounded-lg border text-sm font-medium
+            transition
+            ${
+              value === g
+                ? "bg-[var(--primary)] text-[var--(--text-invert)] border-[var(--primary)]"
+                : "bg-[var(--bg-card)] border-[var(--border-glass)] text-[var(--text-muted)]"
+            }
+          `}
+        >
+          {g === "MALE" ? "Male" : "Female"}
+        </button>
+      ))}
+    </div>
+  );
+}

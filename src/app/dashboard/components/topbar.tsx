@@ -21,6 +21,7 @@ import {
   Repeat,
 } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Topbar({
   onMenuClick,
@@ -56,6 +57,12 @@ export default function Topbar({
     // ⚡ instant redirect
     window.location.replace("/login");
   };
+
+  const closeUserDropdown = () => {
+    setHovered(false);
+    setPinned(false);
+  };
+
 
 
   return (
@@ -115,7 +122,7 @@ export default function Topbar({
               onClick={() => setPinned((v) => !v)}
               className="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-[var(--bg-glass)]"
             >
-              <div className="h-8 w-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-sm font-semibold">
+              <div className="h-8 w-8 rounded-full bg-[var(--primary)] text-[var--(--text-invert)] flex items-center justify-center text-sm font-semibold">
                 U
               </div>
               <ChevronDown size={14} />
@@ -149,7 +156,12 @@ export default function Topbar({
                 <Divider />
 
                 <MenuItem icon={BadgeCheck} label="Verification / KYC" />
-                <MenuItem icon={User} label="Edit Profile" />
+                <MenuItem
+                  icon={User}
+                  label="Edit Profile"
+                  page="profile"
+                  onClick={closeUserDropdown}
+                />
                 <MenuItem icon={Settings} label="Reset Password" />
                 <MenuItem icon={Layers} label="Client Portal" />
                 <MenuItem icon={Gift} label="Referral Link" />
@@ -174,7 +186,7 @@ export default function Topbar({
         </div>
       </header>
       {toast && (
-        <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-[var(--primary)] text-white px-4 py-2 shadow-xl animate-fadeIn">
+        <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-[var(--primary)] text-[var--(--text-invert)] px-4 py-2 shadow-xl animate-fadeIn">
           {toast}
         </div>
       )}
@@ -185,14 +197,27 @@ export default function Topbar({
 
 /* ===== HELPERS ===== */
 
-function MenuItem({ icon: Icon, label }: any) {
+function MenuItem({ icon: Icon, label, page, onClick }: any) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    onClick?.();            // 🔥 dropdown close
+    if (page) {
+      router.push(`/dashboard/${page}`);
+    }
+  };
+
   return (
-    <button className="w-full flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-[var(--bg-glass)] text-sm">
+    <button
+      onClick={handleClick}
+      className="w-full flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-[var(--bg-glass)] text-sm"
+    >
       <Icon size={16} />
       {label}
     </button>
   );
 }
+
 
 function Btn({ icon: Icon, label }: any) {
   return (

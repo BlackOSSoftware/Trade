@@ -17,8 +17,10 @@ import {
 } from "@/hooks/useAuth";
 import { PremiumInput } from "../ui/TextInput";
 import { AuthShell } from "../auth/AuthCard";
+import { useVerifyEmail } from "@/hooks/useAuth";
+import { useResendVerifyEmail } from "@/hooks/useUser";
 
-type Step = "login" | "forgot" | "reset";
+type Step = "login" | "forgot" | "reset" | "verify";
 
 type FormState = {
   identity: string;
@@ -34,6 +36,7 @@ export default function LoginPage() {
   const login = useLogin();
   const forgot = useForgotPassword();
   const reset = useResetPassword();
+  const resendVerifyEmail = useResendVerifyEmail();
 
   const tokenFromUrl = params.get("token");
 
@@ -67,36 +70,44 @@ export default function LoginPage() {
 
   /* ================= ACTIONS ================= */
 
-  const handleLogin = async () => {
-    const fcmToken = await getFcmToken();
-    console.log("🔥 FCM TOKEN:", fcmToken);
-    login.mutate(
-      {
-        email: form.identity,
-        password: form.password,
-        fcmToken: fcmToken ?? null,
+const handleLogin = async () => {
+  const fcmToken = await getFcmToken();
+
+  login.mutate(
+    {
+      email: form.identity,
+      password: form.password,
+      fcmToken: fcmToken ?? null,
+    },
+    {
+      onSuccess: (res) => {
+        const { accessToken, refreshToken, isMailVerified } = res.data;
+
+        // 🔒 EMAIL NOT VERIFIED
+        if (!isMailVerified) {
+          setToast("Please verify your email first");
+          setStep("verify");
+
+          // 🔥 ensure tokens are NOT saved
+          return;
+        }
+
+        // ✅ VERIFIED USER ONLY
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+
+        document.cookie = `accessToken=${accessToken}; path=/; max-age=86400`;
+
+        setToast("Login successful");
+        router.push("/dashboard");
       },
-      {
-        onSuccess: (res) => {
-          // 🔐 STORE TOKENS
-          localStorage.setItem(
-            "accessToken",
-            res.data.accessToken
-          );
 
-          localStorage.setItem(
-            "refreshToken",
-            res.data.refreshToken
-          );
-          document.cookie = `accessToken=${res.data.accessToken}; path=/; max-age=86400`;
-
-          setToast("Login successful");
-          router.push("/dashboard");
-        },
-      }
-    );
-  };
-
+      onError: () => {
+        setToast("Invalid email or password");
+      },
+    }
+  );
+};
 
   const handleForgot = () => {
     forgot.mutate(
@@ -109,39 +120,58 @@ export default function LoginPage() {
     );
   };
 
- const handleReset = () => {
-  if (!tokenFromUrl) return;
+  const handleReset = () => {
+    if (!tokenFromUrl) return;
 
-  const isStrongPassword =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,16}$/.test(
-      form.newPassword
+    const isStrongPassword =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,16}$/.test(
+        form.newPassword
+      );
+
+    if (!isStrongPassword) {
+      setToast(
+        "Password must contain uppercase, lowercase, number & special character"
+      );
+      return;
+    }
+
+    reset.mutate(
+      {
+        token: tokenFromUrl,
+        password: form.newPassword,
+      },
+      {
+        onSuccess: () => {
+          setToast("Password updated successfully");
+
+          // 🔥 IMPORTANT FIX
+          setStep("login");
+
+          // 🔥 CLEAR URL TOKEN COMPLETELY
+          router.replace("/login");
+        },
+      }
     );
 
-  if (!isStrongPassword) {
-    setToast(
-      "Password must contain uppercase, lowercase, number & special character"
-    );
+  };
+const handleVerifyEmail = () => {
+  if (!form.identity) {
+    setToast("Please enter your email");
     return;
   }
 
-  reset.mutate(
-  {
-    token: tokenFromUrl,
-    password: form.newPassword,
-  },
-  {
+  resendVerifyEmail.mutate(form.identity, {
     onSuccess: () => {
-      setToast("Password updated successfully");
-
-      // 🔥 IMPORTANT FIX
+      setToast("Verification email sent successfully");
       setStep("login");
-
-      // 🔥 CLEAR URL TOKEN COMPLETELY
-      router.replace("/login");
     },
-  }
-);
-
+    onError: (err: any) => {
+      setToast(
+        err?.response?.data?.message ||
+        "Failed to send verification email"
+      );
+    },
+  });
 };
 
 
@@ -234,6 +264,23 @@ export default function LoginPage() {
       buttonText: "Update password",
       onSubmit: handleReset,
     },
+
+    verify: {
+  title: "Verify your email",
+  back: () => setStep("login"),
+  fields: [
+    {
+      key: "identity",
+      label: "Email address",
+      type: "email",
+      icon: Mail,
+    },
+  ],
+  buttonText: "Send verification email",
+  onSubmit: handleVerifyEmail,
+},
+
+
   };
 
   const current = steps[step];
@@ -298,14 +345,18 @@ export default function LoginPage() {
           {/* ACTION BUTTON */}
           <button
             onClick={current.onSubmit}
+            disabled={login.isPending}
             className={`w-full rounded-lg py-3 font-medium transition text-white
-              ${step === "reset"
+    ${step === "reset"
                 ? "bg-emerald-500 hover:opacity-90"
                 : "bg-[var(--primary)] hover:shadow-[0_0_30px_var(--primary-glow)]"
-              }`}
+              }
+    disabled:opacity-60 disabled:cursor-not-allowed
+  `}
           >
-            {current.buttonText}
+            {login.isPending ? "Signing in..." : current.buttonText}
           </button>
+
 
           {/* FOOTER */}
           {current.footer}

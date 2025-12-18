@@ -19,6 +19,8 @@ export default function DashboardLayout({
   
   return (
     <div className="flex h-screen bg-[var(--bg-main)] text-[var(--text-main)]">
+       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[var(--primary)] opacity-20 blur-3xl" />
+      <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500 opacity-20 blur-3xl" />
       <Sidebar
         open={sidebarOpen}
         collapsed={collapsed}
