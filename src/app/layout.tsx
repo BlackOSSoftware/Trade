@@ -50,9 +50,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <AppProviders>
         <FcmRegister />
         <InitNotifications />
-        <AppProviders>{children}</AppProviders>
+          {children}</AppProviders>
       </body>
     </html>
   );
