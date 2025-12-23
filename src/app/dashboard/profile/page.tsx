@@ -27,6 +27,7 @@ import {
   useUpdateProfile,
 } from "@/hooks/useUser";
 import { Toast } from "@/app/components/ui/Toast";
+import { useRouter } from "next/navigation";
 
 type Gender = "MALE" | "FEMALE";
 
@@ -36,12 +37,13 @@ export default function ProfilePage() {
 
   const [editOpen, setEditOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const router = useRouter();
 
   const [form, setForm] = useState<{
     date_of_birth: string;
     gender?: Gender;
     address_line_1: string;
-    address_line_2: string;
+    address_line_2: string
     city: string;
     state: string;
     country: string;
@@ -89,44 +91,86 @@ export default function ProfilePage() {
   }
 
   if (error) {
-  return (
-    <div className="flex min-h-[60vh] items-center justify-center text-sm text-[var(--error)]">
-      Failed to load profile. Please try again.
-    </div>
-  );
-}
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center text-sm text-[var(--error)]">
+        Failed to load profile. Please try again.
+      </div>
+    );
+  }
 
 
 
   if (!data) return null;
-  
+
   const handleChange =
     (key: keyof typeof form) => (value: string | Gender | undefined) => {
       setForm((prev) => ({ ...prev, [key]: value as any }));
     };
 
   const handleSave = async () => {
-  try {
-    await updateProfile.mutateAsync({
-      date_of_birth: form.date_of_birth,
-      gender: form.gender,
-      address_line_1: form.address_line_1,
-      address_line_2: form.address_line_2,
-      city: form.city,
-      state: form.state,
-      country: form.country,
-      pincode: form.pincode,
-    });
+    try {
+      await updateProfile.mutateAsync({
+        date_of_birth: form.date_of_birth,
+        gender: form.gender,
+        address_line_1: form.address_line_1,
+        address_line_2: form.address_line_2,
+        city: form.city,
+        state: form.state,
+        country: form.country,
+        pincode: form.pincode,
+      });
 
-    setEditOpen(false);
-    setToastMsg("Profile updated successfully");
+      setEditOpen(false);
+      setToastMsg("Profile updated successfully");
 
-    setTimeout(() => setToastMsg(null), 3000);
-  } catch (err) {
-    setToastMsg("Failed to update profile");
-    setTimeout(() => setToastMsg(null), 3000);
+      setTimeout(() => setToastMsg(null), 3000);
+    } catch (err) {
+      setToastMsg("Failed to update profile");
+      setTimeout(() => setToastMsg(null), 3000);
+    }
+  };
+
+  type KycStatus = "VERIFIED" | "REJECTED" | "PENDING" | "NOT_STARTED" | string;
+ function shouldShowKycButton(status?: string) {
+  return (
+    !status ||
+    status.toUpperCase() === "REJECTED" ||
+    status.toUpperCase() === "NOT_STARTED"
+  );
+}
+  function getKycBadge(status?: KycStatus) {
+   
+    switch (status?.toUpperCase()) {
+      case "VERIFIED":
+        return {
+          text: "Verified",
+          wrapper: "bg-emerald-500/10 text-emerald-500",
+          dot: "bg-emerald-500",
+        };
+
+      case "REJECTED":
+        return {
+          text: "Rejected",
+          wrapper: "bg-red-500/10 text-red-500",
+          dot: "bg-red-500",
+        };
+
+      case "PENDING":
+        return {
+          text: "Pending",
+          wrapper: "bg-yellow-500/10 text-yellow-500",
+          dot: "bg-yellow-500",
+        };
+
+      case "NOT_STARTED":
+      default:
+        return {
+          text: "Not submitted",
+          wrapper: "bg-gray-500/10 text-gray-400",
+          dot: "bg-gray-400",
+        };
+    }
   }
-};
 
 
   return (
@@ -173,6 +217,37 @@ export default function ProfilePage() {
                 </span>
               }
             />
+            {(() => {
+  const kycBadge = getKycBadge(data.kycStatus);
+  const showKycButton = shouldShowKycButton(data.kycStatus);
+
+  return (
+    <SettingRow
+      icon={Mail}
+      label="KYC"
+      value={data.kycStatus || "Not submitted"}
+      action={
+        showKycButton ? (
+          <button
+            onClick={() => router.push("/dashboard/kyc")}
+            className="inline-flex items-center gap-1 rounded-full bg-[var(--primary)] px-3 py-[3px] text-[10px] font-medium text-white shadow-sm transition hover:bg-[var(--primary-dark)]"
+          >
+            Complete KYC
+          </button>
+        ) : (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-[2px] text-[10px] font-medium ${kycBadge.wrapper}`}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${kycBadge.dot}`} />
+            {kycBadge.text}
+          </span>
+        )
+      }
+    />
+  );
+})()}
+
+
             <SettingRow
               icon={Phone}
               label="Phone"
@@ -336,10 +411,10 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
-        {toastMsg && <Toast message={toastMsg} />}
+      {toastMsg && <Toast message={toastMsg} />}
 
 
-         
+
 
     </>
   );
@@ -392,6 +467,6 @@ function SettingRow({
       </div>
       {action}
     </div>
-    
+
   );
 }

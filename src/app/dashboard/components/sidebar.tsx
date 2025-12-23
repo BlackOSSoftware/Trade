@@ -55,7 +55,7 @@ export default function Sidebar({
 
       <aside
         className={`
-          fixed md:static z-50 h-full transition-all duration-300
+          fixed md:static z-50 h-193 transition-all duration-300
           ${collapsed ? "w-20" : "w-64"}
           bg-[var(--bg-card)]
           border-r border-[var(--border-glass)]

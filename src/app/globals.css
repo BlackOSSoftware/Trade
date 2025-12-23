@@ -110,3 +110,18 @@ body, html {
   animation: dropdown 0.30s ease-in-out;
 }
 
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  50% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(120%);
+  }
+}
+
+.animate-scan {
+  animation: scan 1.1s ease-in-out infinite;
+}

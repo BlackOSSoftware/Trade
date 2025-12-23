@@ -31,11 +31,13 @@ const FAQS: FaqItem[] = [
 ];
 
 export default function KycFaq() {
-  const [openId, setOpenId] = useState<number | null>(2);
+  const [openId, setOpenId] = useState<number | null>(null);
 
   const handleToggle = (id: number) => {
-    setOpenId((prev) => (prev === id ? null : id));
-  };
+  setOpenId((prev) => (prev === id ? null : id));
+};
+
+
 
   return (
     <section className="rounded-2xl border border-[var(--border-soft)] bg-[var(--bg-elevated)]/90 p-5 shadow-sm text-md">
@@ -57,48 +59,41 @@ export default function KycFaq() {
       {/* FAQ List */}
       <div className="divide-y divide-[var(--border-soft)]/80">
         {FAQS.map((item) => {
-          const isOpen = openId === item.id;
+  const isOpen = openId === item.id;
 
-          return (
-            <div key={item.id} className="py-3">
-              {/* Question */}
-              <button
-                type="button"
-                onClick={() => handleToggle(item.id)}
-                className="flex w-full items-center justify-between gap-4 text-left"
-              >
-                <span className="text-xs font-medium text-[var(--text-strong)]">
-                  {item.question}
-                </span>
+  return (
+    <div key={item.id} className="py-3">
+      <button
+        type="button"
+        onClick={() => handleToggle(item.id)}
+        className="flex w-full items-center justify-between gap-4 text-left"
+      >
+        <span className="text-xs font-medium text-[var(--text-strong)]">
+          {item.question}
+        </span>
 
-                <span
-                  className="
-                    flex h-7 w-7 items-center justify-center
-                    rounded-full border border-[var(--border-soft)]
-                    bg-[var(--bg-soft)] text-[var(--text-muted)]
-                    transition-transform duration-300
-                  "
-                >
-                  {isOpen ? <Minus size={14} /> : <Plus size={14} />}
-                </span>
-              </button>
+        <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--bg-soft)] text-[var(--text-muted)] transition-transform duration-300">
+          {isOpen ? <Minus size={14} /> : <Plus size={14} />}
+        </span>
+      </button>
 
-              {/* Answer */}
-              <div
-                className={`
-                  grid transition-all duration-300 ease-in-out
-                  ${isOpen ? "grid-rows-[1fr] opacity-100 mt-3" : "grid-rows-[0fr] opacity-0"}
-                `}
-              >
-                <div className="overflow-hidden pl-1 pr-8">
-                  <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">
-                    {item.answer}
-                  </p>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <div
+        className={`grid transition-all duration-300 ease-in-out ${
+          isOpen
+            ? "grid-rows-[1fr] opacity-100 mt-3"
+            : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden pl-1 pr-8">
+          <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">
+            {item.answer}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+})}
+
       </div>
     </section>
   );
