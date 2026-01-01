@@ -8,6 +8,7 @@ import { useActiveAccountPlans } from "@/hooks/useActiveAccountPlans";
 import { useCreateAccount } from "@/hooks/useCreateAccount";
 import AccountPlanCard from "../../components/account/AccountPlanCard";
 import ConfirmModal from "../../components/account/ConfirmModal";
+import GlobalLoader from "@/app/components/ui/GlobalLoader";
 
 export default function OpenAccountPage() {
   const router = useRouter();
@@ -61,11 +62,11 @@ export default function OpenAccountPage() {
       <h1 className="text-2xl font-semibold">Open account</h1>
 
       {isLoading ? (
-        <div>Loading account types…</div>
+        <div><GlobalLoader /></div>
       ) : (
         <>
           {/* DESKTOP LIST */}
-          <div className="hidden md:block space-y-4">
+          <div className="hidden lg:block space-y-4">
             {data?.map((plan) => (
               <AccountPlanCard
                 key={plan._id}
@@ -77,7 +78,7 @@ export default function OpenAccountPage() {
           </div>
 
           {/* MOBILE SLIDER */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <div
               className="
                 hide-scrollbar
@@ -121,11 +122,11 @@ export default function OpenAccountPage() {
       )}
 
       {/* CONTINUE */}
-      <div className="mt-6 flex justify-center md:justify-start">
+      <div className="mt-6 flex justify-center lg:justify-start">
         <button
           disabled={!selectedPlan}
           onClick={handleContinue}
-          className={`w-full max-w-xs md:w-64 rounded-lg py-3 font-medium transition-all ${
+          className={`w-full max-w-xs lg:w-64 rounded-lg py-3 font-medium transition-all ${
             selectedPlan
               ? "bg-[var(--primary)] text-white hover:scale-[1.02]"
               : "bg-[var(--bg-glass)] text-[var(--text-muted)]"

@@ -145,7 +145,10 @@ export default function Topbar({
 
                 {/* ACTIONS */}
                 <div className="mt-4 grid grid-cols-2 gap-2">
-                  <Btn icon={Wallet} label="Deposit" />
+                  <Btn icon={Wallet} label="Deposit" page="payments/deposit" onClick={() => {
+                    setUserHover(false);
+                    setUserPinned(false);
+                  }}/>
                   <Btn icon={Repeat} label="Withdraw" />
                   <Btn icon={ArrowLeftRight} label="Transfer" />
                   <Btn icon={FileText} label="Transactions" />
@@ -221,9 +224,14 @@ function MenuItem({ icon: Icon, label, page, onClick }: any) {
   );
 }
 
-function Btn({ icon: Icon, label }: any) {
+function Btn({ icon: Icon, label, page, onClick }: any) {
+  const router = useRouter();
+  const handleClick = () => {
+    onClick?.();
+    if (page) router.push(`/dashboard/${page}`);
+  };
   return (
-    <button className="flex items-center gap-2 justify-center rounded-xl border border-[var(--border-soft)] py-2 text-sm hover:bg-[var(--bg-glass)]">
+    <button onClick={handleClick} className="flex items-center gap-2 justify-center rounded-xl border border-[var(--border-soft)] py-2 text-sm hover:bg-[var(--bg-glass)]">
       <Icon size={14} />
       {label}
     </button>

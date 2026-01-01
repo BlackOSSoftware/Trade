@@ -41,7 +41,7 @@ export default function AccountDetails({ data }: { data: any }) {
       </div>
 
       {/* ================= MAIN GRID ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-col-3 gap-4">
         <InfoCard
           icon={<DollarSign />}
           label="Balance"

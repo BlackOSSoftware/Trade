@@ -20,7 +20,7 @@ export default function AccountPlanCard({
     >
       {/* ================= MOBILE : IMAGE STYLE CARD ================= */}
       <div
-        className={`md:hidden rounded-2xl bg-[var(--bg-card)] p-6 shadow-lg border ${
+        className={`lg:hidden rounded-2xl bg-[var(--bg-card)] p-6 shadow-lg border ${
           selected
             ? "border-[var(--primary)]"
             : "border-[var(--border-soft)]"
@@ -47,6 +47,7 @@ export default function AccountPlanCard({
         <div className="mt-6 space-y-4 text-sm">
           <Row label="Min deposit" value={`${plan.minDeposit} USD`} />
           <Row label="Spread" value={`From ${plan.spreadPips} pips`} />
+          <Row label="Referal" value={`$ ${plan.referral_reward_amount}`} />
           <Row
             label="Max leverage"
             value={`1:${plan.max_leverage}`}
@@ -74,7 +75,7 @@ export default function AccountPlanCard({
 
       {/* ================= DESKTOP : SAME AS BEFORE ================= */}
       <div
-        className={`hidden md:flex items-start justify-between gap-4 rounded-xl border p-5 ${
+        className={`hidden lg:flex items-start justify-between gap-4 rounded-xl border p-5 ${
           selected
             ? "border-[var(--primary)] bg-[var(--bg-glass)]"
             : "border-[var(--border-soft)] hover:bg-[var(--bg-glass)]"
@@ -106,9 +107,10 @@ export default function AccountPlanCard({
         </div>
 
         {/* RIGHT */}
-        <div className="grid grid-cols-4 gap-8 text-sm text-right">
+        <div className="grid grid-cols-5 gap-4 text-sm text-right">
           <Meta label="Min deposit" value={`${plan.minDeposit} USD`} />
           <Meta label="Min spread" value={`${plan.spreadPips} pips`} />
+          <Meta label="Referral reward" value={`$ ${plan.referral_reward_amount}`} />
           <Meta
             label="Max leverage"
             value={`1:${plan.max_leverage}`}

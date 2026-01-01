@@ -100,7 +100,7 @@ export default function AccountRow({
 
             <div className="font-medium">
               #{account.account_number.replace("AC", "")}
-              <span className="ml-2 text-lg text-[var(--text-muted)]">
+              <span className="ml-2 text-lg text-[var(--text-muted)] uppercase">
                 {account.plan_name}
               </span>
             </div>
@@ -126,10 +126,6 @@ export default function AccountRow({
 
             <button className="rounded-md bg-[var(--bg-glass)] px-4 py-2 text-sm">
               Withdraw
-            </button>
-
-            <button className="rounded-md bg-[var(--bg-glass)] p-2">
-              <MoreVertical size={16} />
             </button>
 
             <button
