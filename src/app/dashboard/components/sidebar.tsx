@@ -8,13 +8,16 @@ import {
   Layers,
   Gift,
   Headphones,
+  Landmark,
   ChevronLeft,
+  AlignVerticalSpaceAround,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 const items = [
   { label: "Overview", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Assets", icon: Wallet, href: "/dashboard/assets" },
+  { label: "Account", icon: Landmark, href: "/dashboard/account" },
   {
     label: "Internal Transfer",
     icon: ArrowLeftRight,

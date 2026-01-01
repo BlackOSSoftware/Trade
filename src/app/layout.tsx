@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
 
-  
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -51,8 +51,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AppProviders>
-        <FcmRegister />
-        <InitNotifications />
+          <FcmRegister />
+          <InitNotifications />
           {children}</AppProviders>
       </body>
     </html>
