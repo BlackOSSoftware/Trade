@@ -17,7 +17,7 @@ import { usePathname, useRouter } from "next/navigation";
 const items = [
   { label: "Overview", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Assets", icon: Wallet, href: "/dashboard/assets" },
-  { label: "Account", icon: Landmark, href: "/dashboard/account" },
+  { label: "Account", icon: Landmark, href: "/dashboard/accounts" },
   {
     label: "Internal Transfer",
     icon: ArrowLeftRight,
@@ -70,7 +70,7 @@ export default function Sidebar({
           {!collapsed && (
             <div>
               <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
-                Account
+                ALS
               </p>
               <p className="text-lg font-semibold text-[var(--text-main)]">
                 Dashboard
