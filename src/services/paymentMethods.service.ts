@@ -2,13 +2,15 @@ import api from "@/api/axios";
 
 export interface PaymentMethod {
   _id: string;
-  type: "UPI" | "BANK";
+  type: "UPI" | "BANK" | "CRYPTO";
   title: string;
   upi_id?: string;
   bank_name?: string;
   account_name?: string;
   account_number?: string;
   ifsc?: string;
+    crypto_network?: string;
+    crypto_address?: string;
   image_url?: string;
 }
 

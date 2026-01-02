@@ -10,24 +10,26 @@ import {
   Headphones,
   Landmark,
   ChevronLeft,
-  AlignVerticalSpaceAround,
+  ChevronDown,
+  CreditCard,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const items = [
   { label: "Overview", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Assets", icon: Wallet, href: "/dashboard/assets" },
   { label: "Account", icon: Landmark, href: "/dashboard/accounts" },
-  {
-    label: "Internal Transfer",
-    icon: ArrowLeftRight,
-    href: "/dashboard/transfer",
-  },
-  {
-    label: "Transactions",
-    icon: FileText,
-    href: "/dashboard/transactions",
-  },
+];
+
+const paymentItems = [
+  { label: "Deposit", href: "/dashboard/payments/deposit" },
+  { label: "Withdrawal", href: "/dashboard/payments/withdraw" },
+  { label: "Internal Transfer", href: "/dashboard/payments/transfer" },
+  { label: "Transactions", href: "/dashboard/payments/transactions" },
+];
+
+const bottomItems = [
   { label: "Platform", icon: Layers, href: "/dashboard/platform" },
   { label: "Task Center", icon: Gift, href: "/dashboard/tasks" },
   { label: "Support", icon: Headphones, href: "/dashboard/support" },
@@ -46,6 +48,47 @@ export default function Sidebar({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [paymentOpen, setPaymentOpen] = useState(false);
+
+  const isPaymentActive = pathname.startsWith("/dashboard/payments");
+
+  useEffect(() => {
+    if (!isPaymentActive) setPaymentOpen(false);
+  }, [pathname]);
+
+  const NavButton = ({
+    label,
+    icon: Icon,
+    active,
+    onClick,
+  }: any) => (
+    <div className="relative group">
+      <button
+        onClick={onClick}
+        className={`
+          flex items-center gap-3 w-full rounded-xl px-3 py-2.5
+          ${
+            active
+              ? "bg-[var(--bg-glass)] text-[var(--primary)]"
+              : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)]"
+          }
+        `}
+      >
+        <span className="h-9 w-9 flex items-center justify-center rounded-lg">
+          <Icon size={18} />
+        </span>
+
+        {!collapsed && <span className="text-sm font-medium">{label}</span>}
+      </button>
+
+      {/* TOOLTIP */}
+      {collapsed && (
+        <span className="pointer-events-none absolute left-full top-1/2 ml-3 -translate-y-1/2 rounded-md bg-black px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+          {label}
+        </span>
+      )}
+    </div>
+  );
 
   return (
     <>
@@ -58,7 +101,7 @@ export default function Sidebar({
 
       <aside
         className={`
-          fixed md:static z-50 h-193 transition-all duration-300
+          fixed md:static z-50 h-screen transition-all duration-300
           ${collapsed ? "w-20" : "w-64"}
           bg-[var(--bg-card)]
           border-r border-[var(--border-glass)]
@@ -69,78 +112,116 @@ export default function Sidebar({
         <div className="flex items-center justify-between px-4 py-5 border-b border-[var(--border-soft)]">
           {!collapsed && (
             <div>
-              <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
-                ALS
-              </p>
-              <p className="text-lg font-semibold text-[var(--text-main)]">
-                Dashboard
-              </p>
+              <p className="text-xs uppercase text-[var(--text-muted)]">ALS</p>
+              <p className="text-lg font-semibold">Dashboard</p>
             </div>
           )}
 
           <button
             onClick={onToggleCollapse}
-            className="rounded-lg p-1.5 hover:bg-[var(--bg-glass)] transition"
+            className="rounded-lg p-1.5 hover:bg-[var(--bg-glass)]"
           >
             <ChevronLeft
               size={18}
-              className={`transition-transform ${
-                collapsed ? "rotate-180" : ""
-              }`}
+              className={`transition ${collapsed ? "rotate-180" : ""}`}
             />
           </button>
         </div>
 
-        {/* MENU */}
         <nav className="mt-4 px-2 space-y-1">
-          {items.map((item) => {
-            const active =
-              pathname === item.href ||
-              pathname.startsWith(item.href + "/");
-            const Icon = item.icon;
+          {items.map((item) => (
+            <NavButton
+              key={item.label}
+              {...item}
+              active={
+                item.href === "/dashboard"
+                  ? pathname === "/dashboard"
+                  : pathname.startsWith(item.href)
+              }
+              onClick={() => {
+                router.push(item.href);
+                onClose?.();
+              }}
+            />
+          ))}
 
-            return (
-              <button
-                key={item.label}
-                onClick={() => {
-                  router.push(item.href);
-                  onClose?.();
-                }}
+          {/* PAYMENTS */}
+          <div
+            className="relative group"
+            onMouseEnter={() => collapsed && setPaymentOpen(true)}
+            onMouseLeave={() => collapsed && setPaymentOpen(false)}
+          >
+            <button
+              onClick={() => !collapsed && setPaymentOpen((v) => !v)}
+              className={`
+                flex items-center justify-between w-full rounded-xl px-3 py-2.5
+                ${
+                  isPaymentActive
+                    ? "bg-[var(--bg-glass)] text-[var(--primary)]"
+                    : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)]"
+                }
+              `}
+            >
+              <div className="flex items-center gap-3">
+                <span className="h-9 w-9 flex items-center justify-center">
+                  <CreditCard size={18} />
+                </span>
+                {!collapsed && <span className="text-sm">Payments</span>}
+              </div>
+
+              {!collapsed && (
+                <ChevronDown
+                  size={16}
+                  className={`transition ${
+                    paymentOpen ? "rotate-180" : ""
+                  }`}
+                />
+              )}
+            </button>
+
+            {/* DROPDOWN */}
+            {paymentOpen && (
+              <div
                 className={`
-                  group relative flex items-center gap-3 w-full
-                  rounded-xl px-3 py-2.5 transition-all
-                  ${
-                    active
-                      ? "bg-[var(--bg-glass)] text-[var(--primary)]"
-                      : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)] hover:text-[var(--text-main)]"
-                  }
+                  absolute ${collapsed ? "left-full top-0 ml-3" : "relative ml-11 mt-1"}
+                  z-50 rounded-lg bg-[var(--bg-card)] border border-[var(--border-glass)]
+                  space-y-1 p-1 min-w-[180px]
                 `}
               >
-                {active && (
-                  <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-[var(--primary)] shadow-[0_0_10px_var(--primary-glow)]" />
-                )}
+                {paymentItems.map((sub) => (
+                  <button
+                    key={sub.label}
+                    onClick={() => {
+                      router.push(sub.href);
+                      onClose?.();
+                    }}
+                    className={`
+                      w-full text-left rounded-md px-3 py-2 text-sm
+                      ${
+                        pathname === sub.href
+                          ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                          : "hover:bg-[var(--bg-glass)]"
+                      }
+                    `}
+                  >
+                    {sub.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
-                <span
-                  className={`
-                    flex items-center justify-center h-9 w-9 rounded-lg
-                    ${
-                      active
-                        ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                        : "group-hover:bg-[var(--bg-glass)]"
-                    }
-                  `}
-                >
-                  <Icon size={18} />
-                </span>
-
-                {!collapsed && (
-                  <span className="text-sm font-medium">
-                    {item.label}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          {bottomItems.map((item) => (
+            <NavButton
+              key={item.label}
+              {...item}
+              active={pathname.startsWith(item.href)}
+              onClick={() => {
+                router.push(item.href);
+                onClose?.();
+              }}
+            />
+          ))}
         </nav>
       </aside>
     </>
