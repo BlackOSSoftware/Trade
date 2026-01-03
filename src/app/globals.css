@@ -23,7 +23,7 @@
   --text-muted: #5b6474;
   --text-invert: #ffffff;
 
-  /* Borders (stronger than before) */
+  /* Borders */
   --border-glass: rgba(15, 23, 42, 0.14);
   --border-soft: rgba(15, 23, 42, 0.1);
 
@@ -36,17 +36,14 @@
 /* ----------------------------------
    DARK THEME (CLASS BASED)
 ---------------------------------- */
-/* ----------------------------------
-   DARK THEME (CLASS BASED) – FIXED
----------------------------------- */
 .dark {
   /* Backgrounds */
   --bg-main: #0b0f1a;
 
-  /* 🔥 IMPORTANT: CARD MUST BE SOLID */
-  --bg-card: #111827; /* slate-900 like */
+  /* Card must stay solid */
+  --bg-card: #111827;
 
-  /* Glass only for hover / subtle areas */
+  /* Glass */
   --bg-glass: rgba(255, 255, 255, 0.08);
 
   /* Brand */
@@ -64,27 +61,71 @@
   --border-soft: rgba(255, 255, 255, 0.08);
 }
 
-
 /* ----------------------------------
    GLOBAL BASE STYLES
 ---------------------------------- */
-body, html {
+html,
+body {
   background-color: var(--bg-main);
   color: var(--text-main);
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100%;
-  height: auto;
-  overflow-y: auto;
   overflow-x: hidden;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
 }
 
+/* ----------------------------------
+   PREMIUM SCROLLBAR (GLOBAL)
+   ⚠️ No color / UI logic changed
+---------------------------------- */
 
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) transparent;
+}
+
+/* Chrome / Edge / Safari */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--primary-glow),
+    var(--primary-hover)
+  );
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+  transition: background 0.25s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    var(--primary-glow)
+    var(--primary-hover),
+  );
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
 
 /* ----------------------------------
    OPTIONAL PREMIUM UTILITIES
 ---------------------------------- */
+
 .glass {
   background: var(--bg-glass);
   backdrop-filter: blur(16px);
@@ -95,7 +136,13 @@ body, html {
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
   border-radius: 1rem;
-}@keyframes dropdown {
+}
+
+/* ----------------------------------
+   ANIMATIONS
+---------------------------------- */
+
+@keyframes dropdown {
   0% {
     opacity: 0;
     transform: translateY(-8px) scale(0.98);
@@ -107,7 +154,7 @@ body, html {
 }
 
 .animate-dropdown {
-  animation: dropdown 0.30s ease-in-out;
+  animation: dropdown 0.3s ease-in-out;
 }
 
 @keyframes scan {
@@ -125,9 +172,15 @@ body, html {
 .animate-scan {
   animation: scan 1.1s ease-in-out infinite;
 }
+
+/* ----------------------------------
+   HIDE SCROLLBAR (WHEN NEEDED)
+---------------------------------- */
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;

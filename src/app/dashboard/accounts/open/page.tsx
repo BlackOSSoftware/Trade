@@ -7,7 +7,7 @@ import { Toast } from "@/app/components/ui/Toast";
 import { useActiveAccountPlans } from "@/hooks/useActiveAccountPlans";
 import { useCreateAccount } from "@/hooks/useCreateAccount";
 import AccountPlanCard from "../../components/account/AccountPlanCard";
-import ConfirmModal from "../../components/account/ConfirmModal";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 import GlobalLoader from "@/app/components/ui/GlobalLoader";
 
 export default function OpenAccountPage() {

@@ -4,6 +4,8 @@ import { useActivePaymentMethods } from "@/hooks/useActivePaymentMethods";
 import PaymentMethodCard from "../../components/payments/PaymentMethodCard";
 import MobileBottomBar from "../../components/payments/MobileBottomBar";
 import GlobalLoader from "@/app/components/ui/GlobalLoader";
+import DepositForm from "../../components/payments/DepositForm";
+import TipBanner from "@/app/components/ui/TipBanner";
 
 export default function DepositPage() {
   const { data, isLoading } = useActivePaymentMethods();
@@ -24,6 +26,24 @@ export default function DepositPage() {
         </div>
       )}
 
+      <DepositForm />
+
+      <div className="space-y-3 mb-6">
+        <TipBanner
+          title="Processing Time"
+          message="INR deposits may take up to 6 hours. USD and Crypto deposits are usually credited within 1 hour."
+        />
+      
+        <TipBanner
+          title="First Deposit Rule"
+          message="Your first deposit must meet the minimum deposit requirement of your selected account plan."
+        />
+      
+        <TipBanner
+          title="Payment Proof"
+          message="Upload a clear screenshot showing amount, date, time, and transaction ID. Incorrect proofs may lead to rejection."
+        />
+      </div>
       {/* 👇 ALWAYS BOTTOM, NEVER OVERLAP */}
       <MobileBottomBar />
     </div>

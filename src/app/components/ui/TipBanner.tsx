@@ -15,7 +15,7 @@ export default function TipBanner({
         relative overflow-hidden rounded-xl
         border border-[var(--border-soft)]
         bg-[var(--bg-glass)]
-        w-130
+        max-w-2xl
         p-4
       "
     >
