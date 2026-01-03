@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Sidebar from "./components/sidebar";
 import Topbar from "./components/topbar";
 import { listenForegroundMessages } from "@/lib/foregroundMessage";
@@ -14,10 +14,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
   const { data, isLoading, isError, error } = useUserMe();
+
+  const isTradePage = pathname.startsWith("/dashboard/trade");
 
   useEffect(() => {
     listenForegroundMessages();
@@ -48,28 +52,34 @@ export default function DashboardLayout({
   /* ================= LAYOUT ================= */
   return (
     <div className="relative h-screen overflow-hidden bg-[var(--bg-main)] text-[var(--text-main)]">
-      {/* Background blobs (no scroll impact) */}
+      {/* Background blobs */}
       <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[var(--primary)] opacity-20 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500 opacity-20 blur-3xl" />
 
       <div className="flex h-full">
-        {/* SIDEBAR (NO SCROLL) */}
-        <Sidebar
-          open={sidebarOpen}
-          collapsed={collapsed}
-          onClose={() => setSidebarOpen(false)}
-          onToggleCollapse={() => setCollapsed((v) => !v)}
-        />
+        {/* SIDEBAR — ALWAYS MOUNTED */}
+        <div className={isTradePage ? "hidden" : "block"}>
+          <Sidebar
+            open={sidebarOpen}
+            collapsed={collapsed}
+            onClose={() => setSidebarOpen(false)}
+            onToggleCollapse={() => setCollapsed((v) => !v)}
+          />
+        </div>
 
         {/* MAIN COLUMN */}
         <div className="flex flex-1 flex-col overflow-hidden">
-          {/* TOPBAR (NO SCROLL) */}
-          <div className="shrink-0">
+          {/* TOPBAR — ALWAYS MOUNTED */}
+          <div className={isTradePage ? "hidden" : "block"}>
             <Topbar onMenuClick={() => setSidebarOpen(true)} />
           </div>
 
-          {/* ✅ ONLY THIS SCROLLS */}
-          <main className="flex-1 overflow-y-auto p-4">
+          {/* CONTENT */}
+          <main
+            className={`flex-1 overflow-y-auto ${
+              isTradePage ? "p-0" : "p-4"
+            }`}
+          >
             {children}
           </main>
         </div>

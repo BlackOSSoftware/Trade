@@ -131,15 +131,15 @@ export default function ProfilePage() {
   };
 
   type KycStatus = "VERIFIED" | "REJECTED" | "PENDING" | "NOT_STARTED" | string;
- function shouldShowKycButton(status?: string) {
-  return (
-    !status ||
-    status.toUpperCase() === "REJECTED" ||
-    status.toUpperCase() === "NOT_STARTED"
-  );
-}
+  function shouldShowKycButton(status?: string) {
+    return (
+      !status ||
+      status.toUpperCase() === "REJECTED" ||
+      status.toUpperCase() === "NOT_STARTED"
+    );
+  }
   function getKycBadge(status?: KycStatus) {
-   
+
     switch (status?.toUpperCase()) {
       case "VERIFIED":
         return {
@@ -218,34 +218,34 @@ export default function ProfilePage() {
               }
             />
             {(() => {
-  const kycBadge = getKycBadge(data.kycStatus);
-  const showKycButton = shouldShowKycButton(data.kycStatus);
+              const kycBadge = getKycBadge(data.kycStatus);
+              const showKycButton = shouldShowKycButton(data.kycStatus);
 
-  return (
-    <SettingRow
-      icon={Mail}
-      label="KYC"
-      value={data.kycStatus || "Not submitted"}
-      action={
-        showKycButton ? (
-          <button
-            onClick={() => router.push("/dashboard/kyc")}
-            className="inline-flex items-center gap-1 rounded-full bg-[var(--primary)] px-3 py-[3px] text-[10px] font-medium text-white shadow-sm transition hover:bg-[var(--primary-dark)]"
-          >
-            Complete KYC
-          </button>
-        ) : (
-          <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-[2px] text-[10px] font-medium ${kycBadge.wrapper}`}
-          >
-            <span className={`h-1.5 w-1.5 rounded-full ${kycBadge.dot}`} />
-            {kycBadge.text}
-          </span>
-        )
-      }
-    />
-  );
-})()}
+              return (
+                <SettingRow
+                  icon={Mail}
+                  label="KYC"
+                  value={data.kycStatus || "Not submitted"}
+                  action={
+                    showKycButton ? (
+                      <button
+                        onClick={() => router.push("/dashboard/kyc")}
+                        className="inline-flex items-center gap-1 rounded-full bg-[var(--primary)] px-3 py-[3px] text-[10px] font-medium text-white shadow-sm transition hover:bg-[var(--primary-dark)]"
+                      >
+                        Complete KYC
+                      </button>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-[2px] text-[10px] font-medium ${kycBadge.wrapper}`}
+                      >
+                        <span className={`h-1.5 w-1.5 rounded-full ${kycBadge.dot}`} />
+                        {kycBadge.text}
+                      </span>
+                    )
+                  }
+                />
+              );
+            })()}
 
 
             <SettingRow

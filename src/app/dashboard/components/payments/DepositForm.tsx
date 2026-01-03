@@ -16,7 +16,7 @@ export default function DepositForm() {
     const createDeposit = useCreateDeposit();
     const upload = useCloudinaryUpload();
 
-const [method, setMethod] = useState<DepositMethod>("UPI");
+    const [method, setMethod] = useState<DepositMethod>("UPI");
     const [accountId, setAccountId] = useState("");
     const [amount, setAmount] = useState<number>(0);
     const { data: paymentMethods = [] } = useActivePaymentMethods();
@@ -68,16 +68,16 @@ const [method, setMethod] = useState<DepositMethod>("UPI");
         setError("");
 
         try {
-            /* 1️⃣ Upload proof */
+            /* Upload proof */
             const proof = await upload.mutateAsync({
                 file: file as File,
                 folder: "deposits",
             });
 
-            /* 2️⃣ Fetch client IP */
+            /*  Fetch client IP */
             const ipAddress = await getClientIp();
 
-            /* 3️⃣ Create deposit */
+            /*  Create deposit */
             await createDeposit.mutateAsync({
                 account: selectedAccount!._id,
                 amount,
@@ -134,12 +134,12 @@ const [method, setMethod] = useState<DepositMethod>("UPI");
                         value={accountId}
                         onChange={(e) => setAccountId(e.target.value)}
                         className="w-full input-field px-4 py-3 rounded-xl
-    border border-[var(--border-soft)]
-    bg-[var(--bg-card)]
-    text-[var(--text-main)]
-    focus:ring-2 focus:ring-[var(--primary-glow)]
-    focus:border-[var(--primary)]
-    transition-all duration-200"
+                                   border border-[var(--border-soft)]
+                                   bg-[var(--bg-card)]
+                                   text-[var(--text-main)]
+                                   focus:ring-2 focus:ring-[var(--primary-glow)]
+                                   focus:border-[var(--primary)]
+                                   transition-all duration-200"
                     >
                         <option value="">Choose your account</option>
                         {accounts.map((acc) => (
@@ -157,10 +157,10 @@ const [method, setMethod] = useState<DepositMethod>("UPI");
                     <label className="text-sm font-medium text-[var(--text-main)] flex items-center gap-2">
                         Payment Method
                     </label>
-                   <select
-  value={method}
-  onChange={(e) => setMethod(e.target.value as DepositMethod)}
-  className="
+                    <select
+                        value={method}
+                        onChange={(e) => setMethod(e.target.value as DepositMethod)}
+                        className="
     w-full input-field px-4 py-3 rounded-xl
     border border-[var(--border-soft)]
     bg-[var(--bg-card)]
@@ -169,13 +169,13 @@ const [method, setMethod] = useState<DepositMethod>("UPI");
     focus:border-[var(--primary)]
     transition-all duration-200
   "
->
-  {paymentMethods.map((pm: any) => (
-    <option key={pm._id} value={pm.type}>
-      {pm.title}
-    </option>
-  ))}
-</select>
+                    >
+                        {paymentMethods.map((pm: any) => (
+                            <option key={pm._id} value={pm.type}>
+                                {pm.title}
+                            </option>
+                        ))}
+                    </select>
 
                 </div>
 
@@ -188,15 +188,25 @@ const [method, setMethod] = useState<DepositMethod>("UPI");
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
                             $
                         </div>
-                        <input
-                            type="number"
-                            min="10"
-                            step="1"
-                            placeholder="1000"
-                            className="w-full input-field pl-10 pr-4 py-3 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-glass)] focus:ring-2 focus:ring-[var(--primary-glow)] focus:border-[var(--primary)] transition-all duration-200 text-[var(--text-main)] text-lg font-medium"
-                            value={amount || ""}
-                            onChange={(e) => setAmount(Number(e.target.value))}
-                        />
+                       <input
+  type="text"
+  inputMode="numeric"
+  pattern="[0-9]*"
+  min={10}
+  placeholder="1000"
+  className="w-full input-field pl-10 pr-4 py-3 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-glass)] focus:ring-2 focus:ring-[var(--primary-glow)] focus:border-[var(--primary)] transition-all duration-200 text-[var(--text-main)] text-lg font-medium"
+  value={amount || ""}
+  onChange={(e) => {
+    const onlyDigits = e.target.value.replace(/[^0-9]/g, "");
+    setAmount(onlyDigits ? Number(onlyDigits) : 0);
+  }}
+  onKeyDown={(e) => {
+    if (["e", "E", "+", "-", ".", ","].includes(e.key)) {
+      e.preventDefault();
+    }
+  }}
+/>
+
                     </div>
                 </div>
 
