@@ -6,7 +6,6 @@ import {
   BarChart3,
   TrendingUp,
   History,
-  MessageSquare,
   Settings,
 } from "lucide-react";
 
@@ -15,40 +14,14 @@ export default function TradeBottomNav() {
   const pathname = usePathname();
   const { accountId } = useParams<{ accountId: string }>();
 
-  // 🔑 base path for this account
   const base = `/dashboard/trade/${accountId}`;
 
   const NAV_ITEMS = [
-    {
-      key: "quotes",
-      label: "Quotes",
-      icon: ArrowUpDown,
-      path: `${base}/quotes`,
-    },
-    {
-      key: "charts",
-      label: "Charts",
-      icon: BarChart3,
-      path: `${base}/charts`,
-    },
-    {
-      key: "trade",
-      label: "Trade",
-      icon: TrendingUp,
-      path: `${base}/trade`,
-    },
-    {
-      key: "history",
-      label: "History",
-      icon: History,
-      path: `${base}/history`,
-    },
-    {
-      key: "Settings",
-      label: "Settings",
-      icon: Settings,
-      path: `${base}/settings`,
-    },
+    { key: "quotes", label: "Quotes", icon: ArrowUpDown, path: `${base}/quotes` },
+    { key: "charts", label: "Charts", icon: BarChart3, path: `${base}/charts` },
+    { key: "trade", label: "Trade", icon: TrendingUp, path: `${base}/trade` },
+    { key: "history", label: "History", icon: History, path: `${base}/history` },
+    { key: "settings", label: "Settings", icon: Settings, path: `${base}/settings` },
   ];
 
   return (
@@ -57,15 +30,14 @@ export default function TradeBottomNav() {
         fixed bottom-0 left-0 right-0 z-50
         flex items-center justify-around
         border-t border-[var(--border-soft)]
-        bg-white dark:bg-black
+        bg-[var(--bg-card)]
         px-2 py-2
         md:hidden
       "
     >
       {NAV_ITEMS.map((item) => {
         const active =
-          pathname === item.path ||
-          ( pathname === base);
+          pathname === item.path || pathname === base;
 
         const Icon = item.icon;
 
@@ -78,7 +50,9 @@ export default function TradeBottomNav() {
             <Icon
               size={20}
               className={
-                active ? "text-[var(--primary)]" : "text-[var(--text-muted)]"
+                active
+                  ? "text-[var(--primary)]"
+                  : "text-[var(--text-muted)]"
               }
             />
             <span

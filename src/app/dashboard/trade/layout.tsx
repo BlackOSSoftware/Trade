@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 import TradeBottomNav from "./components/TradeBottomNav";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
+import ThemeToggle from "@/app/components/ThemeToggle";
 
 export default function TradeLayout({
   children,
@@ -25,6 +26,7 @@ export default function TradeLayout({
                 Trading Panel
               </span>
             </div>
+            <ThemeToggle />
 
             {/* RIGHT ACTIONS */}
             <div className="flex items-center gap-3">
