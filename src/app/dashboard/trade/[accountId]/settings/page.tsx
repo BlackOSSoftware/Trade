@@ -34,7 +34,7 @@ export default function TradePage() {
     relative
     mx-3 mt-3
     rounded-xl
-    bg-red-600
+    bg-[var(--bg-glass)]
     px-4 py-4
     cursor-pointer
   "
