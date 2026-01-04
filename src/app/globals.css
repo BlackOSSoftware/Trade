@@ -6,6 +6,7 @@
 :root {
   /* Page background (not pure white) */
   --bg-main: #f2f7fb; /* soft cool gray */
+  --bg-plan: #ffffff;
 
   /* Cards */
   --bg-card: #ffffff;
@@ -31,6 +32,11 @@
   --success: #16a34a;
   --error: #dc2626;
   --warning: #d97706;
+
+  --mt-blue: #4aa3ff;
+  --mt-red: #ff4d4d;
+  --mt-grey: #9ca3af;
+  --mt-dim: #6b7280;
 }
 
 /* ----------------------------------
@@ -39,6 +45,7 @@
 .dark {
   /* Backgrounds */
   --bg-main: #0b0f1a;
+  --bg-plan: #000000;
 
   /* Card must stay solid */
   --bg-card: #111827;
@@ -50,6 +57,7 @@
   --primary: #4f8cff;
   --primary-hover: #3b7bff;
   --primary-glow: rgba(122, 162, 255, 0.45);
+
 
   /* Text */
   --text-main: #e5e7eb;
@@ -66,7 +74,7 @@
 ---------------------------------- */
 html,
 body {
-  background-color: var(--bg-main);
+  background-color: #000000;
   color: var(--text-main);
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100%;
@@ -184,4 +192,29 @@ body {
 .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 220ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 180ms ease-out forwards;
 }

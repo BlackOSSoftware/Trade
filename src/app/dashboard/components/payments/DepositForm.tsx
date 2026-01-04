@@ -188,24 +188,24 @@ export default function DepositForm() {
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
                             $
                         </div>
-                       <input
-  type="text"
-  inputMode="numeric"
-  pattern="[0-9]*"
-  min={10}
-  placeholder="1000"
-  className="w-full input-field pl-10 pr-4 py-3 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-glass)] focus:ring-2 focus:ring-[var(--primary-glow)] focus:border-[var(--primary)] transition-all duration-200 text-[var(--text-main)] text-lg font-medium"
-  value={amount || ""}
-  onChange={(e) => {
-    const onlyDigits = e.target.value.replace(/[^0-9]/g, "");
-    setAmount(onlyDigits ? Number(onlyDigits) : 0);
-  }}
-  onKeyDown={(e) => {
-    if (["e", "E", "+", "-", ".", ","].includes(e.key)) {
-      e.preventDefault();
-    }
-  }}
-/>
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            min={10}
+                            placeholder="1000"
+                            className="w-full input-field pl-10 pr-4 py-3 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-glass)] focus:ring-2 focus:ring-[var(--primary-glow)] focus:border-[var(--primary)] transition-all duration-200 text-[var(--text-main)] text-lg font-medium"
+                            value={amount || ""}
+                            onChange={(e) => {
+                                const onlyDigits = e.target.value.replace(/[^0-9]/g, "");
+                                setAmount(onlyDigits ? Number(onlyDigits) : 0);
+                            }}
+                            onKeyDown={(e) => {
+                                if (["e", "E", "+", "-", ".", ","].includes(e.key)) {
+                                    e.preventDefault();
+                                }
+                            }}
+                        />
 
                     </div>
                 </div>

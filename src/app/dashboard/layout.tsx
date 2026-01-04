@@ -51,10 +51,19 @@ export default function DashboardLayout({
 
   /* ================= LAYOUT ================= */
   return (
-    <div className="relative h-screen overflow-hidden bg-[var(--bg-main)] text-[var(--text-main)]">
+  <div
+  className={`relative min-h-screen overflow-hidden text-[var(--text-main)] ${
+    isTradePage ? "bg-[var(--bg-plan)]" : "bg-[var(--bg-main)]"
+  }`}
+>
+
       {/* Background blobs */}
-      <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[var(--primary)] opacity-20 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500 opacity-20 blur-3xl" />
+     {!isTradePage && (
+  <>
+    <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[var(--primary)] opacity-20 blur-3xl" />
+    <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500 opacity-20 blur-3xl" />
+  </>
+)}
 
       <div className="flex h-full">
         {/* SIDEBAR — ALWAYS MOUNTED */}

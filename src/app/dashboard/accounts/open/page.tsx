@@ -40,7 +40,6 @@ export default function OpenAccountPage() {
       }, 1200);
     } catch (err: any) {
       setConfirmOpen(false);
-
       if (err?.response?.status === 400) {
         setErrorMsg("You have reached the account creation limit.");
       } else {

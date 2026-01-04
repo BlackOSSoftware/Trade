@@ -16,19 +16,16 @@ export default function TradeLayout({
 
   return (
     <>
-      <div className="min-h-screen flex flex-col bg-[var(--background)]">
+      <div className="min-h-screen flex flex-col">
         {/* TOP BAR */}
-        <header className="h-16 border-b border-[var(--border-soft)] bg-[var(--bg-glass)] flex items-center px-6">
+        {/* <header className="h-16 border-b border-[var(--border-soft)] bg-[var(--bg-glass)] flex items-center px-6">
           <div className="flex items-center justify-between w-full">
-            {/* LEFT */}
             <div className="flex items-center gap-3">
               <span className="text-lg font-semibold">
                 Trading Panel
               </span>
             </div>
-            <ThemeToggle />
 
-            {/* RIGHT ACTIONS */}
             <div className="flex items-center gap-3">
               <button className="btn btn-ghost text-sm">
                 Deposit
@@ -37,7 +34,6 @@ export default function TradeLayout({
                 Withdraw
               </button>
 
-              {/* EXIT BUTTON */}
               <button
                 onClick={() => setShowExitConfirm(true)}
                 className="btn btn-ghost text-sm text-red-500"
@@ -46,10 +42,17 @@ export default function TradeLayout({
               </button>
             </div>
           </div>
-        </header>
+        </header> */}
 
         {/* MAIN CONTENT */}
-        <main className="flex-1 overflow-hidden">
+        <main
+          className="
+    flex-1
+    overflow-y-auto
+    pb-[64px]
+    md:pb-0
+  "
+        >
           {children}
         </main>
 
@@ -67,7 +70,7 @@ export default function TradeLayout({
             setShowExitConfirm(false);
             router.push("/dashboard");
           }}
-        />
+        />  
       )}
     </>
   );
