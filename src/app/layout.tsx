@@ -4,7 +4,13 @@ import "./globals.css";
 import { AppProviders } from "./providers";
 import FcmRegister from "./components/FcmRegister";
 import InitNotifications from "./components/InitNotifications";
+import { Roboto } from "next/font/google";
 
+const mtFont = Roboto({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+});
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,7 +35,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      <head className={mtFont.className}>
         {/* 🔥 THEME INIT SCRIPT (RUNS BEFORE REACT) */}
         <script
           dangerouslySetInnerHTML={{
@@ -48,7 +54,7 @@ export default function RootLayout({
       </head>
 
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased mt-font`}
       >
         <AppProviders>
           <FcmRegister />

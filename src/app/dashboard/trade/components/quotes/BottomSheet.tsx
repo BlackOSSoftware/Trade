@@ -34,7 +34,7 @@ export default function BottomSheet({
       />
 
       {/* Sheet */}
-      <div className="relative z-10 w-full bg-[var(--mt-dim)] shadow-xl animate-slideUp">
+      <div className="relative z-10 w-full bg-[var(--bg-plan)] shadow-xl animate-slideUp">
         {/* drag handle */}
         <div className="flex justify-center pt-2">
           <div className="h-1 w-10 rounded-full bg-[var(--border-soft)]" />

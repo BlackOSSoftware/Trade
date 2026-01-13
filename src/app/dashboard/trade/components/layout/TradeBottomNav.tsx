@@ -48,24 +48,32 @@ export default function TradeBottomNav() {
             onClick={() => router.push(item.path)}
             className="flex flex-col items-center gap-1 w-full"
           >
-            <Icon
-              size={20}
-              className={
-                active
-                  ? "text-[var(--primary)]"
-                  : "text-[var(--text-muted)]"
-              }
-            />
+            {/* ICON WRAPPER */}
+            <div
+              className={`p-2 rounded-2xl transition-colors ${active ? "bg-[var(--primary)]/20" : "bg-transparent"
+                }`}
+            >
+              <Icon
+                size={20}
+                className={
+                  active
+                    ? "text-[var(--primary)]"
+                    : "text-[var(--text-muted)]"
+                }
+              />
+            </div>
+
+            {/* LABEL */}
             <span
-              className={`text-[11px] ${
-                active
+              className={`text-[11px] ${active
                   ? "text-[var(--primary)] font-medium"
                   : "text-[var(--text-muted)]"
-              }`}
+                }`}
             >
               {item.label}
             </span>
           </button>
+
         );
       })}
     </nav>
