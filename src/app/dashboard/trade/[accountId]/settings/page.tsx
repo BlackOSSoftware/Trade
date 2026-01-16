@@ -13,6 +13,7 @@ import GlobalLoader from "@/app/components/ui/GlobalLoader";
 import TopBarSlot from "../../components/layout/TopBarSlot";
 import TradeTopBar from "../../components/layout/TradeTopBar";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
+import { Toast } from "@/app/components/ui/Toast";
 
 export default function TradePage() {
   const { accountId } = useParams<{ accountId: string }>();
@@ -20,6 +21,7 @@ export default function TradePage() {
 
   const [openSwitcher, setOpenSwitcher] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const { data, isLoading } = useAccountById(accountId, true);
   const { data: accounts } = useMyAccounts();
@@ -39,7 +41,7 @@ export default function TradePage() {
 
   return (
     <>
-      {/* 🔝 TOP BAR */}
+      {/* TOP BAR */}
       <TopBarSlot>
         <TradeTopBar
           title="Settings"
@@ -55,17 +57,17 @@ export default function TradePage() {
         />
       </TopBarSlot>
 
-      {/* ===== ACCOUNT HEADER ===== */}
+      {/* ACCOUNT HEADER */}
       <div
         onClick={() => setOpenSwitcher(true)}
         className="relative mx-3 mt-3 rounded-xl bg-[var(--bg-glass)] px-4 py-4 cursor-pointer"
       >
         <div className="flex flex-col items-center text-center gap-0.5 py-1">
-          <div className="text-lg font-semibold text-[var(--text-inverted)]">
+          <div className="text-lg font-semibold">
             {userData?.name}
           </div>
 
-          <div className="text-sm text-[var(--text-main)] py-1">
+          <div className="text-sm py-1">
             ALS Trade –{" "}
             <span
               className={
@@ -78,16 +80,16 @@ export default function TradePage() {
             </span>
           </div>
 
-          <div className="text-sm text-[var(--text-main)] py-1">
+          <div className="text-sm py-1">
             Ac. No : {data.account_number.replace("AC", "")}
           </div>
 
-          <div className="text-sm text-[var(--text-main)] py-1">
+          <div className="text-sm py-1">
             Balance : {data.balance.toFixed(2)} {data.currency}
           </div>
         </div>
 
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-main)]">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2">
           <ChevronRight size={22} />
         </div>
       </div>
@@ -98,6 +100,10 @@ export default function TradePage() {
           accounts={accounts}
           currentAccountId={accountId}
           onClose={() => setOpenSwitcher(false)}
+          onSwitched={(accNo) => {
+            setToastMessage(`Successfully switched to account ${accNo}`);
+            setTimeout(() => setToastMessage(null), 2500);
+          }}
         />
       )}
 
@@ -113,6 +119,9 @@ export default function TradePage() {
           }}
         />
       )}
+
+      {/* TOAST */}
+      {toastMessage && <Toast message={toastMessage} />}
     </>
   );
 }

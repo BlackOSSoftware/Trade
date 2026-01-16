@@ -19,6 +19,7 @@
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "react-redux": "^9.2.0",
+    "react-window": "^2.2.5",
     "toast": "^0.5.4",
     "web-push": "^3.6.7"
   },

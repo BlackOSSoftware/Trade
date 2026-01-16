@@ -43,7 +43,7 @@ export default function TradeTopBar({
           </span>
 
           {hasSubtitle && (
-            <span className="text-[11px] text-[var(--mt-red)] font-semibold">
+            <span className="text-[11px]  font-medium">
               {subtitle}
             </span>
           )}
