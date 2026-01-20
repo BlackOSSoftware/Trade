@@ -30,7 +30,7 @@ export default function EditSymbols({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[var(--bg-main)] h-full">
+    <div className="fixed inset-0 z-50 bg-[var(--bg-plan)] md:bg-[var(--bg-main)] pl-0 md:pl-14 w-auto md:w-99 h-full">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-soft)]">
         <div className="flex items-center">
           <button

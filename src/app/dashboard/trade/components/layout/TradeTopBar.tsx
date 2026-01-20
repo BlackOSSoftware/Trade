@@ -10,6 +10,8 @@ type TopBarProps = {
   right?: ReactNode;
   onMenuClick?: () => void;
 };
+import { useTradeSidebar } from "./TradeSidebarContext";
+
 
 export default function TradeTopBar({
   title,
@@ -19,15 +21,16 @@ export default function TradeTopBar({
   onMenuClick,
 }: TopBarProps) {
   const hasSubtitle = Boolean(subtitle);
-
+  
+  const { open } = useTradeSidebar();
   return (
     <header className="fixed top-0 w-full z-50 h-14 flex items-center justify-between px-1 bg-[var(--bg-plan)]">
       {/* LEFT */}
       <div className="flex items-center gap-3">
         {showMenu && (
-          <button onClick={onMenuClick}>
-            <Menu size={22} />
-          </button>
+         <button onClick={open}>
+  <Menu size={22} />
+</button>
         )}
 
         {/* TITLE + SUBTITLE */}

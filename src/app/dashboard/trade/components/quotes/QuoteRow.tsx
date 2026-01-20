@@ -1,70 +1,144 @@
+type PriceDirection = "up" | "down" | "same";
+
 type Props = {
-  data: {
+  live: {
     symbol: string;
-    change: string;
-    percent: string;
     bid: string;
-    bidSup: string;
     ask: string;
-    askSup: string;
-    low: string;
-    high: string;
-    time: string;
-    bars: string;
+    bidVolume: string;
+    askVolume: string;
+    bidDir: PriceDirection;
+    askDir: PriceDirection;
+    high?: number;
+    low?: number;
   };
 };
 
-export default function QuoteRow({ data }: Props) {
+type SplitPrice = {
+  int: string;
+  big: string;
+  small?: string;
+};
+
+function splitPrice(price: string): SplitPrice {
+  const [intPart, decimalPart = ""] = price.split(".");
+
+  if (decimalPart.length <= 2) {
+    return {
+      int: intPart,
+      big: decimalPart.padEnd(2, "0"),
+    };
+  }
+
+  return {
+    int: intPart,
+    big: decimalPart.slice(0, 2),
+    small: decimalPart.slice(2, 3),
+  };
+}
+
+function decimalDiff(bid: string, ask: string): string {
+  const bidDec = bid.split(".")[1] ?? "0";
+  const askDec = ask.split(".")[1] ?? "0";
+
+  const diff = Math.abs(Number(bidDec) - Number(askDec));
+  return diff.toString().padStart(3,);
+}
+
+export default function QuoteRow({ live }: Props) {
+  const bid = splitPrice(live.bid);
+  const ask = splitPrice(live.ask);
+  const diff = decimalDiff(live.bid, live.ask);
+
+  const bidColor =
+    live.bidDir === "up"
+      ? "text-blue-600"
+      : live.bidDir === "down"
+      ? "text-red-600"
+      : "text-[var(--text-main)]";
+
+  const askColor =
+    live.askDir === "up"
+      ? "text-blue-600"
+      : live.askDir === "down"
+      ? "text-red-600"
+      : "text-[var(--text-main)]";
+
   return (
-    <div className="px-4 py-3 flex justify-between items-start border-b border-black">
-      
-      {/* LEFT SIDE */}
-      <div className="space-y-[2px]">
-        {/* Change */}
-        <div className="text-xs text-[var(--mt-red)]">
-          {data.change} {data.percent}
+    <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-soft)]">
+      {/* LEFT */}
+      <div className="flex flex-col gap-[2px] min-w-[120px]">
+        <div className="font-semibold text-[15px]">
+          {live.symbol}
         </div>
 
-        {/* Symbol */}
-        <div className="text-base font-semibold tracking-wide">
-          {data.symbol}
-        </div>
-
-        {/* Time + bars */}
-        <div className="text-xs text-[var(--mt-dim)] flex items-center gap-2">
-          <span>{data.time}</span>
-          <span>┤</span>
-          <span>{data.bars}</span>
+        <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
+          <HGapSeparatorIcon />
+          {diff}
         </div>
       </div>
 
-      {/* RIGHT SIDE */}
-      <div className="text-right space-y-[2px]">
-        {/* Prices */}
-        <div className="flex gap-6 justify-end mt-3">
-          
-          {/* BID */}
-          <div className="text-[18px] font-semibold text-[var(--mt-blue)] leading-none">
-            {data.bid}
-            <sup className="text-xs ml-[1px] align-super">
-              {data.bidSup}
-            </sup>
+      {/* RIGHT */}
+      <div className="flex gap-6">
+        {/* BID */}
+        <div className="text-right">
+          <div className={`font-semibold text-[18px] ${bidColor}`}>
+            {bid.int}.
+            <span className="text-[22px]">{bid.big}</span>
+            {bid.small && (
+              <sup className="text-[11px] relative top-[-13px]">
+                {bid.small}
+              </sup>
+            )}
           </div>
 
-          {/* ASK */}
-          <div className="text-[18px] font-semibold text-[var(--mt-red)] leading-none">
-            {data.ask}
-            <sup className="text-xs ml-[1px] align-super">
-              {data.askSup}
-            </sup>
+          <div className="text-xs text-[var(--text-muted)]">
+            L: {live.low ?? "--"}
           </div>
         </div>
 
-        {/* Low / High */}
-        <div className="text-xs text-[var(--mt-grey)] ">
-          L: {data.low} &nbsp; H: {data.high}
+        {/* ASK */}
+        <div className="text-right">
+          <div className={`font-semibold text-[18px] ${askColor}`}>
+            {ask.int}.
+            <span className="text-[22px]">{ask.big}</span>
+            {ask.small && (
+              <sup className="text-[11px] relative top-[-13px]">
+                {ask.small}
+              </sup>
+            )}
+          </div>
+
+          <div className="text-xs text-[var(--text-muted)]">
+            H: {live.high ?? "--"}
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
+const HGapSeparatorIcon = () => (
+  <svg
+    width="17"
+    height="17"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M6 5 V8 H18 V5"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M6 19 V16 H18 V19"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

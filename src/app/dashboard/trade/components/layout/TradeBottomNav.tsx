@@ -27,7 +27,7 @@ export default function TradeBottomNav() {
   return (
     <nav
       className="
-        fixed bottom-0 left-0 right-0 z-50
+        fixed bottom-0 left-0 right-0 z-30
     h-[64px]
     pb-[env(safe-area-inset-bottom)]
     flex items-center justify-around

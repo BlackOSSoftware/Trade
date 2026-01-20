@@ -11,7 +11,7 @@ export default function TradePage() {
   const router = useRouter();
 
   // 👇 mobile detect
-  const isMobile = useMediaQuery("(max-width: 767px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const { data, isLoading } = useAccountById(accountId, true);
 
