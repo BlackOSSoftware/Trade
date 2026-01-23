@@ -25,25 +25,33 @@ export default function DepositPage() {
           ))}
         </div>
       )}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  
+  {/* LEFT SIDE — FORM */}
+  <div className="w-full mt-4">
+    <DepositForm />
+  </div>
 
-      <DepositForm />
+  {/* RIGHT SIDE — TIPS */}
+  <div className="w-full space-y-3 mt-4">
+    <TipBanner
+      title="Processing Time"
+      message="INR deposits may take up to 6 hours. USD and Crypto deposits are usually credited within 1 hour."
+    />
 
-      <div className="space-y-3 mb-6">
-        <TipBanner
-          title="Processing Time"
-          message="INR deposits may take up to 6 hours. USD and Crypto deposits are usually credited within 1 hour."
-        />
-      
-        <TipBanner
-          title="First Deposit Rule"
-          message="Your first deposit must meet the minimum deposit requirement of your selected account plan."
-        />
-      
-        <TipBanner
-          title="Payment Proof"
-          message="Upload a clear screenshot showing amount, date, time, and transaction ID. Incorrect proofs may lead to rejection."
-        />
-      </div>
+    <TipBanner
+      title="First Deposit Rule"
+      message="Your first deposit must meet the minimum deposit requirement of your selected account plan."
+    />
+
+    <TipBanner
+      title="Payment Proof"
+      message="Upload a clear screenshot showing amount, date, time, and transaction ID. Incorrect proofs may lead to rejection."
+    />
+  </div>
+
+</div>
+
       {/* 👇 ALWAYS BOTTOM, NEVER OVERLAP */}
       <MobileBottomBar />
     </div>

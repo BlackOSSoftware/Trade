@@ -41,7 +41,7 @@ export default function AccountDetails({ data }: { data: any }) {
       </div>
 
       {/* ================= MAIN GRID ================= */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-col-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-col-3 gap-4 text-sm">
         <InfoCard
           icon={<DollarSign />}
           label="Balance"
@@ -109,17 +109,20 @@ function InfoCard({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-[var(--border-soft)] bg-white/60 dark:bg-black/20 p-4 backdrop-blur">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--bg-glass)] text-[var(--primary)]">
+    <div className="rounded-xl border border-[var(--border-soft)] bg-white/60 dark:bg-black/20 p-3 sm:p-4 backdrop-blur min-w-0">
+      <div className="flex items-start gap-3">
+        {/* ICON */}
+        <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--bg-glass)] text-[var(--primary)]">
           {icon}
         </div>
 
-        <div>
-          <div className="text-xs text-[var(--text-muted)]">
+        {/* TEXT */}
+        <div className="flex flex-col min-w-0">
+          <div className="text-[11px] sm:text-xs text-[var(--text-muted)] leading-tight break-words">
             {label}
           </div>
-          <div className="mt-0.5 text-sm font-semibold">
+
+          <div className="mt-0.5 text-[13px] sm:text-sm font-semibold leading-tight break-words">
             {value}
           </div>
         </div>
@@ -127,3 +130,4 @@ function InfoCard({
     </div>
   );
 }
+

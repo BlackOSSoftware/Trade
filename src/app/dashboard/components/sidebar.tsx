@@ -1,5 +1,6 @@
 "use client";
 
+import { useMyAccounts } from "@/hooks/useMyAccounts";
 import {
   LayoutDashboard,
   Wallet,
@@ -12,6 +13,9 @@ import {
   ChevronLeft,
   ChevronDown,
   CreditCard,
+  ArrowDownCircle,
+  ArrowUpCircle,
+  Receipt,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -23,14 +27,14 @@ const items = [
 ];
 
 const paymentItems = [
-  { label: "Deposit", href: "/dashboard/payments/deposit" },
-  { label: "Withdrawal", href: "/dashboard/payments/withdraw" },
-  { label: "Internal Transfer", href: "/dashboard/payments/internal-fund-transfer" },
-  { label: "Transactions", href: "/dashboard/payments/transactions" },
+  { label: "Deposit", href: "/dashboard/payments/deposit", icon: ArrowDownCircle },
+  { label: "Withdrawal", href: "/dashboard/payments/withdraw", icon: ArrowUpCircle },
+  { label: "Internal Transfer", href: "/dashboard/payments/internal-fund-transfer", icon: ArrowLeftRight },
+  { label: "Transactions", href: "/dashboard/payments/transactions", icon: Receipt },
 ];
 
 const bottomItems = [
-  { label: "Platform", icon: Layers, href: "/dashboard/platform" },
+  { label: "Trading Platform", icon: Layers, href: "/dashboard/platform"  },
   { label: "Task Center", icon: Gift, href: "/dashboard/tasks" },
   { label: "Support", icon: Headphones, href: "/dashboard/support" },
 ];
@@ -48,6 +52,8 @@ export default function Sidebar({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { data: accounts } = useMyAccounts();
+
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   const isPaymentActive = pathname.startsWith("/dashboard/payments");
@@ -55,6 +61,22 @@ export default function Sidebar({
   useEffect(() => {
     if (!isPaymentActive) setPaymentOpen(false);
   }, [pathname]);
+
+  // Function to get first live account, fallback to first demo account
+  const getFirstTradingAccount = () => {
+    if (!accounts || accounts.length === 0) return null;
+    
+    // First priority: first LIVE account
+    const firstLive = accounts.find((acc: any) => acc.account_type === "live");
+    if (firstLive) return firstLive._id;
+    
+    // Fallback: first DEMO account
+    const firstDemo = accounts.find((acc: any) => acc.account_type === "demo");
+    if (firstDemo) return firstDemo._id;
+    
+    // Last resort: first account of any type
+    return accounts[0]._id;
+  };
 
   const NavButton = ({
     label,
@@ -67,10 +89,9 @@ export default function Sidebar({
         onClick={onClick}
         className={`
           flex items-center gap-3 w-full rounded-xl px-3 py-2.5
-          ${
-            active
-              ? "bg-[var(--bg-glass)] text-[var(--primary)]"
-              : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)]"
+          ${active
+            ? "bg-[var(--bg-glass)] text-[var(--primary)]"
+            : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)]"
           }
         `}
       >
@@ -155,10 +176,9 @@ export default function Sidebar({
               onClick={() => !collapsed && setPaymentOpen((v) => !v)}
               className={`
                 flex items-center justify-between w-full rounded-xl px-3 py-2.5
-                ${
-                  isPaymentActive
-                    ? "bg-[var(--bg-glass)] text-[var(--primary)]"
-                    : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)]"
+                ${isPaymentActive
+                  ? "bg-[var(--bg-glass)] text-[var(--primary)]"
+                  : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)]"
                 }
               `}
             >
@@ -172,9 +192,8 @@ export default function Sidebar({
               {!collapsed && (
                 <ChevronDown
                   size={16}
-                  className={`transition ${
-                    paymentOpen ? "rotate-180" : ""
-                  }`}
+                  className={`transition ${paymentOpen ? "rotate-180" : ""
+                    }`}
                 />
               )}
             </button>
@@ -183,45 +202,81 @@ export default function Sidebar({
             {paymentOpen && (
               <div
                 className={`
-                  absolute ${collapsed ? "left-12  top-0 ml-3" : "relative ml-11 mt-1"}
-                  z-50 rounded-lg bg-[var(--bg-card)] border border-[var(--border-glass)]
-                  space-y-1 p-1 min-w-[180px]
-                `}
+      ${collapsed
+                  ? "absolute left-13 top-0 ml-2"
+                  : "relative ml-11 mt-1"
+                  }
+      overflow-hidden
+      rounded-xl
+      shadow-lg
+      transition-all duration-300
+      animate-dropdown
+      min-w-[200px]
+    `}
               >
-                {paymentItems.map((sub) => (
-                  <button
-                    key={sub.label}
-                    onClick={() => {
-                      router.push(sub.href);
-                      onClose?.();
-                    }}
-                    className={`
-                      w-full text-left rounded-md px-3 py-2 text-sm
-                      ${
-                        pathname === sub.href
+                <div className="flex flex-col py-1">
+                  {paymentItems.map((sub) => {
+                    const Icon = sub.icon;
+                    const active = pathname === sub.href;
+
+                    return (
+                      <button
+                        key={sub.label}
+                        onClick={() => {
+                          router.push(sub.href);
+                          onClose?.();
+                        }}
+                        className={`
+              flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg mx-2 transition
+              ${active
                           ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                          : "hover:bg-[var(--bg-glass)]"
-                      }
-                    `}
-                  >
-                    {sub.label}
-                  </button>
-                ))}
+                          : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)]"
+                          }
+        `}
+                      >
+                        <Icon size={16} className={active ? "text-[var(--primary)]" : ""} />
+                        <span>{sub.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
 
-          {bottomItems.map((item) => (
-            <NavButton
-              key={item.label}
-              {...item}
-              active={pathname.startsWith(item.href)}
-              onClick={() => {
-                router.push(item.href);
-                onClose?.();
-              }}
-            />
-          ))}
+          {bottomItems.map((item) => {
+            // Special handling for Trading Platform
+            if (item.label === "Trading Platform") {
+              return (
+                <NavButton
+                  key={item.label}
+                  {...item}
+                  active={pathname.startsWith("/dashboard/trade")}
+                  onClick={() => {
+                    const accountId = getFirstTradingAccount();
+                    if (accountId) {
+                      router.push(`/dashboard/trade/${accountId}`);
+                    } else {
+                      router.push(item.href);
+                    }
+                    onClose?.();
+                  }}
+                />
+              );
+            }
+
+            return (
+              <NavButton
+                key={item.label}
+                {...item}
+                active={pathname.startsWith(item.href)}
+                onClick={() => {
+                  router.push(item.href);
+                  onClose?.();
+                }}
+              />
+            );
+          })}
         </nav>
       </aside>
     </>

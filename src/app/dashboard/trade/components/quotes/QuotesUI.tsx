@@ -68,7 +68,7 @@ export default function QuotesUI({ showTopBar = false }: Props) {
       <BottomSheet
         open={sheet === "actions"}
         onClose={() => setSheet(null)}
-        title={selected ? `${selected} · Euro vs US Dollar` : ""}
+        title={selected ? `${selected} ` : ""}
       />
 
       <EditSymbols open={sheet === "edit"} onClose={() => setSheet(null)} />

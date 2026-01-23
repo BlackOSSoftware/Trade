@@ -15,6 +15,7 @@ import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
 import { KycDocumentType, KycImage } from "@/types/kyc";
 import { Toast } from "@/app/components/ui/Toast";
 import KycFaq from "../components/kyc/KycFaq";
+import Select from "@/app/components/ui/Select";
 
 export default function KycPage() {
   const { data: myKyc } = useMyKyc();
@@ -249,25 +250,20 @@ function UploadState(props: {
         </div>
       )}
 
-      <div className="space-y-2">
-        <label className="text-xs font-medium">Document type</label>
-        <select
-          value={documentType}
-          onChange={(e) =>
-            setDocumentType(e.target.value as KycDocumentType)
-          }
-          className="
-            w-full rounded-2xl border border-[var(--border-soft)]
-            bg-[var(--bg-card)] px-4 py-2.5 text-xs
-            outline-none ring-[var(--primary)]/30 transition
-            focus:border-[var(--primary)] focus:ring-2
-          "
-        >
-          <option value="PASSPORT">Passport</option>
-          <option value="NIC">National ID</option>
-          <option value="DRIVING_LICENSE">Driving license</option>
-        </select>
-      </div>
+     <div className="space-y-2">
+  <Select
+    label="Document type"
+    value={documentType}
+    onChange={(val) => setDocumentType(val as KycDocumentType)}
+    options={[
+      // { label: "Select document type", value: "" },
+      { label: "Passport", value: "PASSPORT" },
+      { label: "National ID", value: "NIC" },
+      { label: "Driving License", value: "DRIVING_LICENSE" },
+    ]}
+  />
+</div>
+
 
       {/* Upload mode: local File → object URL preview */}
       <UploadRow

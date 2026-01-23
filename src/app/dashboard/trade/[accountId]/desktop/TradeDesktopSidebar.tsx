@@ -2,37 +2,74 @@
 
 import {
   BarChart3,
-  List,
   Copy,
   Settings,
   Users,
   Bookmark,
 } from "lucide-react";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useTradeDesktop } from "./TradeDesktopContext";
 
 export default function TradeDesktopSidebar() {
+  const router = useRouter();
+    const { accountId } = useParams<{ accountId: string }>();
+  
+    const base = `/dashboard/trade/${accountId}`;
   const { toggleQuotes } = useTradeDesktop();
+  const pathname = usePathname();
 
   return (
     <aside
-      className="hidden md:flex fixed left-0 top-0 z-40 h-full w-[56px]
-      bg-[var(--bg-main)] border-r border-white/10 flex-col items-center py-3 gap-4"
+      className="hidden md:flex fixed left-0 top-0 z-40 h-full w-[68px]
+      flex-col items-center py-4 gap-5"
+      style={{
+        background: "var(--bg-card)",
+        borderRight: "1px solid var(--border-soft)",
+        boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+      }}
     >
       {/* LOGO */}
-      <div className="w-8 h-8 mb-2">
-        <img src="/logo/logo.png" className="w-full h-full object-contain" />
+      <div
+        className="w-10 h-10 mb-6 flex items-center justify-center rounded-xl"
+        style={{
+          background: "var(--bg-glass)",
+          border: "1px solid var(--border-soft)",
+        }}
+      >
+        <img
+          src="/logo/logo.png"
+          className="w-6 h-6 object-contain"
+        />
       </div>
 
-      <IconBtn icon={BarChart3} />
-      <IconBtn icon={Bookmark} onClick={toggleQuotes} active />
-      <IconBtn icon={Copy} />
-      <IconBtn icon={Users} />
-      <IconBtn icon={Settings} />
+      <NavIcon
+        icon={BarChart3}
+        active={pathname?.includes("/trade")}
+      />
+
+      <NavIcon
+        icon={Bookmark}
+        onClick={toggleQuotes}
+        active={pathname?.includes("/quotes")}
+      />
+
+      <NavIcon icon={Copy} />
+      <NavIcon icon={Users} />
+      <NavIcon
+        icon={Settings}
+        active={pathname?.includes("/settings")}
+        onClick={() => router.push(`${base}/settings`)}
+      />
+
+
+      <div className="flex-1" />
     </aside>
   );
 }
 
-function IconBtn({
+/* ---------------- NAV ICON ---------------- */
+
+function NavIcon({
   icon: Icon,
   onClick,
   active,
@@ -44,10 +81,39 @@ function IconBtn({
   return (
     <button
       onClick={onClick}
-      className={`w-10 h-10 flex items-center justify-center rounded
-      ${active ? "bg-white/10" : "hover:bg-white/5"}`}
+      className="relative w-12 h-12 flex items-center justify-center
+      rounded-xl transition-all duration-200 group"
+      style={{
+        background: active
+          ? "var(--bg-glass)"
+          : "transparent",
+      }}
     >
-      <Icon size={20} className="text-white" />
+      {/* Active left indicator */}
+      {active && (
+        <div
+          className="absolute left-0 h-6 w-[3px] rounded-r-full"
+          style={{ background: "var(--primary)" }}
+        />
+      )}
+
+      <Icon
+        size={20}
+        style={{
+          color: active
+            ? "var(--primary)"
+            : "var(--text-muted)",
+        }}
+        className="transition-colors duration-200"
+      />
+
+      {/* Hover glow */}
+      <div
+        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        style={{
+          background: "var(--primary-glow)",
+        }}
+      />
     </button>
   );
 }

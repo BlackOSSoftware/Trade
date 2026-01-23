@@ -80,7 +80,7 @@ function TradeLayoutInner({
         <main
           className={`
             flex-1 overflow-y-auto transition-all duration-300 ease-in-out
-            ${quotesOpen ? "ml-[406px]" : "ml-[56px]"}
+            ${quotesOpen ? "ml-[408px]" : "ml-[68px]"}
           `}
         >
           {children}

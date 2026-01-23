@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUserMe } from "@/hooks/useUser";
 
 export default function Topbar({
   onMenuClick,
@@ -40,23 +41,49 @@ export default function Topbar({
 
   const userRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+  const { data: user } = useUserMe();
 
   const userOpen = userHover || userPinned;
   const notifOpen = notifHover || notifPinned;
 
   /* ================= OUTSIDE CLICK ================= */
- {(userPinned || notifPinned) && (
-  <div
-    className="fixed inset-0 z-20"
-    onClick={() => {
-      setUserHover(false);
-      setUserPinned(false);
-      setNotifHover(false);
-      setNotifPinned(false);
-    }}
-  />
-)}
+  {
+    (userPinned || notifPinned) && (
+      <div
+        className="fixed inset-0 z-20"
+        onClick={() => {
+          setUserHover(false);
+          setUserPinned(false);
+          setNotifHover(false);
+          setNotifPinned(false);
+        }}
+      />
+    )
+  }
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        userRef.current &&
+        !userRef.current.contains(e.target as Node)
+      ) {
+        setUserHover(false);
+        setUserPinned(false);
+      }
+
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(e.target as Node)
+      ) {
+        setNotifHover(false);
+        setNotifPinned(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   /* ================= LOGOUT ================= */
   const handleLogout = () => {
@@ -72,7 +99,8 @@ export default function Topbar({
 
     window.location.replace("/login");
   };
-
+const initial =
+  user?.name?.trim()?.charAt(0)?.toUpperCase() || "U";
   return (
     <>
       <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-[var(--bg-card)] border-b border-[var(--border-glass)] backdrop-blur-xl">
@@ -133,13 +161,23 @@ export default function Topbar({
                 {/* INFO */}
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 rounded-full bg-[var(--bg-glass)] flex items-center justify-center">
-                    U
+                    {initial}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold">vAgMDpQh</p>
-                    <p className="text-xs text-[var(--warning)]">
-                      KYC Not Verified
-                    </p>
+                    <p className="text-sm font-semibold">{user?.name}</p>
+                    {(() => {
+                      const badge = getKycBadge(user?.kycStatus);
+
+                      return (
+                        <span
+                          className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-[3px] text-[10px] font-medium ${badge.wrapper}`}
+                        >
+                          <span className={`h-1.5 w-1.5 rounded-full ${badge.dot}`} />
+                          {badge.text}
+                        </span>
+                      );
+                    })()}
+
                   </div>
                 </div>
 
@@ -148,7 +186,7 @@ export default function Topbar({
                   <Btn icon={Wallet} label="Deposit" page="payments/deposit" onClick={() => {
                     setUserHover(false);
                     setUserPinned(false);
-                  }}/>
+                  }} />
                   <Btn icon={Repeat} label="Withdraw" />
                   <Btn icon={ArrowLeftRight} label="Transfer" />
                   <Btn icon={FileText} label="Transactions" />
@@ -240,4 +278,38 @@ function Btn({ icon: Icon, label, page, onClick }: any) {
 
 function Divider() {
   return <div className="my-3 h-px bg-[var(--border-soft)]" />;
+}
+type KycStatus = "VERIFIED" | "REJECTED" | "PENDING" | "NOT_STARTED" | string;
+
+function getKycBadge(status?: KycStatus) {
+  switch (status?.toUpperCase()) {
+    case "VERIFIED":
+      return {
+        text: "Verified",
+        wrapper: "bg-emerald-500/10 text-emerald-500",
+        dot: "bg-emerald-500",
+      };
+
+    case "REJECTED":
+      return {
+        text: "Rejected",
+        wrapper: "bg-red-500/10 text-red-500",
+        dot: "bg-red-500",
+      };
+
+    case "PENDING":
+      return {
+        text: "Pending",
+        wrapper: "bg-yellow-500/10 text-yellow-500",
+        dot: "bg-yellow-500",
+      };
+
+    case "NOT_STARTED":
+    default:
+      return {
+        text: "KYC Not Verified",
+        wrapper: "bg-gray-500/10 text-gray-400",
+        dot: "bg-gray-400",
+      };
+  }
 }
