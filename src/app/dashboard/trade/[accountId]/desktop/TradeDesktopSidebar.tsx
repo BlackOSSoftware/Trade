@@ -6,6 +6,10 @@ import {
   Settings,
   Users,
   Bookmark,
+  HexagonIcon,
+  TrendingUp,
+  ChartBarBigIcon,
+  CandlestickChart,
 } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useTradeDesktop } from "./TradeDesktopContext";
@@ -44,7 +48,18 @@ export default function TradeDesktopSidebar() {
 
       <NavIcon
         icon={BarChart3}
+        active={pathname?.includes("/")}
+        onClick={() => router.push(`${base}/`)}
+      />
+      <NavIcon
+        icon={CandlestickChart}
+        active={pathname?.includes("/charts")}
+        onClick={() => router.push(`${base}/charts`)}
+      />
+      <NavIcon
+        icon={TrendingUp}
         active={pathname?.includes("/trade")}
+        onClick={() => router.push(`${base}/trade`)}
       />
 
       <NavIcon
