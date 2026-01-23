@@ -31,7 +31,7 @@ export default function AccountRow({
     return (
         <div className="card">
             {/* ================= MOBILE VIEW ================= */}
-            <div className="lg:hidden p-4 space-y-4">
+            <div className="lg:hidden p-1 md:p-4 space-y-4">
                 {/* HEADER */}
                 <div className="flex items-center justify-between">
                     <div className="flex gap-2 text-xs">
@@ -65,7 +65,7 @@ export default function AccountRow({
                 </div>
 
                 {/* ACTIONS */}
-                <div className="grid grid-cols-4 gap-3 text-center text-xs">
+                <div className="grid grid-cols-3 gap-3 text-center text-xs">
                     <Action
                         icon={<BarChart3 />}
                         label="Trade"
@@ -74,7 +74,7 @@ export default function AccountRow({
                     />
                     <Action icon={<ArrowDownCircle />} label="Deposit" />
                     <Action icon={<ArrowUpCircle />} label="Withdraw" />
-                    <Action icon={<MoreVertical />} label="More" />
+                    {/* <Action icon={<MoreVertical />} label="More" /> */}
                 </div>
 
                 {/* DETAILS */}

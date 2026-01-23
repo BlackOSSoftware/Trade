@@ -66,7 +66,7 @@ export default function MyAccountsPage() {
             </div>
 
             {/* ================= ACCOUNTS ================= */}
-            <div className="px-4 md:px-6 space-y-4">
+            <div className="px-1 md:px-6 space-y-4">
                 {accounts.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-[var(--border-soft)] p-6 text-center text-sm text-[var(--text-muted)]">
                         No {tab === "live" ? "real" : "demo"} accounts found.
@@ -79,7 +79,7 @@ export default function MyAccountsPage() {
             </div>
 
             {/* ================= MOBILE STICKY CTA ================= */}
-            <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[var(--border-soft)] bg-[var(--bg-main)] p-4 md:hidden">
+            <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[var(--border-soft)] bg-[var(--bg-main)] p-1 md:p-4 md:hidden">
                 <button
                     onClick={() =>
                         router.push("/dashboard/accounts/open")

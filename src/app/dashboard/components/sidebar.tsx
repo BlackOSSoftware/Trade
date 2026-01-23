@@ -183,7 +183,7 @@ export default function Sidebar({
             {paymentOpen && (
               <div
                 className={`
-                  absolute ${collapsed ? "left-full top-0 ml-3" : "relative ml-11 mt-1"}
+                  absolute ${collapsed ? "left-12  top-0 ml-3" : "relative ml-11 mt-1"}
                   z-50 rounded-lg bg-[var(--bg-card)] border border-[var(--border-glass)]
                   space-y-1 p-1 min-w-[180px]
                 `}

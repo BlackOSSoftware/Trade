@@ -52,47 +52,49 @@ export default function DashboardLayout({
   /* ================= LAYOUT ================= */
   return (
   <div
-  className={`relative min-h-screen overflow-hidden text-[var(--text-main)] ${
-    isTradePage ? "bg-[var(--bg-plan)]" : "bg-[var(--bg-main)]"
-  }`}
->
+    className={`relative h-screen overflow-hidden text-[var(--text-main)] ${
+      isTradePage ? "bg-[var(--bg-plan)]" : "bg-[var(--bg-main)]"
+    }`}
+  >
+    {/* Background blobs */}
+    {!isTradePage && (
+      <>
+        <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[var(--primary)] opacity-20 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500 opacity-20 blur-3xl" />
+      </>
+    )}
 
-      {/* Background blobs */}
-     {!isTradePage && (
-  <>
-    <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[var(--primary)] opacity-20 blur-3xl" />
-    <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500 opacity-20 blur-3xl" />
-  </>
-)}
+    <div className="flex h-full">
+      {/* SIDEBAR — FIXED HEIGHT */}
+      <div
+        className={`${isTradePage ? "hidden" : "block"} h-full`}
+      >
+        <Sidebar
+          open={sidebarOpen}
+          collapsed={collapsed}
+          onClose={() => setSidebarOpen(false)}
+          onToggleCollapse={() => setCollapsed((v) => !v)}
+        />
+      </div>
 
-      <div className="flex h-full">
-        {/* SIDEBAR — ALWAYS MOUNTED */}
+      {/* MAIN COLUMN */}
+      <div className="flex flex-1 flex-col h-full overflow-hidden">
+        {/* TOPBAR */}
         <div className={isTradePage ? "hidden" : "block"}>
-          <Sidebar
-            open={sidebarOpen}
-            collapsed={collapsed}
-            onClose={() => setSidebarOpen(false)}
-            onToggleCollapse={() => setCollapsed((v) => !v)}
-          />
+          <Topbar onMenuClick={() => setSidebarOpen(true)} />
         </div>
 
-        {/* MAIN COLUMN */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* TOPBAR — ALWAYS MOUNTED */}
-          <div className={isTradePage ? "hidden" : "block"}>
-            <Topbar onMenuClick={() => setSidebarOpen(true)} />
-          </div>
-
-          {/* CONTENT */}
-          <main
-            className={`flex-1 overflow-y-auto ${
-              isTradePage ? "p-0" : "p-4"
-            }`}
-          >
-            {children}
-          </main>
-        </div>
+        {/* CONTENT — ONLY THIS SCROLLS */}
+        <main
+          className={`flex-1 overflow-y-auto ${
+            isTradePage ? "p-0" : "p-4"
+          }`}
+        >
+          {children}
+        </main>
       </div>
     </div>
-  );
+  </div>
+);
+
 }
