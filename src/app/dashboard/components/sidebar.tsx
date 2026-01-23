@@ -25,7 +25,7 @@ const items = [
 const paymentItems = [
   { label: "Deposit", href: "/dashboard/payments/deposit" },
   { label: "Withdrawal", href: "/dashboard/payments/withdraw" },
-  { label: "Internal Transfer", href: "/dashboard/payments/transfer" },
+  { label: "Internal Transfer", href: "/dashboard/payments/internal-fund-transfer" },
   { label: "Transactions", href: "/dashboard/payments/transactions" },
 ];
 
