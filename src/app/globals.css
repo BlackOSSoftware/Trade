@@ -261,3 +261,20 @@ body {
   font-feature-settings: "tnum" 1, "lnum" 1;
   letter-spacing: 0.01em;
 }
+#pwa-install-box {
+  opacity: 0;
+  transform: translateY(120%);
+}
+
+#pwa-install-box.show-install {
+  opacity: 1;
+  transform: translateY(0%);
+}
+#pwa-install-modal.show-modal {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#pwa-install-modal.show-modal > div {
+  transform: scale(1);
+}

@@ -5,6 +5,7 @@ import { AppProviders } from "./providers";
 import FcmRegister from "./components/FcmRegister";
 import InitNotifications from "./components/InitNotifications";
 import { Roboto } from "next/font/google";
+import InstallPrompt from "./components/InstallPrompt";
 
 const mtFont = Roboto({
   subsets: ["latin"],
@@ -69,6 +70,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased mt-font`}
       >
+        <InstallPrompt />
         <AppProviders>
           <FcmRegister />
           <InitNotifications />
