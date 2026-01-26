@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 const tabs = [
   {
     key: "internal-fund-transfer",
-    label: "Swap",
+    label: "Fund Trans",
     icon: ArrowLeftRight,
     path: "/dashboard/payments/internal-fund-transfer",
   },

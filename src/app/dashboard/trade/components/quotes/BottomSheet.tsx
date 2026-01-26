@@ -30,7 +30,7 @@ return (
   <div
   className={`
     ${isDesktop ? "absolute" : "fixed"}
-    inset-0 flex items-end
+    inset-0 z-[9999] flex items-end 
   `}
 >
     {/* Backdrop */}
@@ -42,9 +42,8 @@ return (
 
     {/* Sheet */}
     <div
-      className="relative z-10 w-full animate-slideUp"
+      className="relative  w-full animate-slideUp bg-[var(--bg-plan)] md:bg-[var(--bg-card)]"
       style={{
-        background: "var(--bg-card)",
         borderTopLeftRadius: "18px",
         borderTopRightRadius: "18px",
         border: "1px solid var(--border-soft)",
@@ -52,7 +51,7 @@ return (
       }}
     >
       {/* Drag Handle */}
-      <div className="flex justify-center pt-3">
+      <div className="flex justify-center pt-3 ">
         <div
           className="h-1.5 w-12 rounded-full"
           style={{ background: "var(--border-soft)" }}
@@ -61,7 +60,7 @@ return (
 
       {/* Header */}
       <div
-        className="flex items-center justify-between px-5 py-4"
+        className="flex items-center justify-between px-5 py-4 "
         style={{ borderBottom: "1px solid var(--border-soft)" }}
       >
         <div className="text-sm font-medium truncate">
@@ -70,7 +69,7 @@ return (
 
         <button
           onClick={onClose}
-          className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-[var(--bg-glass)] transition"
+          className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-[var(--bg-plan)] transition"
         >
           ✕
         </button>

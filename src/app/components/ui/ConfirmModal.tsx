@@ -1,5 +1,7 @@
 "use client";
 
+import { createPortal } from "react-dom";
+
 export default function ConfirmModal({
   title,
   description,
@@ -13,9 +15,14 @@ export default function ConfirmModal({
   onCancel: () => void;
   loading?: boolean;
 }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-[90%] max-w-sm rounded-xl bg-[var(--bg-card)] p-6 shadow-xl">
+  if (typeof window === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
+      <div
+        className="w-[90%] max-w-sm rounded-xl bg-[var(--bg-card)] p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2 className="text-lg font-semibold">{title}</h2>
         <p className="mt-2 text-sm text-[var(--text-muted)]">
           {description}
@@ -38,6 +45,7 @@ export default function ConfirmModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

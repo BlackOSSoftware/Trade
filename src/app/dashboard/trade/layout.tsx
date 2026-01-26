@@ -10,9 +10,9 @@ import TradeSidebar from "./components/layout/TradeSidebar";
 import { useAccountById } from "@/hooks/accounts/useAccountById";
 import { useUserMe } from "@/hooks/useUser";
 
-import { TradeDesktopProvider } from "./[accountId]/desktop/TradeDesktopContext";
-import TradeDesktopSidebar from "./[accountId]/desktop/TradeDesktopSidebar";
-import TradeQuotesPanel from "./[accountId]/desktop/TradeQuotesPanel";
+import { TradeDesktopProvider } from "./components/desktop/TradeDesktopContext";
+import TradeDesktopSidebar from "./components/desktop/TradeDesktopSidebar";
+import TradeQuotesPanel from "./components/desktop/TradeQuotesPanel";
 
 export default function TradeLayout({
   children,
@@ -37,7 +37,7 @@ export default function TradeLayout({
   );
 }
 
-import { useTradeDesktop } from "./[accountId]/desktop/TradeDesktopContext";
+import { useTradeDesktop } from "./components/desktop/TradeDesktopContext";
 
 function TradeLayoutInner({
   children,
@@ -72,7 +72,7 @@ function TradeLayoutInner({
       </div>
 
       {/* ============ DESKTOP ============ */}
-      <div className="hidden md:flex min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-main)]">
+      <div className="hidden md:flex min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-card)]">
         {/* ICON ONLY SIDEBAR */}
         <TradeDesktopSidebar />
 

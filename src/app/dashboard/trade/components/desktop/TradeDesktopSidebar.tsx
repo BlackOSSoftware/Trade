@@ -51,6 +51,11 @@ export default function TradeDesktopSidebar() {
         active={pathname?.includes("/")}
         onClick={() => router.push(`${base}/`)}
       />
+       <NavIcon
+        icon={Bookmark}
+        onClick={toggleQuotes}
+        active={pathname?.includes("/quotes")}
+      />
       <NavIcon
         icon={CandlestickChart}
         active={pathname?.includes("/charts")}
@@ -62,11 +67,7 @@ export default function TradeDesktopSidebar() {
         onClick={() => router.push(`${base}/trade`)}
       />
 
-      <NavIcon
-        icon={Bookmark}
-        onClick={toggleQuotes}
-        active={pathname?.includes("/quotes")}
-      />
+     
 
       <NavIcon icon={Copy} />
       <NavIcon icon={Users} />

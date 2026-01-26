@@ -1,7 +1,7 @@
 "use client";
 
 import { useTradeDesktop } from "./TradeDesktopContext";
-import QuotesUI from "../../components/quotes/QuotesUI";
+import QuotesUI from "../quotes/QuotesUI";
 
 export default function TradeQuotesPanel() {
   const { quotesOpen } = useTradeDesktop();
@@ -22,17 +22,17 @@ export default function TradeQuotesPanel() {
     >
       {quotesOpen && (
         <div className="w-full h-full flex flex-col">
-          <div
+          {/* <div
             className="px-4 py-3 text-sm font-semibold"
             style={{
               borderBottom: "1px solid var(--border-soft)",
             }}
           >
             Quotes
-          </div>
+          </div> */}
 
           <div className="flex-1 overflow-y-auto px-2 py-2">
-            <QuotesUI />
+            <QuotesUI showTopBar />
           </div>
         </div>
       )}

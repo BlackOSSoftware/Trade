@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, ArrowLeft, Home } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { createPortal } from "react-dom";
 import AddSymbolList from "./AddSymbolList";
 import AddSymbolSearch from "./AddSymbolSearch";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function AddSymbol({
   open,
@@ -18,6 +19,7 @@ export default function AddSymbol({
   accountId: string;
 }) {
   const [folder, setFolder] = useState<null | string>(null);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   useEffect(() => {
     if (!open) return;
@@ -29,15 +31,19 @@ export default function AddSymbol({
 
   if (!open) return null;
 
-  return createPortal(
-    folder ? (
+  /* ================================
+     DESKTOP → Cover ONLY Quotes Panel
+  ================================= */
+  if (isDesktop) {
+    return folder ? (
       <AddSymbolList
         folder={folder}
         onBack={() => setFolder(null)}
         onClose={onClose}
       />
     ) : (
-      <div className="fixed inset-0 z-[9999] bg-[var(--bg-main)] bg-[var(--bg-plan)] md:bg-[var(--bg-main)] pl-0 md:pl-14 w-auto md:w-99">
+       <div className="absolute inset-0 z-[60] bg-[var(--bg-card)] mt-4">
+
         {/* HEADER */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-soft)]">
           <button onClick={onClose}>
@@ -47,13 +53,38 @@ export default function AddSymbol({
           <div className="flex-1 font-semibold text-sm">
             Add symbol
           </div>
-
-         
         </div>
 
-        {/* SEARCH + SEGMENTS */}
         <AddSymbolSearch token={token} accountId={accountId} />
-        
+      </div>
+    );
+  }
+
+  /* ================================
+     MOBILE → Fullscreen (Same as before)
+  ================================= */
+  return createPortal(
+    folder ? (
+      <AddSymbolList
+        folder={folder}
+        onBack={() => setFolder(null)}
+        onClose={onClose}
+      />
+    ) : (
+      <div className="fixed inset-0 z-[9999] bg-[var(--bg-plan)] md:bg-[var(--bg-primary)]">
+
+        {/* HEADER */}
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-soft)]">
+          <button onClick={onClose}>
+            <ArrowLeft size={20} />
+          </button>
+
+          <div className="flex-1 font-semibold text-sm">
+            Add symbol
+          </div>
+        </div>
+
+        <AddSymbolSearch token={token} accountId={accountId} />
       </div>
     ),
     document.body

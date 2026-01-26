@@ -28,7 +28,7 @@ export default function QuotesUI({ showTopBar = false }: Props) {
 
   if (!accessToken || !accountId) return null;
   return (
-    <div className="text-[var(--text-main)]">
+    <div className="text-[var(--text-main)] mt-4">
       {/* DESKTOP PANEL HEADER (NO GLOBAL TOPBAR) */}
       {showTopBar && (
         <div className="flex items-center justify-between mb-2">

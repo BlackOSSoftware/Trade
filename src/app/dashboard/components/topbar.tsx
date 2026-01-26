@@ -188,7 +188,7 @@ const initial =
                     setUserPinned(false);
                   }} />
                   <Btn icon={Repeat} label="Withdraw" />
-                  <Btn icon={ArrowLeftRight} label="Transfer" />
+                  <Btn icon={ArrowLeftRight} label="Transfer" page="payments/internal-fund-transfer" />
                   <Btn icon={FileText} label="Transactions" />
                 </div>
 
