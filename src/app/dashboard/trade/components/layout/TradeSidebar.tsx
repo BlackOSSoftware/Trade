@@ -68,7 +68,7 @@ export default function TradeSidebar({
         transform transition-transform duration-300 ease-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
         style={{
-          background: "var(--bg-card)",
+          background: "var(--bg-plan)",
           color: "var(--text-main)",
           borderRight: "1px solid var(--border-soft)",
           boxShadow: "0 0 40px rgba(0,0,0,0.25)",
