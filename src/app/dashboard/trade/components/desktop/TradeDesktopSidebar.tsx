@@ -21,7 +21,8 @@ export default function TradeDesktopSidebar() {
     const base = `/dashboard/trade/${accountId}`;
   const { toggleQuotes } = useTradeDesktop();
   const pathname = usePathname();
-
+  const isActive = (path: string) => pathname === path;
+  const isExact = (path: string) => pathname === path;
   return (
     <aside
       className="hidden md:flex fixed left-0 top-0 z-40 h-full w-[68px]
@@ -47,25 +48,32 @@ export default function TradeDesktopSidebar() {
       </div>
 
       <NavIcon
-        icon={BarChart3}
-        active={pathname?.includes("/")}
-        onClick={() => router.push(`${base}/`)}
-      />
+  icon={BarChart3}
+  active={isExact(`${base}`) || isExact(`${base}/`)}
+  onClick={() => router.push(`${base}`)}
+/>
        <NavIcon
         icon={Bookmark}
         onClick={toggleQuotes}
         active={pathname?.includes("/quotes")}
       />
-      <NavIcon
-        icon={CandlestickChart}
-        active={pathname?.includes("/charts")}
-        onClick={() => router.push(`${base}/charts`)}
-      />
-      <NavIcon
-        icon={TrendingUp}
-        active={pathname?.includes("/trade")}
-        onClick={() => router.push(`${base}/trade`)}
-      />
+   <NavIcon
+  icon={CandlestickChart}
+  active={isExact(`${base}/charts`)}
+  onClick={() => router.push(`${base}/charts`)}
+/>
+
+<NavIcon
+  icon={TrendingUp}
+  active={isExact(`${base}/trade`)}
+  onClick={() => router.push(`${base}/trade`)}
+/>
+
+<NavIcon
+  icon={Settings}
+  active={isExact(`${base}/settings`)}
+  onClick={() => router.push(`${base}/settings`)}
+/>
 
      
 

@@ -30,8 +30,13 @@ export const getMyDeposits = async ({
   const res = await api.get("/deposits/my", {
     params: { page, limit },
   });
-  return res.data.data;
+
+  return {
+    items: res.data.data,
+    pagination: res.data.pagination,
+  };
 };
+
 
 /* Single deposit status */
 export const getDepositStatus = async (id: string) => {

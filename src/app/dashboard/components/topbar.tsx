@@ -151,7 +151,7 @@ const initial =
               className="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-[var(--bg-glass)]"
             >
               <div className="h-8 w-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-sm font-semibold">
-                U
+                {initial}
               </div>
               <ChevronDown size={14} />
             </button>
@@ -214,7 +214,10 @@ const initial =
                 />
                 <MenuItem icon={Settings} label="Reset Password" />
                 <MenuItem icon={Layers} label="Client Portal" />
-                <MenuItem icon={Gift} label="Referral Link" />
+                <MenuItem icon={Gift} label="Referral Link" page="referal"  onClick={() => {
+                    setUserHover(false);
+                    setUserPinned(false);
+                  }}/>
                 <MenuItem icon={Headphones} label="Support" />
 
                 <Divider />

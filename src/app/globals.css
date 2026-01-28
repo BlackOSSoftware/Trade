@@ -6,7 +6,8 @@
 ---------------------------------- */
 :root {
   /* Page background (not pure white) */
-  --bg-main: #f2f7fb; /* soft cool gray */
+  --bg-main: #f2f7fb;
+  /* soft cool gray */
   --bg-plan: #ffffff;
 
   /* Cards */
@@ -35,9 +36,9 @@
   --warning: #d97706;
 
   --mt-blue: #4aa3ff;
-    --mt-red: #ff4d4d;
-    --mt-grey: #9ca3af;
-    --mt-dim: #6b7280;
+  --mt-red: #ff4d4d;
+  --mt-grey: #9ca3af;
+  --mt-dim: #6b7280;
 }
 
 /* ----------------------------------
@@ -107,11 +108,9 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    180deg,
-    var(--primary-glow),
-    var(--primary-hover)
-  );
+  background: linear-gradient(180deg,
+      var(--primary-glow),
+      var(--primary-hover));
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: content-box;
@@ -119,11 +118,9 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(
-    180deg,
-    var(--primary-glow)
-    var(--primary-hover),
-  );
+  background: linear-gradient(180deg,
+      var(--primary-glow) var(--primary-hover),
+    );
   background-clip: content-box;
 }
 
@@ -156,6 +153,7 @@ body {
     opacity: 0;
     transform: translateY(-8px) scale(0.98);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -170,9 +168,11 @@ body {
   0% {
     transform: translateY(-100%);
   }
+
   50% {
     transform: translateY(0%);
   }
+
   100% {
     transform: translateY(120%);
   }
@@ -194,10 +194,12 @@ body {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 @keyframes slideUp {
   from {
     transform: translateY(100%);
   }
+
   to {
     transform: translateY(0%);
   }
@@ -207,6 +209,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -219,6 +222,7 @@ body {
 .animate-fadeIn {
   animation: fadeIn 180ms ease-out forwards;
 }
+
 .mt-font {
   font-family: "Roboto", Arial, Helvetica, sans-serif;
   font-feature-settings: "tnum" 1, "lnum" 1;
@@ -227,7 +231,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-/* MT-5 secondary price line (80.645 → 77.505) *//* ===============================
+
+/* MT-5 secondary price line (80.645 → 77.505) */
+/* ===============================
    MT-5 NUMBER SYSTEM
 ================================ */
 
@@ -261,6 +267,7 @@ body {
   font-feature-settings: "tnum" 1, "lnum" 1;
   letter-spacing: 0.01em;
 }
+
 #pwa-install-box {
   opacity: 0;
   transform: translateY(120%);
@@ -270,11 +277,12 @@ body {
   opacity: 1;
   transform: translateY(0%);
 }
+
 #pwa-install-modal.show-modal {
   opacity: 1;
   pointer-events: auto;
 }
 
-#pwa-install-modal.show-modal > div {
+#pwa-install-modal.show-modal>div {
   transform: scale(1);
 }

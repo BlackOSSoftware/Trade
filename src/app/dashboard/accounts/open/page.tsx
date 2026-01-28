@@ -9,15 +9,17 @@ import { useCreateAccount } from "@/hooks/useCreateAccount";
 import AccountPlanCard from "../../components/account/AccountPlanCard";
 import ConfirmModal from "../../../components/ui/ConfirmModal";
 import GlobalLoader from "@/app/components/ui/GlobalLoader";
+import { PremiumInput } from "@/app/components/ui/TextInput";
 
 export default function OpenAccountPage() {
   const router = useRouter();
   const { data, isLoading } = useActiveAccountPlans();
   const createAccount = useCreateAccount();
+  const [createdAccount, setCreatedAccount] = useState<any>(null);
 
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [toast, setToast] = useState<any>(null);
+ const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleContinue = () => {
@@ -26,27 +28,28 @@ export default function OpenAccountPage() {
   };
 
   const handleConfirmCreate = async () => {
-    try {
-      await createAccount.mutateAsync({
-        account_plan_id: selectedPlan._id,
-        account_type: "live",
-      });
+  try {
+    const res = await createAccount.mutateAsync({
+      account_plan_id: selectedPlan._id,
+      account_type: "live",
+    });
 
-      setConfirmOpen(false);
-      setToast({ message: "Account created successfully" });
+    setConfirmOpen(false);
 
-      setTimeout(() => {
-        router.push("/dashboard/accounts");
-      }, 1200);
-    } catch (err: any) {
-      setConfirmOpen(false);
-      if (err?.response?.status === 400) {
-        setErrorMsg("You have reached the account creation limit.");
-      } else {
-        setErrorMsg("Something went wrong. Please try again.");
-      }
+    // 🔥 SAVE FULL RESPONSE
+    setCreatedAccount(res.data);
+
+  } catch (err: any) {
+    setConfirmOpen(false);
+
+    if (err?.response?.status === 400) {
+      setErrorMsg("You have reached the account creation limit.");
+    } else {
+      setErrorMsg("Something went wrong. Please try again.");
     }
-  };
+  }
+};
+
 
   return (
     <div className="p-6 space-y-8">
@@ -135,6 +138,81 @@ export default function OpenAccountPage() {
         </button>
       </div>
 
+          {/* 🔥 ACCOUNT CREATED MODAL */}
+{createdAccount && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="bg-[var(--bg-card)] w-full max-w-md rounded-2xl p-6 space-y-5 shadow-2xl">
+
+      <h2 className="text-xl font-semibold text-center">
+        Account Created Successfully
+      </h2>
+
+      <div className="space-y-4">
+
+        <PremiumInput
+          label="Account Number"
+          value={createdAccount.account_number}
+          onChange={() => {}}
+        />
+
+        <PremiumInput
+          label="Account Type"
+          value={createdAccount.account_type}
+          onChange={() => {}}
+        />
+
+        <PremiumInput
+          label="Plan Name"
+          value={createdAccount.plan_name}
+          onChange={() => {}}
+        />
+
+        <PremiumInput
+          label="Currency"
+          value={createdAccount.currency}
+          onChange={() => {}}
+        />
+
+        <PremiumInput
+          label="Leverage"
+          value={`1:${createdAccount.leverage}`}
+          onChange={() => {}}
+        />
+
+        <PremiumInput
+          label="Trade Password"
+          type="password"
+          value={createdAccount.trade_password}
+          onChange={() => {}}
+        />
+
+        <PremiumInput
+          label="Watch Password"
+          type="password"
+          value={createdAccount.watch_password}
+          onChange={() => {}}
+        />
+
+      </div>
+
+      <div className="text-xs text-red-500 text-center">
+        Please save these credentials. They will not be shown again.
+      </div>
+
+      <button
+        onClick={() => {
+          setCreatedAccount(null);   // 🔥 CLEAR (one time view)
+          router.push("/dashboard/accounts");
+        }}
+        className="w-full rounded-lg py-3 bg-[var(--primary)] text-white font-medium"
+      >
+        Okay
+      </button>
+
+    </div>
+  </div>
+)}
+
       {/* ✅ CONFIRM MODAL */}
       {confirmOpen && selectedPlan && (
         <ConfirmModal
@@ -149,14 +227,14 @@ export default function OpenAccountPage() {
       {/* ✅ ERROR TOAST */}
       {errorMsg && (
         <Toast
-          message={errorMsg}
+          message={errorMsg}  type="error"
         />
       )}
 
       {/* ✅ SUCCESS TOAST */}
       {toast && (
         <Toast
-          message={toast.message}
+          message={toast.message} type="success"
         />
       )}
     </div>

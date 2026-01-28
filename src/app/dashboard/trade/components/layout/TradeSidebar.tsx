@@ -55,9 +55,8 @@ export default function TradeSidebar({
     <>
       {/* OVERLAY */}
       <div
-        className={`fixed inset-0 z-40 transition-opacity duration-300 ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
         style={{ background: "rgba(0,0,0,0.55)" }}
       />
 
@@ -75,57 +74,57 @@ export default function TradeSidebar({
         }}
       >
         {/* PROFILE HEADER */}
-        <div
-          className="relative px-5 pt-5 pb-4"
-          style={{ borderBottom: "1px solid var(--border-soft)" }}
-        >
-          {accountType === "demo" && (
-            <div className="absolute right-0 top-0 w-20 h-20 overflow-hidden">
-              <div
-                className="absolute right-[-35px] top-[18px] rotate-45
-                text-[11px] font-semibold px-10 py-[3px]"
-                style={{
-                  background: "var(--success)",
-                  color: "var(--text-invert)",
-                }}
-              >
-                DEMO
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-center gap-3">
+        {accountType && (
+          <div className="absolute top-0 right-0 w-24 h-24 overflow-hidden pointer-events-none">
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center"
-              style={{ background: "var(--bg-glass)" }}
+              className="absolute right-[-34px] top-[12px] rotate-45 text-[11px] font-semibold px-10 py-[4px] text-center shadow-md"
+              style={{
+                background:
+                  accountType === "demo"
+                    ? "#16A34A"   // Green for Demo
+                    : "#DC2626",  // Red for Live
+                color: "#ffffff",
+                letterSpacing: "0.5px",
+              }}
             >
-              <img
-                src="/logo/logo.png"
-                alt="Platform Logo"
-                className="w-6 h-6 object-contain"
-              />
-            </div>
-
-            <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold">
-                {userName}
-              </span>
-              <span
-                className="text-xs"
-                style={{ color: "var(--text-muted)" }}
-              >
-                {accountNumber} · ALS Traders
-              </span>
+              {accountType === "demo" ? "DEMO" : "LIVE"}
             </div>
           </div>
+        )}
 
-          <button
-            className="mt-3 text-[13px] font-medium transition"
-            style={{ color: "var(--primary)" }}
-            onClick={() => go("/accounts")}
+        <div className="flex items-center gap-3 mt-4">
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: "var(--bg-plan)" }}
           >
-            Manage accounts
-          </button>
+            <img
+              src="/logo/logo.png"
+              alt="Platform Logo"
+              className="w-6 h-6 object-contain"
+            />
+          </div>
+
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="text-sm font-semibold truncate">
+              {userName}
+            </span>
+
+            <span
+              className="text-xs truncate"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {accountNumber} · ALS Traders
+            </span>
+
+            <button
+              className="mt-3 text-[13px] font-medium transition text-left"
+              style={{ color: "var(--primary)" }}
+              onClick={() => go("/accounts")}
+            >
+              Manage accounts
+            </button>
+          </div>
+
         </div>
 
         {/* MENU */}
@@ -133,9 +132,10 @@ export default function TradeSidebar({
           <Item
             icon={BarChart3}
             label="Trade"
-            active={pathname?.includes("/trade")}
+            active={pathname === `${base}/trade`}
             onClick={() => go(`${base}/trade`)}
           />
+
           <Item
             icon={Newspaper}
             label="News"
@@ -198,7 +198,7 @@ export default function TradeSidebar({
             onClick={() => go("/about")}
           />
         </div>
-      </aside>
+      </aside >
     </>
   );
 }
@@ -217,7 +217,7 @@ function Item({
       onClick={onClick}
       className="w-full flex items-center justify-between px-5 py-3 text-[15px] transition-all duration-200"
       style={{
-        background: active ? "var(--bg-glass)" : "transparent",
+        background: active ? "var(--bg-plan)" : "transparent",
         borderLeft: active
           ? "3px solid var(--primary)"
           : "3px solid transparent",

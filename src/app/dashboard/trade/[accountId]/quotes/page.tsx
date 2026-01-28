@@ -75,10 +75,11 @@ export default function QuotesPage() {
         />
 
         <BottomSheet
-          open={sheet === "actions"}
-          onClose={() => setSheet(null)}
-          title={selected ? `${selected} · Euro vs US Dollar` : ""}
-        />
+  open={sheet === "actions"}
+  onClose={() => setSheet(null)}
+  title={selected || ""}
+/>
+
 
         <EditSymbols open={sheet === "edit"} onClose={() => setSheet(null)} />
 

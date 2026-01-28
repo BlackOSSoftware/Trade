@@ -31,7 +31,7 @@ export function PremiumInput({
       {Icon && (
         <Icon
           size={16}
-          className="absolute left-3 top-4 text-[var(--text-muted)]"
+          className="absolute left-3 top-4  text-[var(--text-muted)]"
         />
       )}
 

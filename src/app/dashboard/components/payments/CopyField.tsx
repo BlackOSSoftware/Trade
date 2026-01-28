@@ -12,17 +12,17 @@ export default function CopyField({
   value: string;
 }) {
   const [copied, setCopied] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
-      setShowToast(true);
+      setToast({ message: `${label} copied`, type: "success" });
 
       setTimeout(() => {
         setCopied(false);
-        setShowToast(false);
+        setToast(null);
       }, 1200);
     } catch (err) {
       // optional: handle error
@@ -58,7 +58,7 @@ export default function CopyField({
       </div>
 
       {/* TOAST */}
-      {showToast && <Toast message={`${label} copied`} />}
+      {toast && <Toast message={toast.message} type={toast.type} />}
     </>
   );
 }

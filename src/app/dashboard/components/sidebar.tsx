@@ -34,7 +34,7 @@ const paymentItems = [
 ];
 
 const bottomItems = [
-  { label: "Trading Platform", icon: Layers, href: "/dashboard/platform"  },
+  { label: "Trading Platform", icon: Layers, href: "/dashboard/platform" },
   { label: "Task Center", icon: Gift, href: "/dashboard/tasks" },
   { label: "Support", icon: Headphones, href: "/dashboard/support" },
 ];
@@ -65,15 +65,15 @@ export default function Sidebar({
   // Function to get first live account, fallback to first demo account
   const getFirstTradingAccount = () => {
     if (!accounts || accounts.length === 0) return null;
-    
+
     // First priority: first LIVE account
     const firstLive = accounts.find((acc: any) => acc.account_type === "live");
     if (firstLive) return firstLive._id;
-    
+
     // Fallback: first DEMO account
     const firstDemo = accounts.find((acc: any) => acc.account_type === "demo");
     if (firstDemo) return firstDemo._id;
-    
+
     // Last resort: first account of any type
     return accounts[0]._id;
   };
@@ -149,7 +149,7 @@ export default function Sidebar({
           </button>
         </div>
 
-        <nav className="mt-4 px-2 space-y-1">
+        <nav className="mt-4 pl-2 space-y-1">
           {items.map((item) => (
             <NavButton
               key={item.label}
@@ -203,11 +203,12 @@ export default function Sidebar({
               <div
                 className={`
       ${collapsed
-                  ? "absolute left-13 top-0 ml-2"
-                  : "relative ml-11 mt-1"
+                    ? "absolute left-13 top-0 ml-2 z-[9999]"
+                    : "relative ml-3 mt-1 z-[9999]"
                   }
       overflow-hidden
       rounded-xl
+      bg-[var(--bg-card)]
       shadow-lg
       transition-all duration-300
       animate-dropdown
@@ -224,19 +225,27 @@ export default function Sidebar({
                         key={sub.label}
                         onClick={() => {
                           router.push(sub.href);
+                          setPaymentOpen(false);
                           onClose?.();
                         }}
                         className={`
-              flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg mx-2 transition
-              ${active
-                          ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                          : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)]"
+    flex items-center gap-3 w-full rounded-xl px-3 py-2.5 transition z-[9999]
+    ${active
+                            ? "bg-[var(--bg-glass)] text-[var(--primary)]"
+                            : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)]"
                           }
-        `}
+  `}
                       >
-                        <Icon size={16} className={active ? "text-[var(--primary)]" : ""} />
-                        <span>{sub.label}</span>
+                        <span className="h-9 w-9 flex items-center justify-center rounded-lg">
+                          <Icon size={18} />
+                        </span>
+
+                        <span className="text-sm font-medium whitespace-nowrap">
+                          {sub.label}
+                        </span>
                       </button>
+
+
                     );
                   })}
                 </div>

@@ -23,7 +23,7 @@ export default function DepositForm() {
     const [file, setFile] = useState<File | null>(null);
     const [error, setError] = useState("");
     const [showConfirm, setShowConfirm] = useState(false);
-    const [showToast, setShowToast] = useState(false);
+    const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const selectedAccount = accounts.find((a) => a._id === accountId);
@@ -88,8 +88,8 @@ export default function DepositForm() {
 
             // 🎉 Success - Reset & Show Toast
             resetForm();
-            setShowToast(true);
-            setTimeout(() => setShowToast(false), 3000);
+            setToast({ message: "Deposit submitted successfully", type: "success" });
+            setTimeout(() => setToast(null), 3000);
 
         } catch (err: any) {
             setError(err?.response?.data?.message || "Deposit failed. Please try again.");
@@ -143,9 +143,18 @@ export default function DepositForm() {
                     >
                         <option value="">Choose your account</option>
                         {accounts.map((acc) => (
-                            <option key={acc._id} value={acc._id} className="text-[var(--inverted)]">
-                                {acc.account_number}
+                            <option
+                                key={acc._id}
+                                value={acc._id}
+                                className="text-[var(--inverted)]"
+                            >
+                                {acc.account_number} • Balance: $
+                                {Number(acc.balance).toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                })}
                             </option>
+
                         ))}
                     </select>
                 </div>
@@ -278,8 +287,8 @@ export default function DepositForm() {
             )}
 
             {/* 🎉 Success Toast */}
-            {showToast && (
-                <Toast message={` deposited successfully!`} />
+            {toast && (
+                <Toast message={toast.message} type={toast.type} />
             )}
 
 

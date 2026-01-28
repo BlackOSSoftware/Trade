@@ -164,72 +164,134 @@ export default function InternalFundTransfer() {
         </div>
       </div>
 
-      {/* HISTORY CARD */}
-      <div className="card p-6 rounded-2xl space-y-4">
+     {/* HISTORY CARD */}
+<div className="card p-6 rounded-2xl space-y-6">
 
-        <h2 className="text-lg font-semibold">
-          Transfer History
-        </h2>
+  <h2 className="text-lg font-semibold">
+    Transfer History
+  </h2>
 
-        {historyLoading && <GlobalLoader />}
+  {historyLoading && <GlobalLoader />}
 
-        {historyError && (
-          <p className="text-sm text-red-500">
-            Failed to load transfer history.
-          </p>
-        )}
+  {historyError && (
+    <p className="text-sm text-red-500">
+      Failed to load transfer history.
+    </p>
+  )}
 
-        {!historyLoading && !historyError && (
-          <>
-            <div className="space-y-3">
-              {history?.data?.length === 0 && (
-                <p className="text-sm text-[var(--text-muted)]">
-                  No transfer history found.
-                </p>
-              )}
+  {!historyLoading && !historyError && (
+    <>
+      {(!history?.data || history.data.length === 0) && (
+        <p className="text-sm text-[var(--text-muted)]">
+          No transfer history found.
+        </p>
+      )}
 
-              {history?.data?.map((item: any) => (
-                <div
-                  key={item._id}
-                  className="flex justify-between items-center p-4 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-glass)]"
-                >
-                  <div>
-                    <p className="text-sm font-medium">
-                      {item.type === "INTERNAL_TRANSFER_IN"
-                        ? "Transfer In"
-                        : "Transfer Out"}
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)]">
-                      {new Date(item.createdAt).toLocaleString()}
-                    </p>
-                  </div>
+      <div className="space-y-4">
+        {history?.data?.map((item: any) => {
+          const isCredit =
+            item.type === "INTERNAL_TRANSFER_IN";
 
-                  <div className="text-right">
-                    <p className="text-sm font-semibold">
-                      ${item.amount}
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)]">
-                      Balance: ${item.balanceAfter}
-                    </p>
-                  </div>
+          return (
+            <div
+              key={item._id}
+              className="rounded-2xl border border-[var(--border-soft)] bg-[var(--bg-glass)] p-4 space-y-3"
+            >
+              {/* TOP ROW */}
+              <div className="flex flex-row justify-between gap-2">
+
+                <div>
+                  <p className="text-sm font-semibold">
+                    {isCredit ? "Transfer In" : "Transfer Out"}
+                  </p>
+
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {new Date(item.createdAt).toLocaleString()}
+                  </p>
                 </div>
-              ))}
-            </div>
 
-            {/* ✅ Proper Pagination Component */}
-            <Pagination
-              page={page}
-              totalPages={history?.pagination?.totalPages || 1}
-              limit={limit}
-              onPageChange={setPage}
-              onLimitChange={(newLimit) => {
-                setLimit(newLimit);
-                setPage(1);
-              }}
-            />
-          </>
-        )}
+                <div className="text-right">
+                  <p
+                    className={`text-sm font-bold ${
+                      isCredit
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {isCredit ? "+" : "-"}$
+                    {item.amount.toLocaleString()}
+                  </p>
+
+                  <span className="text-xs px-2 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary)]">
+                    {item.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* DETAILS */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs text-[var(--text-muted)]">
+
+                <div>
+                  <span className="block">Account Type</span>
+                  <span className="font-medium capitalize text-[var(--text-main)]">
+                    {item.account?.account_type}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="block">Account Status</span>
+                  <span className="font-medium text-[var(--text-main)]">
+                    {item.account?.status}
+                  </span>
+                </div>
+                <div>
+                  <span className="block">Account Number</span>
+                  <span className="font-medium text-[var(--text-main)]">
+                    {item.account?.account_number}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="block">Balance After</span>
+                  <span className="font-medium text-[var(--text-main)]">
+                    ${item.balanceAfter?.toLocaleString()}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="block">Reference ID</span>
+                  <span className="font-mono text-[var(--text-main)] break-all">
+                    {item.referenceId}
+                  </span>
+                </div>
+              </div>
+
+              {item.remark && (
+                <div className="text-xs text-[var(--text-muted)] border-t border-[var(--border-soft)] pt-2">
+                  Remark: {item.remark}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {/* PAGINATION */}
+      <Pagination
+        page={page}
+        totalPages={history?.pagination?.totalPages || 1}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={(newLimit) => {
+          setLimit(newLimit);
+          setPage(1);
+        }}
+      />
+    </>
+  )}
+</div>
+
+
        <MobileBottomBar />
     </div>
   );

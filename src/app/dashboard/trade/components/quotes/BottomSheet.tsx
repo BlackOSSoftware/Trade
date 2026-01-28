@@ -4,6 +4,7 @@
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { HexagonIcon, X } from "lucide-react";
 import { useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 
 export default function BottomSheet({
   open,
@@ -15,6 +16,10 @@ export default function BottomSheet({
   title: string;
 }) {
   // ESC to close (optional)
+  const router = useRouter();
+const { accountId } = useParams<{ accountId: string }>();
+
+
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -77,19 +82,35 @@ return (
 
       {/* Actions */}
       <div className="overflow-y-auto">
-        {["New Order", "Chart", "Properties", "Market Statistics"].map(
-          (item) => (
-            <button
-              key={item}
-              className="w-full px-6 py-4 text-left text-sm transition"
-              style={{
-                borderBottom: "1px solid var(--border-soft)",
-              }}
-            >
-              {item}
-            </button>
-          )
-        )}
+        <button
+  className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
+>
+  New Order
+</button>
+
+<button
+  onClick={() => {
+    if (!title) return;
+    router.push(`/dashboard/trade/${accountId}/charts?symbol=${title}`);
+    onClose();
+  }}
+  className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
+>
+  Chart
+</button>
+
+<button
+  className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
+>
+  Properties
+</button>
+
+<button
+  className="w-full px-6 py-4 text-left text-sm"
+>
+  Market Statistics
+</button>
+
       </div>
     </div>
   </div>

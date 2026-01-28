@@ -21,7 +21,7 @@ export default function TradePage() {
 
   const [openSwitcher, setOpenSwitcher] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+ const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const { data, isLoading } = useAccountById(accountId, true);
   const { data: accounts } = useMyAccounts();
@@ -102,8 +102,8 @@ export default function TradePage() {
           currentAccountId={accountId}
           onClose={() => setOpenSwitcher(false)}
           onSwitched={(accNo) => {
-            setToastMessage(`Successfully switched to account ${accNo}`);
-            setTimeout(() => setToastMessage(null), 2500);
+            setToast({ message: `Successfully switched to account ${accNo}`, type: "success" });
+            setTimeout(() => setToast(null), 2500);
           }}
         />
       )}
@@ -122,7 +122,7 @@ export default function TradePage() {
       )}
 
       {/* TOAST */}
-      {toastMessage && <Toast message={toastMessage} />}
+      {toast && <Toast message={toast.message} type={toast.type} />}
     </>
   );
 }

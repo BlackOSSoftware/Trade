@@ -36,7 +36,7 @@ export default function ProfilePage() {
   const updateProfile = useUpdateProfile();
 
   const [editOpen, setEditOpen] = useState(false);
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const router = useRouter();
 
   const [form, setForm] = useState<{
@@ -121,12 +121,12 @@ export default function ProfilePage() {
       });
 
       setEditOpen(false);
-      setToastMsg("Profile updated successfully");
+      setToast({ message: "Profile updated successfully", type: "success" });
 
-      setTimeout(() => setToastMsg(null), 3000);
+      setTimeout(() => setToast(null), 3000);
     } catch (err) {
-      setToastMsg("Failed to update profile");
-      setTimeout(() => setToastMsg(null), 3000);
+      setToast({ message: "Failed to update profile", type: "error" });
+      setTimeout(() => setToast(null), 3000);
     }
   };
 
@@ -411,7 +411,7 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
-      {toastMsg && <Toast message={toastMsg} />}
+      {toast && <Toast message={toast.message} type={toast.type} />}
 
 
 

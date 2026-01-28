@@ -1,5 +1,7 @@
 "use client";
 
+import Select from "./Select";
+
 type PaginationProps = {
   page: number;
   totalPages: number;
@@ -15,99 +17,80 @@ export default function Pagination({
   onPageChange,
   onLimitChange,
 }: PaginationProps) {
+  const limitOptions = [
+    { label: "10", value: "10" },
+    { label: "20", value: "20" },
+    { label: "50", value: "50" },
+  ];
+
   return (
-    <div
-      className="
-        mt-6
-        flex flex-col gap-4
-        rounded-2xl
-        border border-[var(--card-border)]
-        bg-[var(--card-bg)]
-        p-4
-        sm:flex-row sm:items-center sm:justify-between
-      "
-    >
-      {/* LEFT — LIMIT */}
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-medium text-[var(--text-muted)]">
-          Rows
-        </span>
+    <div className="mt-6 w-full rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
 
-        <select
-          value={limit}
-          onChange={(e) => onLimitChange(Number(e.target.value))}
-          className="
-            rounded-xl px-3 py-2 text-sm font-medium
-            bg-[var(--input-bg)]
-            border border-[var(--input-border)]
-            focus:outline-none
-            focus:ring-2 focus:ring-[var(--primary)]/30
-          "
-        >
-          {[10, 20, 50].map((n) => (
-            <option key={n} value={n}>
-              {n} / page
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* MOBILE STACK */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-      {/* RIGHT — PAGINATION */}
-      <div className="flex flex-col items-center gap-3 sm:flex-row">
-        {/* PAGE INFO */}
-        <span className="text-xs text-[var(--text-muted)]">
-          Page <span className="font-semibold">{page}</span> of{" "}
-          <span className="font-semibold">{totalPages}</span>
-        </span>
+        {/* ROWS PER PAGE */}
+        <div className="flex items-center justify-between gap-3 w-full md:w-auto">
+          <span className="text-xs font-medium text-[var(--text-muted)] whitespace-nowrap">
+            Rows per page
+          </span>
 
-        {/* CONTROLS */}
-        <div className="flex items-center gap-1">
-          <PageBtn
-            disabled={page === 1}
-            onClick={() => onPageChange(1)}
-            label="First"
-          >
-            ≪
-          </PageBtn>
+          <div className="w-24">
+            <Select
+              options={limitOptions}
+              value={limit.toString()}
+              onChange={(value) => onLimitChange(Number(value))}
+              label={undefined}
+            />
+          </div>
+        </div>
 
-          <PageBtn
-            disabled={page === 1}
-            onClick={() => onPageChange(page - 1)}
-            label="Previous"
-          >
-            ‹
-          </PageBtn>
+        {/* PAGE INFO + CONTROLS */}
+        <div className="flex flex-col items-center gap-3 w-full md:w-auto">
 
-          {/* CURRENT PAGE */}
-          <div
-            className="
-              mx-1 min-w-[40px]
-              rounded-xl
-              bg-[var(--primary)]
-              px-3 py-2
-              text-center text-sm font-semibold
-              text-white
-              shadow
-            "
-          >
-            {page}
+          {/* PAGE TEXT */}
+          <div className="text-xs text-[var(--text-muted)] text-center">
+            Page <span className="font-semibold">{page}</span> of{" "}
+            <span className="font-semibold">{totalPages}</span>
           </div>
 
-          <PageBtn
-            disabled={page === totalPages}
-            onClick={() => onPageChange(page + 1)}
-            label="Next"
-          >
-            ›
-          </PageBtn>
+          {/* BUTTONS */}
+          <div className="flex items-center justify-center gap-2 flex-wrap">
 
-          <PageBtn
-            disabled={page === totalPages}
-            onClick={() => onPageChange(totalPages)}
-            label="Last"
-          >
-            ≫
-          </PageBtn>
+            <PageBtn
+              disabled={page === 1}
+              onClick={() => onPageChange(1)}
+            >
+              «
+            </PageBtn>
+
+            <PageBtn
+              disabled={page === 1}
+              onClick={() => onPageChange(page - 1)}
+            >
+              ‹
+            </PageBtn>
+
+            {/* CURRENT PAGE */}
+            <div className="min-w-[44px] h-[44px] flex items-center justify-center rounded-xl bg-[var(--primary)] text-white text-sm font-semibold shadow-sm">
+              {page}
+            </div>
+
+            <PageBtn
+              disabled={page === totalPages}
+              onClick={() => onPageChange(page + 1)}
+            >
+              ›
+            </PageBtn>
+
+            <PageBtn
+              disabled={page === totalPages}
+              onClick={() => onPageChange(totalPages)}
+            >
+              »
+            </PageBtn>
+
+          </div>
         </div>
       </div>
     </div>
@@ -115,29 +98,27 @@ export default function Pagination({
 }
 
 /* ================= BUTTON ================= */
-
 function PageBtn({
   children,
   disabled,
   onClick,
-  label,
 }: {
   children: React.ReactNode;
   disabled: boolean;
   onClick: () => void;
-  label?: string;
 }) {
   return (
     <button
-      aria-label={label}
       disabled={disabled}
       onClick={onClick}
       className="
-        min-w-[36px]
-        rounded-xl px-3 py-2
+        min-w-[44px]
+        h-[44px]
+        rounded-xl
         text-sm font-medium
         bg-[var(--input-bg)]
         border border-[var(--input-border)]
+        text-[var(--text-primary)]
         transition
         hover:bg-[var(--hover-bg)]
         active:scale-95

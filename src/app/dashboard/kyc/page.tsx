@@ -29,7 +29,7 @@ export default function KycPage() {
   const [back, setBack] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<File | null>(null);
 
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const uploadingRef = useRef(false);
@@ -38,7 +38,7 @@ export default function KycPage() {
 
   const handleSubmit = async () => {
     if (!front || !selfie) {
-      setToast("Front image and selfie are required");
+      setToast({ message: "Front image and selfie are required", type: "error" });
       return;
     }
 
@@ -68,12 +68,12 @@ export default function KycPage() {
         },
       });
 
-      setToast("KYC submitted successfully");
+      setToast({ message: "KYC submitted successfully", type: "success" });
       setFront(null);
       setBack(null);
       setSelfie(null);
     } catch {
-      setToast("Failed to submit KYC");
+      setToast({ message: "Failed to submit KYC", type: "error" });
     } finally {
       uploadingRef.current = false;
       setSubmitting(false);
@@ -149,7 +149,7 @@ export default function KycPage() {
         <KycFaq />
       </aside>
 
-      {toast && <Toast message={toast} />}
+      {toast && <Toast message={toast.message} type={toast.type} />}
     </div>
   );
 }

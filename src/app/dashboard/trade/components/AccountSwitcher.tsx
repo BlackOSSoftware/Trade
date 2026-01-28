@@ -17,7 +17,7 @@ export default function AccountSwitcher({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60">
-      <div className="absolute right-0 top-0 h-full w-full sm:w-[420px] bg-[var(--bg-main)] p-4 overflow-y-auto">
+      <div className="absolute right-0 top-0 h-full w-full sm:w-[420px] bg-[var(--bg-plan)] md:bg-[var(--bg-card)] p-4 overflow-y-auto">
         {/* HEADER */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Account List</h2>
@@ -44,7 +44,7 @@ export default function AccountSwitcher({
                   ${
                     active
                       ? "bg-[var(--primary)]/10 border border-[var(--primary)] opacity-70"
-                      : "bg-[var(--bg-glass)] hover:bg-[var(--bg-glass)]/80"
+                      : "bg-[var(--bg-plan)] md:bg-[var(--bg-glass)] hover:bg-[var(--bg-glass)]/80 "
                   }`}
               >
                 <div className="text-left">

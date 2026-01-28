@@ -6,6 +6,7 @@ import MobileBottomBar from "../../components/payments/MobileBottomBar";
 import GlobalLoader from "@/app/components/ui/GlobalLoader";
 import DepositForm from "../../components/payments/DepositForm";
 import TipBanner from "@/app/components/ui/TipBanner";
+import DepositHistory from "../../components/payments/DepositHistory";
 
 export default function DepositPage() {
   const { data, isLoading } = useActivePaymentMethods();
@@ -50,6 +51,10 @@ export default function DepositPage() {
     />
   </div>
 
+</div>
+      <div className="mt-8">
+  <h2 className="text-lg font-semibold">Deposit History</h2>
+  <DepositHistory />
 </div>
 
       {/* 👇 ALWAYS BOTTOM, NEVER OVERLAP */}
