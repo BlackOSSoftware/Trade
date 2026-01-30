@@ -25,8 +25,7 @@ export default function TradeDesktopSidebar() {
   const isExact = (path: string) => pathname === path;
   return (
     <aside
-      className="hidden md:flex fixed left-0 top-0 z-40 h-full w-[68px]
-      flex-col items-center py-4 gap-5"
+      className="hidden md:flex fixed left-0 top-0 z-40 h-full w-[68px] flex-col items-center py-4 gap-5"
       style={{
         background: "var(--bg-card)",
         borderRight: "1px solid var(--border-soft)",
@@ -105,8 +104,7 @@ function NavIcon({
   return (
     <button
       onClick={onClick}
-      className="relative w-12 h-12 flex items-center justify-center
-      rounded-xl transition-all duration-200 group"
+      className="relative w-12 h-12 flex items-center justify-center      rounded-xl transition-all duration-200 group"
       style={{
         background: active
           ? "var(--bg-glass)"

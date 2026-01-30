@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const api = axios.create({
+const tradeApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
   headers: {
@@ -8,8 +8,11 @@ const api = axios.create({
   },
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
+tradeApi.interceptors.request.use((config) => {
+  const token = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("tradeToken="))
+    ?.split("=")[1];
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -18,4 +21,4 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export default api;
+export default tradeApi;

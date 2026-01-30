@@ -70,48 +70,48 @@ export default function LoginPage() {
 
   /* ================= ACTIONS ================= */
 
-const handleLogin = () => {
-  // ✅ LOGIN FIRST (NO WAIT)
-  login.mutate(
-    {
-      email: form.identity,
-      password: form.password,
-      fcmToken: null, // initially null
-    },
-    {
-      onSuccess: async (res) => {
-        const { accessToken, refreshToken, isMailVerified } = res.data;
+  const handleLogin = () => {
+    // ✅ LOGIN FIRST (NO WAIT)
+    login.mutate(
+      {
+        email: form.identity,
+        password: form.password,
+        fcmToken: null, // initially null
+      },
+      {
+        onSuccess: async (res) => {
+          const { accessToken, refreshToken, isMailVerified } = res.data;
 
-        if (!isMailVerified) {
-          setToast("Please verify your email first");
-          setStep("verify");
-          return;
-        }
-
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-        document.cookie = `accessToken=${accessToken}; path=/; max-age=86400`;
-
-        setToast("Login successful");
-        router.push("/dashboard");
-
-        // 🔥 FCM TOKEN — NON BLOCKING
-        try {
-          const token = await getFcmToken();
-          if (token) {
-            // optional: backend update api
-            // updateFcmToken.mutate({ fcmToken: token });
+          if (!isMailVerified) {
+            setToast("Please verify your email first");
+            setStep("verify");
+            return;
           }
-        } catch {
-          // ignore
-        }
-      },
-      onError: () => {
-        setToast("Invalid email or password");
-      },
-    }
-  );
-};
+
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("refreshToken", refreshToken);
+          document.cookie = `accessToken=${accessToken}; path=/; max-age=86400`;
+
+          setToast("Login successful");
+          router.push("/dashboard");
+
+          // 🔥 FCM TOKEN — NON BLOCKING
+          try {
+            const token = await getFcmToken();
+            if (token) {
+              // optional: backend update api
+              // updateFcmToken.mutate({ fcmToken: token });
+            }
+          } catch {
+            // ignore
+          }
+        },
+        onError: () => {
+          setToast("Invalid email or password");
+        },
+      }
+    );
+  };
 
 
   const handleForgot = () => {
@@ -159,25 +159,25 @@ const handleLogin = () => {
     );
 
   };
-const handleVerifyEmail = () => {
-  if (!form.identity) {
-    setToast("Please enter your email");
-    return;
-  }
+  const handleVerifyEmail = () => {
+    if (!form.identity) {
+      setToast("Please enter your email");
+      return;
+    }
 
-  resendVerifyEmail.mutate(form.identity, {
-    onSuccess: () => {
-      setToast("Verification email sent successfully");
-      setStep("login");
-    },
-    onError: (err: any) => {
-      setToast(
-        err?.response?.data?.message ||
-        "Failed to send verification email"
-      );
-    },
-  });
-};
+    resendVerifyEmail.mutate(form.identity, {
+      onSuccess: () => {
+        setToast("Verification email sent successfully");
+        setStep("login");
+      },
+      onError: (err: any) => {
+        setToast(
+          err?.response?.data?.message ||
+          "Failed to send verification email"
+        );
+      },
+    });
+  };
 
 
 
@@ -271,19 +271,19 @@ const handleVerifyEmail = () => {
     },
 
     verify: {
-  title: "Verify your email",
-  back: () => setStep("login"),
-  fields: [
-    {
-      key: "identity",
-      label: "Email address",
-      type: "email",
-      icon: Mail,
+      title: "Verify your email",
+      back: () => setStep("login"),
+      fields: [
+        {
+          key: "identity",
+          label: "Email address",
+          type: "email",
+          icon: Mail,
+        },
+      ],
+      buttonText: "Send verification email",
+      onSubmit: handleVerifyEmail,
     },
-  ],
-  buttonText: "Send verification email",
-  onSubmit: handleVerifyEmail,
-},
 
 
   };
@@ -330,6 +330,31 @@ const handleVerifyEmail = () => {
               </p>
             )}
           </div>
+          {/* LOGIN MODE SWITCH */}
+          <div className="flex justify-center mt-4">
+            <div className="flex bg-[var(--bg-glass)] p-1 rounded-lg">
+              <button
+                onClick={() => router.push("/login")}
+                className={`px-4 py-2 text-sm rounded-md transition ${!params.get("trade")
+                    ? "bg-[var(--primary)] text-white"
+                    : "text-[var(--text-muted)]"
+                  }`}
+              >
+                Broker Login
+              </button>
+
+              <button
+                onClick={() => router.push("/trade-login")}
+                className={`px-4 py-2 text-sm rounded-md transition ${params.get("trade")
+                    ? "bg-[var(--primary)] text-white"
+                    : "text-[var(--text-muted)]"
+                  }`}
+              >
+                Trade Panel Login
+              </button>
+            </div>
+          </div>
+
 
           {/* INPUTS */}
           <div className="space-y-6">

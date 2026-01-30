@@ -2,12 +2,19 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function Home() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("token")?.value;
+  const cookieStore = await cookies();
 
-  if (token) {
-    redirect("/dashboard");
+  const accessToken = cookieStore.get("accessToken")?.value;
+  const tradeToken = cookieStore.get("tradeToken")?.value;
+  const accountId = cookieStore.get("accountId")?.value;
+
+  if (accessToken) {
+    return redirect("/dashboard");
   }
 
-  redirect("/login");
+  if (tradeToken && accountId) {
+    return redirect(`/dashboard/trade/${accountId}`);
+  }
+
+  return redirect("/login");
 }

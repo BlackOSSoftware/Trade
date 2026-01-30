@@ -17,7 +17,7 @@ export default function BottomSheet({
 }) {
   // ESC to close (optional)
   const router = useRouter();
-const { accountId } = useParams<{ accountId: string }>();
+  const { accountId } = useParams<{ accountId: string }>();
 
 
   useEffect(() => {
@@ -28,93 +28,99 @@ const { accountId } = useParams<{ accountId: string }>();
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [open, onClose]);
-const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   if (!open) return null;
 
-return (
-  <div
-  className={`
+  return (
+    <div
+      className={`
     ${isDesktop ? "absolute" : "fixed"}
     inset-0 z-[9999] flex items-end 
   `}
->
-    {/* Backdrop */}
-    <div
-      onClick={onClose}
-      className="absolute inset-0 animate-fadeIn"
-      style={{ background: "rgba(0,0,0,0.45)" }}
-    />
-
-    {/* Sheet */}
-    <div
-      className="relative  w-full animate-slideUp bg-[var(--bg-plan)] md:bg-[var(--bg-card)]"
-      style={{
-        borderTopLeftRadius: "18px",
-        borderTopRightRadius: "18px",
-        border: "1px solid var(--border-soft)",
-        maxHeight: "75vh",
-      }}
     >
-      {/* Drag Handle */}
-      <div className="flex justify-center pt-3 ">
-        <div
-          className="h-1.5 w-12 rounded-full"
-          style={{ background: "var(--border-soft)" }}
-        />
-      </div>
-
-      {/* Header */}
+      {/* Backdrop */}
       <div
-        className="flex items-center justify-between px-5 py-4 "
-        style={{ borderBottom: "1px solid var(--border-soft)" }}
+        onClick={onClose}
+        className="absolute inset-0 animate-fadeIn"
+        style={{ background: "rgba(0,0,0,0.45)" }}
+      />
+
+      {/* Sheet */}
+      <div
+        className="relative  w-full animate-slideUp bg-[var(--bg-plan)] md:bg-[var(--bg-card)]"
+        style={{
+          borderTopLeftRadius: "18px",
+          borderTopRightRadius: "18px",
+          border: "1px solid var(--border-soft)",
+          maxHeight: "75vh",
+        }}
       >
-        <div className="text-sm font-medium truncate">
-          {title}
+        {/* Drag Handle */}
+        <div className="flex justify-center pt-3 ">
+          <div
+            className="h-1.5 w-12 rounded-full"
+            style={{ background: "var(--border-soft)" }}
+          />
         </div>
 
-        <button
-          onClick={onClose}
-          className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-[var(--bg-plan)] transition"
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-5 py-4 "
+          style={{ borderBottom: "1px solid var(--border-soft)" }}
         >
-          ✕
-        </button>
-      </div>
+          <div className="text-sm font-medium truncate">
+            {title}
+          </div>
 
-      {/* Actions */}
-      <div className="overflow-y-auto">
-        <button
-  className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
->
-  New Order
-</button>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-[var(--bg-plan)] transition"
+          >
+            ✕
+          </button>
+        </div>
 
-<button
-  onClick={() => {
-    if (!title) return;
-    router.push(`/dashboard/trade/${accountId}/charts?symbol=${title}`);
-    onClose();
-  }}
-  className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
->
-  Chart
-</button>
+        {/* Actions */}
+        <div className="overflow-y-auto">
+          <button
+            onClick={() => {
+              if (!title) return;
+              router.push(`/dashboard/trade/${accountId}/new-order?symbol=${title}`);
+              onClose();
+            }}
+            className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
+          >
+            New Order
+          </button>
 
-<button
-  className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
->
-  Properties
-</button>
 
-<button
-  className="w-full px-6 py-4 text-left text-sm"
->
-  Market Statistics
-</button>
+          <button
+            onClick={() => {
+              if (!title) return;
+              router.push(`/dashboard/trade/${accountId}/charts?symbol=${title}`);
+              onClose();
+            }}
+            className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
+          >
+            Chart
+          </button>
 
+          <button
+            className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
+          >
+            Properties
+          </button>
+
+          <button
+            className="w-full px-6 py-4 text-left text-sm"
+          >
+            Market Statistics
+          </button>
+
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
 
 
 }

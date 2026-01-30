@@ -19,7 +19,7 @@ export function useMarketQuotes(token: string, accountId: string) {
   /* 🔑 WATCHLIST AS SOURCE OF TRUTH */
   const watchlistQuery = useQuery({
     queryKey: ["watchlist", accountId],
-    queryFn: () => fetchWatchlist(accountId),
+    queryFn: () => fetchWatchlist(),
     enabled: !!accountId,
   });
 
@@ -92,11 +92,11 @@ export function useMarketQuotes(token: string, accountId: string) {
     if (!watchlistQuery.data || !socketRef.current) return;
 
     const nextCodes = new Set(
-      watchlistQuery.data.map((w) => w.code)
+      watchlistQuery.data.map((w: { code: any; }) => w.code)
     );
 
     // ➕ ADD NEW SYMBOLS
-    watchlistQuery.data.forEach((w) => {
+    watchlistQuery.data.forEach((w: { code: string; }) => {
       if (!subscribedRef.current.has(w.code)) {
         subscribedRef.current.add(w.code);
         bufferRef.current[w.code] = {
@@ -124,14 +124,12 @@ export function useMarketQuotes(token: string, accountId: string) {
     flush();
   }, [watchlistQuery.data]);
 
-  function flush() {
-    if (frameRef.current) return;
+ function flush() {
+  setQuotes(prev => {
+    return { ...bufferRef.current };
+  });
+}
 
-    frameRef.current = requestAnimationFrame(() => {
-      frameRef.current = null;
-      setQuotes({ ...bufferRef.current });
-    });
-  }
 
   return quotes;
 }

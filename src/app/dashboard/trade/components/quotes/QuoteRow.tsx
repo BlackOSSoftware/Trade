@@ -1,3 +1,5 @@
+import React from "react";
+
 type PriceDirection = "up" | "down" | "same";
 
 type Props = {
@@ -16,24 +18,52 @@ type Props = {
 
 type SplitPrice = {
   int: string;
+  normal: string;
   big: string;
   small?: string;
 };
 
-function splitPrice(price: string): SplitPrice {
-  const [intPart, decimalPart = ""] = price.split(".");
-
-  if (decimalPart.length <= 2) {
+function splitPrice(price?: string): SplitPrice {
+  if (!price || isNaN(Number(price))) {
     return {
-      int: intPart,
-      big: decimalPart.padEnd(2, "0"),
+      int: "0",
+      normal: "",
+      big: "00",
     };
   }
 
+  const [intPart, decimalRaw = ""] = price.split(".");
+  const decimals = decimalRaw;
+
+  // No decimal
+  if (decimals.length === 0) {
+    return { int: intPart, normal: "", big: "" };
+  }
+
+  // Exactly 2 decimals → both BIG
+  if (decimals.length === 2) {
+    return {
+      int: intPart,
+      normal: "",
+      big: decimals,
+    };
+  }
+
+  // 3 or more decimals
+  if (decimals.length >= 3) {
+    return {
+      int: intPart,
+      normal: decimals.slice(0, decimals.length - 3),
+      big: decimals.slice(decimals.length - 3, decimals.length - 1),
+      small: decimals.slice(-1),
+    };
+  }
+
+  // Only 1 decimal
   return {
     int: intPart,
-    big: decimalPart.slice(0, 2),
-    small: decimalPart.slice(2, 3),
+    normal: decimals,
+    big: "",
   };
 }
 
@@ -45,7 +75,7 @@ function decimalDiff(bid: string, ask: string): string {
   return diff.toString().padStart(3,);
 }
 
-export default function QuoteRow({ live }: Props) {
+function QuoteRow({ live }: Props) {
   const bid = splitPrice(live.bid);
   const ask = splitPrice(live.ask);
   const diff = decimalDiff(live.bid, live.ask);
@@ -54,15 +84,15 @@ export default function QuoteRow({ live }: Props) {
     live.bidDir === "up"
       ? "text-blue-600"
       : live.bidDir === "down"
-      ? "text-red-600"
-      : "text-[var(--text-main)]";
+        ? "text-red-600"
+        : "text-[var(--text-main)]";
 
   const askColor =
     live.askDir === "up"
       ? "text-blue-600"
       : live.askDir === "down"
-      ? "text-red-600"
-      : "text-[var(--text-main)]";
+        ? "text-red-600"
+        : "text-[var(--text-main)]";
 
   return (
     <div className="flex items-center justify-between px-4 md:px-0 py-3 border-b border-[var(--border-soft)]">
@@ -84,12 +114,11 @@ export default function QuoteRow({ live }: Props) {
         <div className="text-right">
           <div className={`font-semibold text-[18px] ${bidColor}`}>
             {bid.int}.
+            <span>{bid.normal}</span>
             <span className="text-[22px]">{bid.big}</span>
-            {bid.small && (
-              <sup className="text-[11px] relative top-[-13px]">
-                {bid.small}
-              </sup>
-            )}
+            <sup className="text-[11px] relative top-[-13px]">
+              {bid.small}
+            </sup>
           </div>
 
           <div className="text-xs text-[var(--text-muted)]">
@@ -101,13 +130,13 @@ export default function QuoteRow({ live }: Props) {
         <div className="text-right">
           <div className={`font-semibold text-[18px] ${askColor}`}>
             {ask.int}.
+            <span>{ask.normal}</span>
             <span className="text-[22px]">{ask.big}</span>
-            {ask.small && (
-              <sup className="text-[11px] relative top-[-13px]">
-                {ask.small}
-              </sup>
-            )}
+            <sup className="text-[11px] relative top-[-13px]">
+              {ask.small}
+            </sup>
           </div>
+
 
           <div className="text-xs text-[var(--text-muted)]">
             H: {live.high ?? "--"}
@@ -142,3 +171,4 @@ const HGapSeparatorIcon = () => (
     />
   </svg>
 );
+export default React.memo(QuoteRow);

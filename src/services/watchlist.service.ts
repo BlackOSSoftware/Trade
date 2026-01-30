@@ -1,5 +1,5 @@
 import api from "@/api/axios";
-
+import tradeApi from "@/api/tradeApi";
 export type WatchlistItem = {
     [x: string]: string;
     _id: string;
@@ -19,16 +19,15 @@ type ApiResponse<T> = {
     message: string;
     data: T;
 };
-export async function fetchWatchlist(
-    accountObjectId: string,
-    limit = 50
-): Promise<WatchlistItem[]> {
-    const res = await api.get(
-        `/watchlist?accountId=${accountObjectId}&limit=${limit}`
-    );
 
-    return res.data.data;
-}
+export const fetchWatchlist = async (limit = 50) => {
+  const { data } = await tradeApi.get("/watchlist", {
+    params: { limit },
+  });
+
+  return data.data;
+};
+
 
 export async function searchInstruments(
     query: string,

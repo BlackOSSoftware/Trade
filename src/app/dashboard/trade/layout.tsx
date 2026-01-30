@@ -1,94 +1,20 @@
-"use client";
-
+// src/app/dashboard/trade/layout.tsx (server)
 import { ReactNode } from "react";
-import { useParams } from "next/navigation";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import TradeLayoutClient from "./components/TradeLayoutClient";
 
-import TradeBottomNav from "./components/layout/TradeBottomNav";
-import { TradeSidebarProvider } from "./components/layout/TradeSidebarContext";
-import TradeSidebar from "./components/layout/TradeSidebar";
-
-import { useAccountById } from "@/hooks/accounts/useAccountById";
-import { useUserMe } from "@/hooks/useUser";
-
-import { TradeDesktopProvider } from "./components/desktop/TradeDesktopContext";
-import TradeDesktopSidebar from "./components/desktop/TradeDesktopSidebar";
-import TradeQuotesPanel from "./components/desktop/TradeQuotesPanel";
-
-export default function TradeLayout({
+export default async function TradeLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const { accountId } = useParams<{ accountId: string }>();
-  const { data: account } = useAccountById(accountId, true);
-  const { data: user } = useUserMe();
+  const cookieStore = await cookies();
 
-  return (
-    <TradeSidebarProvider>
-      <TradeDesktopProvider>
-        <TradeLayoutInner
-          account={account}
-          userName={user?.name ?? ""}
-        >
-          {children}
-        </TradeLayoutInner>
-      </TradeDesktopProvider>
-    </TradeSidebarProvider>
-  );
-}
+  const userToken = cookieStore.get("accessToken")?.value;
+  const tradeToken = cookieStore.get("tradeToken")?.value;
+  const accountId = cookieStore.get("accountId")?.value;
 
-import { useTradeDesktop } from "./components/desktop/TradeDesktopContext";
-
-function TradeLayoutInner({
-  children,
-  account,
-  userName,
-}: {
-  children: ReactNode;
-  account: any;
-  userName: string;
-}) {
-  const { quotesOpen } = useTradeDesktop();
-
-  return (
-    <div className="min-h-screen mt-font mt-numbers">
-      {/* ============ MOBILE / TABLET ============ */}
-      <div className="md:hidden flex flex-col min-h-screen">
-        <div id="trade-topbar-slot" />
-
-        <main className="flex-1 overflow-y-auto pb-[64px] mt-14">
-          {children}
-        </main>
-
-        <TradeBottomNav />
-
-        {account && (
-          <TradeSidebar
-            userName={userName}
-            accountType={account.account_type}
-            accountNumber={account.account_number.replace("AC", "")}
-          />
-        )}
-      </div>
-
-      {/* ============ DESKTOP ============ */}
-      <div className="hidden md:flex min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-card)]">
-        {/* ICON ONLY SIDEBAR */}
-        <TradeDesktopSidebar />
-
-        {/* MAIN CONTENT - FIXED POSITIONING */}
-        <main
-          className={`
-            flex-1 overflow-y-auto transition-all duration-300 ease-in-out
-            ${quotesOpen ? "ml-[408px]" : "ml-[68px]"}
-          `}
-        >
-          {children}
-        </main>
-
-        {/* QUOTES PANEL - FIXED */}
-        <TradeQuotesPanel />
-      </div>
-    </div>
-  );
+  // do NOT redirect if only tradeToken present - allow client to resolve accountId
+  return <TradeLayoutClient>{children}</TradeLayoutClient>;
 }

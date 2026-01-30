@@ -19,9 +19,12 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  const { data, isLoading, isError, error } = useUserMe();
 
   const isTradePage = pathname.startsWith("/dashboard/trade");
+
+const { data, isLoading, isError, error } = useUserMe(undefined, {
+  enabled: !isTradePage,
+}); 
 
   useEffect(() => {
     listenForegroundMessages();
@@ -31,6 +34,7 @@ export default function DashboardLayout({
   }, []);
 
   /* ================= AUTH ================= */
+  if (!isTradePage) {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center text-sm">
@@ -44,10 +48,12 @@ export default function DashboardLayout({
     if (status === 401) {
       localStorage.removeItem("accessToken");
       document.cookie = "accessToken=; path=/; max-age=0";
-      router.replace("/");
+      router.replace("/login");
       return null;
     }
   }
+}
+
 
   /* ================= LAYOUT ================= */
   return (

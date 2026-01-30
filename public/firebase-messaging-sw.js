@@ -22,4 +22,3 @@ messaging.onBackgroundMessage((payload) => {
     }
   );
 });
-

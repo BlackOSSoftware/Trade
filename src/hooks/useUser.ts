@@ -7,7 +7,7 @@ import {
 
 /* ================= GET PROFILE ================= */
 
-export const useUserMe = () =>
+export const useUserMe = (undefined: undefined, p0: { enabled: boolean; }) =>
   useQuery<UserProfile>({
     queryKey: ["user-me"],
     queryFn: userService.getMe,

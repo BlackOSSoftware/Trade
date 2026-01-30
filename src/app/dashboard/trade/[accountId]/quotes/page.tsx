@@ -34,9 +34,11 @@ export default function QuotesPage() {
       router.replace(`/dashboard/trade/${accountId}`);
     }
   }, [mounted, isDesktop, accountId, router]);
+useEffect(() => {
+  console.log("tradeToken cookie:", document.cookie);
+}, []);
 
   if (!mounted) return null;
-  if (!accessToken || !accountId) return null;
 
   return (
     <>

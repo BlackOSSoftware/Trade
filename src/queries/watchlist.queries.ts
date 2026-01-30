@@ -80,7 +80,7 @@ export function useWatchlistActions(accountId: string) {
 
 export function useWatchlist(accountId: string) {
   return useQuery({
-    queryKey: ["watchlist", accountId],
-    queryFn: () => fetchWatchlist(accountId),
+    queryKey: ["watchlist"],
+    queryFn: () => fetchWatchlist(),
   });
 }
