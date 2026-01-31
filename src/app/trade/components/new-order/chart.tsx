@@ -148,7 +148,7 @@ export default function LiveChart({ bid, ask }: { bid: number; ask: number }) {
 
             {/* LIVE PRICE TAGS */}
             <div
-                className="absolute right-0 pr-2 py-1 text-xs rounded-l"
+                className="absolute right-0 mr-2 pr-1 py-1 text-xs rounded-l"
                 style={{
                     top: askY - 10,
                     background: "var(--mt-red)",
@@ -157,11 +157,11 @@ export default function LiveChart({ bid, ask }: { bid: number; ask: number }) {
                     textAlign: "right",
                 }}
             >
-                {currentAsk.toFixed(5)}
+                {currentAsk.toFixed(3)}
             </div>
 
             <div
-                className="absolute right-0 px-2 py-1 text-xs rounded-l"
+                className="absolute right-0 mr-2 pr-1 py-1 text-xs rounded-l"
                 style={{
                     top: bidY - 10,
                     background: "#4aa3ff",
@@ -170,7 +170,7 @@ export default function LiveChart({ bid, ask }: { bid: number; ask: number }) {
                     textAlign: "right",
                 }}
             >
-                {currentBid.toFixed(5)}
+                {currentBid.toFixed(3)}
             </div>
         </div>
     );

@@ -13,7 +13,7 @@ export function Toast({ message, type = "success" }: ToastProps) {
   return (
     <div
       className="
-        fixed bottom-5 right-5 z-[200]
+        fixed bottom-5 right-5 z-[999]
         animate-slideUp
         rounded-xl
         border
