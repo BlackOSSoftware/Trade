@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import {
   userService,
   UpdateProfilePayload,
@@ -7,12 +7,18 @@ import {
 
 /* ================= GET PROFILE ================= */
 
-export const useUserMe = () =>
+export const useUserMe = (
+  options?: Omit<
+    UseQueryOptions<UserProfile>,
+    "queryKey" | "queryFn"
+  >
+) =>
   useQuery<UserProfile>({
     queryKey: ["user-me"],
     queryFn: userService.getMe,
     staleTime: 1000 * 60 * 5,
     retry: false,
+    ...options,
   });
 
 

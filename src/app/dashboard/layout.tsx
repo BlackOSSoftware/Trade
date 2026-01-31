@@ -22,7 +22,7 @@ export default function DashboardLayout({
 
   const isTradePage = pathname.startsWith("/dashboard/trade");
 
-const { data, isLoading, isError, error } = useUserMe(undefined, {
+const { data, isLoading, isError, error } = useUserMe( {
   enabled: !isTradePage,
 }); 
 
