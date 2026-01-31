@@ -48,7 +48,7 @@ export default function TradeLogin() {
                     document.cookie = `sessionType=${res.sessionType}; path=/; max-age=900`;
                     document.cookie = `accountId=${accountId}; path=/; max-age=900`;
 
-                    router.push(`/dashboard/trade/${accountId}`);
+                   router.push("/trade");
                 },
 
                 onError: () => {

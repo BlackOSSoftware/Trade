@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAccountById } from "@/services/accounts.service";
+import { fetchTradeAccount, getAccountById } from "@/services/accounts.service";
 
 export const useAccountById = (id: string, enabled: boolean) =>
   useQuery({
@@ -7,4 +7,11 @@ export const useAccountById = (id: string, enabled: boolean) =>
     queryFn: () => getAccountById(id),
     enabled,                 // 👈 ONLY when expanded
     staleTime: 60_000,
+  });
+export const useTradeAccount = () =>
+  useQuery({
+    queryKey: ["trade-account"],
+    queryFn: fetchTradeAccount,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
   });

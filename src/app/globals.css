@@ -12,6 +12,7 @@
 
   /* Cards */
   --bg-card: #ffffff;
+  --bg-muted-card: #5b6474;
 
   /* Glass / subtle panels */
   --bg-glass: rgba(15, 23, 42, 0.04);
@@ -48,6 +49,7 @@
   /* Backgrounds */
   --bg-main: #0b0f1a;
   --bg-plan: #000000;
+  --bg-muted-card: #1f2937;
 
   /* Card must stay solid */
   --bg-card: #111827;

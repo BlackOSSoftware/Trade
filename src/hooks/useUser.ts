@@ -7,13 +7,14 @@ import {
 
 /* ================= GET PROFILE ================= */
 
-export const useUserMe = (undefined: undefined, p0: { enabled: boolean; }) =>
+export const useUserMe = () =>
   useQuery<UserProfile>({
     queryKey: ["user-me"],
     queryFn: userService.getMe,
     staleTime: 1000 * 60 * 5,
     retry: false,
   });
+
 
 /* ================= UPDATE PROFILE ================= */
 

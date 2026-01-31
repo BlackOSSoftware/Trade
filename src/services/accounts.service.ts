@@ -1,4 +1,5 @@
 import api from "@/api/axios";
+import tradeApi from "@/api/tradeApi";
 
 export type AccountType = "live" | "demo";
 
@@ -52,3 +53,8 @@ export const getAccountById = async (id: string) => {
   const res = await api.get(`/accounts/single/${id}`);
   return res.data.data;
 };
+
+export async function fetchTradeAccount() {
+  const { data } = await tradeApi.get("/trade/account");
+  return data.data;
+}
