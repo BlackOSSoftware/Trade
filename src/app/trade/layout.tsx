@@ -40,7 +40,7 @@ function TradeLayoutInner({
             <div className="md:hidden flex flex-col min-h-screen">
                 <div id="trade-topbar-slot" />
 
-                <main className="flex-1 overflow-y-auto pb-[64px] mt-14">
+                <main className="flex-1 overflow-y-auto pb-[64px] md:pb-0 mt-14">
                     {children}
                 </main>
 

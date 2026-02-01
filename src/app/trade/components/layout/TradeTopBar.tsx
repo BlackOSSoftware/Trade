@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 type TopBarProps = {
   title: string;
   subtitle?: string;
+  subtitleClassName?: string;
   showMenu?: boolean;
   showBack?: boolean;
   onBackClick?: () => void;
@@ -17,6 +18,7 @@ type TopBarProps = {
 export default function TradeTopBar({
   title,
   subtitle,
+  subtitleClassName,
   showMenu = false,
   showBack = false,
   onBackClick,
@@ -61,9 +63,14 @@ export default function TradeTopBar({
           </span>
 
           {hasSubtitle && (
-            <span className="text-[11px] text-[var(--text-muted)] font-medium">
-              {subtitle}
-            </span>
+            <span
+  className={`text-[11px] font-medium ${
+    subtitleClassName ?? "text-[var(--text-muted)]"
+  }`}
+>
+  {subtitle}
+</span>
+
           )}
         </div>
       </div>

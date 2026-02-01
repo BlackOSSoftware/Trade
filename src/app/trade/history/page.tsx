@@ -334,7 +334,7 @@ export default function TradeHistory() {
       </TopBarSlot>
 
       {/* BODY */}
-      <div className="px-2 md:px-4 pt-1 text-[13px] bg-[var(--bg-plan)]  h-[calc(100vh-60px)] overflow-y-auto">
+      <div className="px-2 md:px-4 pt-1 text-[13px] bg-[var(--bg-plan)]  h-[calc(100vh-60px)] overflow-y-auto pb-7">
         <HistoryTabs activeTab={activeTab} onChange={onTabChange} />
 
         <div className="transition-opacity duration-200">

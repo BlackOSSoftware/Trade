@@ -113,7 +113,7 @@ export default function LiveChart({
     return (
         <div
             ref={containerRef}
-            className="relative bg-[var(--bg-plan)] overflow-hidden"
+            className="relative bg-[var(--bg-plan)] md:bg-[var(--bg-card)] overflow-hidden"
             style={{ height: HEIGHT }}
         >
             {/* GRID BACKGROUND */}

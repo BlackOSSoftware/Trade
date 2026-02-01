@@ -1,21 +1,9 @@
-// hooks/useMarketQuotes.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { MarketSocket } from "@/services/marketSocket.service";
 import { QuoteLiveState } from "@/types/market";
 import { useWatchlist } from "./watchlist/useWatchlist";
-
-/**
- * useMarketQuotes
- * - token: tradeToken (string). If falsy, socket won't connect.
- * - returns a map: { [SYMBOL]: QuoteLiveState }
- *
- * Notes:
- * - No accountId anywhere.
- * - Uses watchlist from useWatchlist() as the source of symbols to subscribe.
- * - Batches updates via requestAnimationFrame to avoid re-render storms.
- */
 
 type QuoteMap = Record<string, QuoteLiveState | undefined>;
 
@@ -24,16 +12,12 @@ export function useMarketQuotes(token?: string) {
   const bufferRef = useRef<QuoteMap>({});
   const rafRef = useRef<number | null>(null);
   const subscribedRef = useRef<Set<string>>(new Set());
-  
-  const [quotes, setQuotes] = useState<QuoteMap>({});
 
-  // watchlist comes from your existing hook (which uses tradeApi)
+  const [quotes, setQuotes] = useState<QuoteMap>({});
   const { data: watchlist } = useWatchlist();
 
-  /* ---------- connect / disconnect socket when token changes ---------- */
   useEffect(() => {
     if (!token) {
-      // cleanup if token removed
       if (socketRef.current) {
         socketRef.current.close();
         socketRef.current = null;
@@ -44,7 +28,6 @@ export function useMarketQuotes(token?: string) {
       return;
     }
 
-    // already connected
     if (socketRef.current) return;
 
     const socket = new MarketSocket();
@@ -52,40 +35,51 @@ export function useMarketQuotes(token?: string) {
 
     socket.connect(token, (msg: any) => {
       try {
-        // handle server "subscribed" acknowledgement message
+
+        /* ===================== SUBSCRIBED MESSAGE ===================== */
         if (msg.status === "subscribed" && msg.symbol) {
-  const sym = msg.symbol;
-  const cur = bufferRef.current[sym];
+          const sym = msg.symbol;
+          const cur = bufferRef.current[sym];
 
-  if (cur) {
-    const dayClose =
-      msg.dayClose !== undefined ? String(msg.dayClose) : cur.bid;
+          if (cur) {
+            const dayClose =
+              msg.dayClose !== undefined
+                ? String(msg.dayClose)
+                : cur.bid;
 
-    bufferRef.current[sym] = {
-      ...cur,
-      high: msg.dayHigh ? Number(msg.dayHigh) : cur.high,
-      low: msg.dayLow ? Number(msg.dayLow) : cur.low,
+            bufferRef.current[sym] = {
+              ...cur,
 
-      // 🔥 fallback price when market closed
-      bid: dayClose,
-      ask: dayClose,
-      bidDir: "same",
-      askDir: "same",
-    };
+              high: msg.dayHigh !== undefined ? Number(msg.dayHigh) : cur.high,
+              low: msg.dayLow !== undefined ? Number(msg.dayLow) : cur.low,
+              dayOpen: msg.dayOpen !== undefined ? Number(msg.dayOpen) : cur.dayOpen,
+              dayClose: msg.dayClose !== undefined ? Number(msg.dayClose) : cur.dayClose,
 
-    scheduleFlush();
-  }
+              bid: dayClose,
+              ask: dayClose,
+              bidDir: "same",
+              askDir: "same",
+            };
 
-  return;
-}
+            scheduleFlush();
+          }
 
-        // orderbook / market update
+          return;
+        }
+
+        /* ===================== ORDERBOOK MESSAGE ===================== */
         if (msg.type === "orderbook" && msg.data?.code) {
           const s = msg.data.code;
           const bid = msg.data.bids?.[0];
           const ask = msg.data.asks?.[0];
 
-          // if we don't have a buffer entry yet, create a placeholder (so UI shows something)
+          // Convert tick_time
+          const tickTime = msg.data.tick_time
+            ? new Date(Number(msg.data.tick_time)).toLocaleTimeString("en-US", {
+                hour12: false,
+              })
+            : undefined;
+
           if (!bufferRef.current[s]) {
             bufferRef.current[s] = {
               symbol: s,
@@ -100,28 +94,45 @@ export function useMarketQuotes(token?: string) {
 
           const old = bufferRef.current[s] as any;
 
-          // update only when we have prices
           if (
-  bid &&
-  ask &&
-  Number(bid.price) > 0 &&
-  Number(ask.price) > 0
-) {
+            bid &&
+            ask &&
+            Number(bid.price) > 0 &&
+            Number(ask.price) > 0
+          ) {
+
+            const currentPrice = Number(bid.price);
+            const dayClose = old.dayClose ?? 0;
+
+            let change = 0;
+            let changePercent = 0;
+
+            if (dayClose > 0) {
+              change = currentPrice - dayClose;
+              changePercent = (change / dayClose) * 100;
+            }
 
             bufferRef.current[s] = {
               ...old,
+
               bid: bid.price,
               ask: ask.price,
               bidVolume: bid.volume,
               askVolume: ask.volume,
+              tickTime,
+
+              change,
+              changePercent,
+
               bidDir:
                 old.bid === "--"
                   ? "same"
-                  : Number(bid.price) > Number(old.bid)
+                  : currentPrice > Number(old.bid)
                   ? "up"
-                  : Number(bid.price) < Number(old.bid)
+                  : currentPrice < Number(old.bid)
                   ? "down"
                   : old.bidDir,
+
               askDir:
                 old.ask === "--"
                   ? "same"
@@ -135,8 +146,8 @@ export function useMarketQuotes(token?: string) {
             scheduleFlush();
           }
         }
+
       } catch (err) {
-        // be resilient to malformed messages
         console.warn("[useMarketQuotes] message handler error", err);
       }
     });
@@ -152,23 +163,18 @@ export function useMarketQuotes(token?: string) {
       }
       setQuotes({});
     };
-    // intentionally run only when token changes
   }, [token]);
 
-  /* ---------- subscribe/unsubscribe when watchlist changes ---------- */
   useEffect(() => {
     const socket = socketRef.current;
     if (!socket || !watchlist) return;
 
-    // build set of desired symbols
     const desired = new Set(watchlist.map((w: any) => w.code));
 
-    // subscribe new symbols
     for (const item of watchlist) {
       const code = item.code;
       if (!subscribedRef.current.has(code)) {
         subscribedRef.current.add(code);
-        // create initial placeholder in buffer
         bufferRef.current[code] = {
           symbol: code,
           bid: "--",
@@ -179,12 +185,10 @@ export function useMarketQuotes(token?: string) {
           askDir: "same",
         } as unknown as QuoteLiveState;
 
-        // attempt immediate subscribe; MarketSocket will queue it if socket not open
         socket.subscribe(code);
       }
     }
 
-    // unsubscribe removed symbols
     for (const code of Array.from(subscribedRef.current)) {
       if (!desired.has(code)) {
         subscribedRef.current.delete(code);
@@ -196,12 +200,10 @@ export function useMarketQuotes(token?: string) {
     scheduleFlush();
   }, [watchlist]);
 
-  /* ---------- flush logic (batch updates) ---------- */
   function scheduleFlush() {
     if (rafRef.current) return;
     rafRef.current = requestAnimationFrame(() => {
       rafRef.current = null;
-      // shallow copy to trigger react updates
       setQuotes({ ...bufferRef.current });
     });
   }

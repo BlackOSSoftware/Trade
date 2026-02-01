@@ -85,20 +85,20 @@ export default function ChartContent() {
       backgroundColor: chartBg,
 
       overrides: {
-  "paneProperties.background": chartBg,
-  "paneProperties.backgroundType": "solid",
+        "paneProperties.background": chartBg,
+        "paneProperties.backgroundType": "solid",
 
-  "paneProperties.vertGridProperties.color":
-    theme === "light" ? "#e5e7eb" : "#1f2937",
-  "paneProperties.horzGridProperties.color":
-    theme === "light" ? "#e5e7eb" : "#1f2937",
+        "paneProperties.vertGridProperties.color":
+          theme === "light" ? "#e5e7eb" : "#1f2937",
+        "paneProperties.horzGridProperties.color":
+          theme === "light" ? "#e5e7eb" : "#1f2937",
 
-  "scalesProperties.textColor":
-    theme === "light" ? "#111827" : "#d1d5db",
+        "scalesProperties.textColor":
+          theme === "light" ? "#111827" : "#d1d5db",
 
-  "mainSeriesProperties.candleStyle.upColor": "#22c55e",
-  "mainSeriesProperties.candleStyle.downColor": "#ef4444",
-}
+        "mainSeriesProperties.candleStyle.upColor": "#22c55e",
+        "mainSeriesProperties.candleStyle.downColor": "#ef4444",
+      }
 
     });
 

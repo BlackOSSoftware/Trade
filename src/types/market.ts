@@ -29,4 +29,9 @@ export type QuoteLiveState = {
   askDir: PriceDirection;
   high?: number;
   low?: number;
+  dayOpen?: number;
+  dayClose?: number;
+  tickTime?: string;
+  change?: number;
+  changePercent?: number;
 };

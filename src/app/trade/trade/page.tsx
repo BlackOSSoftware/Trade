@@ -10,6 +10,14 @@ import TopBarSlot from "../components/layout/TopBarSlot";
 import TradeTopBar from "../components/layout/TradeTopBar";
 import { useTradeAccount } from "@/hooks/accounts/useAccountById";
 import { useLiveTradeSocket } from "@/hooks/useLiveTradeSocket";
+import { useRouter } from "next/navigation";
+import { useCancelPendingOrder } from "@/hooks/useCancelPendingOrder";
+import { Toast } from "@/app/components/ui/Toast";
+import DeleteOrderModal from "../components/trade/DeleteOrderModal";
+import OrderActionSheet from "../components/trade/OrderActionSheet";
+import MobilePositionItem from "../components/trade/MobilePositionItem";
+import PositionActionSheet from "../components/trade/PositionActionSheet";
+import MobilePendingOrderItem from "../components/trade/MobilePendingOrderItem";
 
 type AccountStat = {
     label: string;
@@ -39,7 +47,9 @@ export default function TradePage() {
     const accountId = tradeAccount?.accountId;
     const [selectedPos, setSelectedPos] = useState<any | null>(null);
     const [showSheet, setShowSheet] = useState(false);
-
+    const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+    const [showOrderSheet, setShowOrderSheet] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const { account, positions, pending } = useLiveTradeSocket(accountId);
     const marginLevel =
         account && account.usedMargin > 0
@@ -56,7 +66,17 @@ export default function TradePage() {
         ]
         : [];
 
-
+    const pnl =
+        account
+            ? account.equity - account.balance
+            : 0;
+    const formattedPnl = `${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)} USD`;
+    const pnlColorClass =
+        pnl > 0
+            ? "text-[var(--mt-blue)]"
+            : pnl < 0
+                ? "text-[var(--mt-red)]"
+                : "text-[var(--text-muted)]";
 
     const livePositions: Position[] = useMemo(() => {
         return positions.map((pos) => ({
@@ -84,7 +104,8 @@ export default function TradePage() {
             <TopBarSlot>
                 <TradeTopBar
                     title="Trade"
-                    subtitle={account?.balance.toFixed(2) ?? "0.00"}
+                    subtitle={formattedPnl}
+                    subtitleClassName={pnlColorClass}
                     showMenu
                     right={
                         <div className="flex items-center gap-3">
@@ -99,7 +120,7 @@ export default function TradePage() {
                 />
             </TopBarSlot>
 
-            <div className="px-2 md:px-0 text-[13px] bg-[var(--bg-plan)] md:bg-[var(--bg-card)] h-[calc(100vh-60px)] overflow-y-auto">
+            <div className="px-2 md:px-0 text-[13px] bg-[var(--bg-plan)] md:bg-[var(--bg-card)] h-[calc(100vh)] overflow-y-auto">
 
                 {/* ================= MOBILE (UNCHANGED) ================= */}
                 <div className="md:hidden">
@@ -129,125 +150,61 @@ export default function TradePage() {
                         ))}
                     </div>
 
-                   <div className="mt-2">
-  <div className="flex justify-between items-center py-[3px] bg-[var(--bg-glass)]">
-    <span className="text-[var(--text-muted)] font-semibold">
-      Positions
-    </span>
-  </div>
+                    <div className="mt-2">
+                        <div className="flex justify-between items-center py-[3px] bg-[var(--bg-glass)]">
+                            <span className="text-[var(--text-muted)] font-semibold">
+                                Positions
+                            </span>
+                        </div>
 
-  {livePositions.length > 0 ? (
-    livePositions.map((pos) => (
-      <MobilePositionItem
-        key={pos.id}
-        pos={pos}
-        expandedId={expandedId}
-        setExpandedId={setExpandedId}
-        onLongPress={(p) => {
-          setSelectedPos(p);
-          setShowSheet(true);
-        }}
-      />
-    ))
-  ) : (
-    <div className="text-center py-6 text-[var(--text-muted)]">
-      No Positions
-    </div>
-  )}
-</div>
+                        {livePositions.length > 0 ? (
+                            livePositions.map((pos) => (
+                                <MobilePositionItem
+                                    key={pos.id}
+                                    pos={pos}
+                                    expandedId={expandedId}
+                                    setExpandedId={setExpandedId}
+                                    onLongPress={(p) => {
+                                        setSelectedPos(p);
+                                        setShowSheet(true);
+                                    }}
+                                />
+                            ))
+                        ) : (
+                            <div className="text-center py-6 text-[var(--text-muted)]">
+                                No Positions
+                            </div>
+                        )}
+                    </div>
 
                     {/* Pending Orders */}
                     <div className="mt-3">
                         <div className="flex justify-between items-center py-[3px] bg-[var(--bg-glass)]">
                             <span className="text-[var(--text-muted)] font-semibold">
-                                Pending
+                                Orders
                             </span>
                         </div>
 
-                        {pending.map((order) => {
-                            const expanded = expandedId === order.orderId;
-
-                            return (
-                                <div
+                        {pending.length > 0 ? (
+                            pending.map((order) => (
+                                <MobilePendingOrderItem
                                     key={order.orderId}
-                                    className="border-b border-[color:var(--text-muted)]/20 bg-[var(--bg-plan)] mt-font"
-                                >
-                                    <button
-                                        onClick={() =>
-                                            setExpandedId(expanded ? null : order.orderId)
-                                        }
-                                        className="w-full flex justify-between items-center pt-[10px] pb-[8px]"
-                                    >
-                                        <div className="text-left">
-                                            <div className="font-semibold">
-                                                {order.symbol},{" "}
-                                                <span
-                                                    className={
-                                                        order.side === "BUY"
-                                                            ? "text-[var(--mt-blue)]"
-                                                            : "text-[var(--mt-red)]"
-                                                    }
-                                                >
-                                                    {order.side} {order.volume}
-                                                </span>
-                                            </div>
-
-                                            <div className="mt-price-line">
-                                                {order.price} → {order.currentPrice ?? "-"}
-                                            </div>
-                                        </div>
-
-                                        <div className="font-semibold mt-price-line">
-                                            {order.status}
-                                        </div>
-                                    </button>
-
-                                    {expanded && (
-                                        <div className="px-[2px] pb-[8px] text-[11px] space-y-[3px] grid grid-cols-2">
-                                            <div className="opacity-70 mr-2">
-                                                #{order.orderId.slice(0, 10)}
-                                            </div>
-
-                                            <div className="flex justify-between mr-2">
-                                                <span>Created:</span>
-                                                <span>
-                                                    {new Date(order.createdAt).toLocaleString()}
-                                                </span>
-                                            </div>
-
-                                            <div className="flex justify-between mr-2">
-                                                <span>S / L:</span>
-                                                <span>{order.stopLoss ?? "-"}</span>
-                                            </div>
-
-                                            <div className="flex justify-between mr-2">
-                                                <span>T / P:</span>
-                                                <span>{order.takeProfit ?? "-"}</span>
-                                            </div>
-
-                                            <div className="flex justify-between mr-2">
-                                                <span>Type:</span>
-                                                <span>{order.orderType}</span>
-                                            </div>
-
-                                            <div className="flex justify-between mr-2">
-                                                <span>Status:</span>
-                                                <span className="mt-price-line">
-                                                    {order.status}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-
-                        {pending.length === 0 && (
+                                    order={order}
+                                    expandedId={expandedId}
+                                    setExpandedId={setExpandedId}
+                                    onLongPress={(o) => {
+                                        setSelectedOrder(o);
+                                        setShowOrderSheet(true);
+                                    }}
+                                />
+                            ))
+                        ) : (
                             <div className="text-center py-6 text-[var(--text-muted)]">
                                 No Pending Orders
                             </div>
                         )}
                     </div>
+
 
 
                 </div>
@@ -327,7 +284,7 @@ export default function TradePage() {
                         {/* Header */}
                         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-soft)] bg-[var(--bg-glass)]">
                             <div className="font-semibold text-[14px]">
-                                Pending ({pending.length})
+                                Orders ({pending.length})
                             </div>
                         </div>
 
@@ -399,11 +356,31 @@ export default function TradePage() {
 
             </div>
 
+            {/* 👇 YAHAN ADD KARO */}
+            <PositionActionSheet
+                pos={selectedPos}
+                open={showSheet}
+                onClose={() => setShowSheet(false)}
+            />
+            <OrderActionSheet
+                order={selectedOrder}
+                open={showOrderSheet}
+                onClose={() => setShowOrderSheet(false)}
+                onDeleteClick={() => setShowDeleteModal(true)}
+            />
+            <DeleteOrderModal
+                order={selectedOrder}
+                open={showDeleteModal}
+                onClose={() => {
+                    setShowDeleteModal(false);
+                    setShowOrderSheet(false);
+                }}
+            />
 
         </>
     );
 }
-function useLongPress(callback: () => void, ms = 500) {
+export function useLongPress(callback: () => void, ms = 500) {
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     const start = () => {
@@ -427,97 +404,4 @@ function useLongPress(callback: () => void, ms = 500) {
         onMouseUp: clear,
         onMouseLeave: clear,
     };
-}
-
-type MobilePositionItemProps = {
-    pos: Position;
-    expandedId: string | null;
-    setExpandedId: (id: string | null) => void;
-    onLongPress: (pos: Position) => void;
-};
-
-function MobilePositionItem({
-    pos,
-    expandedId,
-    setExpandedId,
-    onLongPress,
-}: MobilePositionItemProps) {
-
-    const expanded = expandedId === pos.id;
-
-    const longPress = useLongPress(() => {
-        onLongPress(pos);
-    });
-
-    return (
-       <div
-  {...longPress}
-  onContextMenu={(e) => e.preventDefault()}
-  className="border-b border-[color:var(--text-muted)]/20 bg-[var(--bg-plan)] select-none no-touch-callout select-none"
->
-
-            <button
-                                        onClick={() =>
-                                            setExpandedId(expanded ? null : pos.id)
-                                        }
-                                        className="w-full flex justify-between items-center pt-[10px] pb-[8px]"
-                                    >
-                                        <div className="text-left">
-                                            <div className="font-semibold">
-                                                {pos.pair},{" "}
-                                                <span
-                                                    className={
-                                                        pos.type === "buy"
-                                                            ? "text-[var(--mt-blue)]"
-                                                            : "text-[var(--mt-red)]"
-                                                    }
-                                                >
-                                                    {pos.type} {pos.lot}
-                                                </span>
-
-                                            </div>
-                                            <div className="mt-price-line">
-                                                {pos.from} → {pos.to}
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            className={`font-semibold ${pos.profit < 0
-                                                ? "text-[var(--mt-red)]"
-                                                : "text-[var(--mt-blue)]"
-                                                }`}
-                                        >
-                                            {pos.profit.toFixed(2)}
-                                        </div>
-                                    </button>
-
-                                    {expanded && (
-                                        <div className="px-[2px] pb-[8px] text-[11px] space-y-[3px] grid grid-cols-2">
-                                            <div className="opacity-70 mr-2">
-                                                #{pos.id.slice(0, 10)}
-                                            </div>
-
-                                            <div className="flex justify-between mr-2">
-                                                <span>Open:</span>
-                                                <span>{pos.openTime || "-"}</span>
-                                            </div>
-
-                                            <div className="flex justify-between mr-2">
-                                                <span>S / L:</span>
-                                                <span>{pos.stopLoss ?? "-"}</span>
-                                            </div>
-
-                                            <div className="flex justify-between mr-2">
-                                                <span>Swap:</span>
-                                                <span>{pos.swap ?? "-"}</span>
-                                            </div>
-
-                                            <div className="flex justify-between mr-2">
-                                                <span>T / P:</span>
-                                                <span>{pos.takeProfit ?? "-"}</span>
-                                            </div>
-                                        </div>
-                                    )}
-        </div>
-    );
 }
