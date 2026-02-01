@@ -34,7 +34,7 @@ function TradeLayoutInner({
     const { data: account } = useTradeAccount();// comes from global state
 
     return (
-        <div className="min-h-screen mt-font mt-numbers">
+        <div className="min-h-screen mt-font mt-numbers bg-[var(--bg-plan)] md:bg-[var(--bg-card)]">
 
             {/* ============ MOBILE / TABLET ============ */}
             <div className="md:hidden flex flex-col min-h-screen">

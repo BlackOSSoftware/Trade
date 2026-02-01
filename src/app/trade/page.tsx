@@ -42,7 +42,7 @@ export default function TradeDashboard() {
 
   return (
     <div 
-      className="min-h-screen px-6 lg:px-12 py-10"
+      className="hidden md:block min-h-screen px-6 lg:px-12 py-10"
       style={{ backgroundColor: 'var(--bg-main)' }}
     >
       <div className="max-w-7xl mx-auto space-y-8">

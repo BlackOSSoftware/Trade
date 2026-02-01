@@ -1,7 +1,20 @@
 'use client';
 import { useEffect, useRef, useState } from "react";
 
-export default function LiveChart({ bid, ask }: { bid: number; ask: number }) {
+export default function LiveChart({
+    bid,
+    ask,
+    sl,
+    tp,
+    pendingPrice
+}: {
+    bid: number;
+    ask: number;
+    sl?: number;
+    tp?: number;
+    pendingPrice?: number;
+}) {
+
     const containerRef = useRef<HTMLDivElement | null>(null);
 
     const [bidTicks, setBidTicks] = useState<number[]>([]);
@@ -86,6 +99,9 @@ export default function LiveChart({ bid, ask }: { bid: number; ask: number }) {
 
     const bidY = scaleY(currentBid);
     const askY = scaleY(currentAsk);
+    const slY = sl !== undefined ? scaleY(sl) : null;
+    const tpY = tp !== undefined ? scaleY(tp) : null;
+    const pendingY = pendingPrice !== undefined ? scaleY(pendingPrice) : null;
 
     // grid levels
     const levels = Array.from({ length: GRID_COUNT }, (_, i) => {
@@ -120,21 +136,115 @@ export default function LiveChart({ bid, ask }: { bid: number; ask: number }) {
                 className="absolute left-0 top-0 bottom-0 overflow-hidden"
                 style={{ right: PRICE_SCALE_WIDTH }}
             >
-                <svg width={width + 200} height={HEIGHT}>
-                    <path
-                        d={askPath}
-                        stroke="#ff4d4d"
-                        strokeWidth="2"
-                        fill="none"
-                    />
-                    <path
-                        d={bidPath}
-                        stroke="#4aa3ff"
-                        strokeWidth="2"
-                        fill="none"
-                    />
+                <svg width={width} height={HEIGHT}>
+
+                    {/* PRICE LINES */}
+                    <path d={askPath} stroke="#ff4d4d" strokeWidth="2" fill="none" />
+                    <path d={bidPath} stroke="#4aa3ff" strokeWidth="2" fill="none" />
+
+                    {/* SL */}
+                    {slY !== null && (
+                        <>
+                            <line
+                                x1={0}
+                                x2={width}
+                                y1={slY}
+                                y2={slY}
+                                stroke="var(--warning)"
+                                strokeWidth="1.5"
+                            />
+                            <text
+                                x={4}
+                                y={slY - 6}
+                                fill="var(--warning)"
+                                fontSize="11"
+                                fontWeight="600"
+                            >
+                                SL
+                            </text>
+                            <text
+                                x={width - 4}
+                                y={slY - 6}
+                                fill="var(--warning)"
+                                fontSize="11"
+                                fontWeight="600"
+                                textAnchor="end"
+                            >
+                                {sl?.toFixed(3)}
+                            </text>
+                        </>
+                    )}
+
+                    {/* TP */}
+                    {tpY !== null && (
+                        <>
+                            <line
+                                x1={0}
+                                x2={width}
+                                y1={tpY}
+                                y2={tpY}
+                                stroke="var(--success)"
+                                strokeWidth="1.5"
+                            />
+                            <text
+                                x={4}
+                                y={tpY - 6}
+                                fill="var(--success)"
+                                fontSize="11"
+                                fontWeight="600"
+                            >
+                                TP
+                            </text>
+                            <text
+                                x={width - 4}
+                                y={tpY - 6}
+                                fill="var(--success)"
+                                fontSize="11"
+                                fontWeight="600"
+                                textAnchor="end"
+                            >
+                                {tp?.toFixed(3)}
+                            </text>
+                        </>
+                    )}
+
+                    {/* PENDING */}
+                    {pendingY !== null && (
+                        <>
+                            <line
+                                x1={0}
+                                x2={width}
+                                y1={pendingY}
+                                y2={pendingY}
+                                stroke="#9ca3af"
+                                strokeWidth="1.5"
+                                strokeDasharray="6 4"
+                            />
+                            <text
+                                x={4}
+                                y={pendingY - 6}
+                                fill="#9ca3af"
+                                fontSize="11"
+                                fontWeight="600"
+                            >
+                                PRICE
+                            </text>
+                            <text
+                                x={width - 4}
+                                y={pendingY - 6}
+                                fill="#9ca3af"
+                                fontSize="11"
+                                fontWeight="600"
+                                textAnchor="end"
+                            >
+                                {pendingPrice?.toFixed(3)}
+                            </text>
+                        </>
+                    )}
+
                 </svg>
             </div>
+
 
             {/* PRICE SCALE */}
             <div
@@ -172,6 +282,49 @@ export default function LiveChart({ bid, ask }: { bid: number; ask: number }) {
             >
                 {currentBid.toFixed(3)}
             </div>
+            {slY !== null && (
+                <div
+                    className="absolute right-0 mr-2 pr-1 py-1 text-xs rounded-l"
+                    style={{
+                        top: slY - 10,
+                        background: "var(--warning)",
+                        color: "white",
+                        width: PRICE_SCALE_WIDTH,
+                        textAlign: "right",
+                    }}
+                >
+                    {sl?.toFixed(3)}
+                </div>
+            )}
+            {tpY !== null && (
+                <div
+                    className="absolute right-0 mr-2 pr-1 py-1 text-xs rounded-l"
+                    style={{
+                        top: tpY - 10,
+                        background: "var(--success)",
+                        color: "white",
+                        width: PRICE_SCALE_WIDTH,
+                        textAlign: "right",
+                    }}
+                >
+                    {tp?.toFixed(3)}
+                </div>
+            )}
+            {pendingY !== null && (
+                <div
+                    className="absolute right-0 mr-2 pr-1 py-1 text-xs rounded-l"
+                    style={{
+                        top: pendingY - 10,
+                        background: "#6b7280",
+                        color: "white",
+                        width: PRICE_SCALE_WIDTH,
+                        textAlign: "right",
+                    }}
+                >
+                    {pendingPrice?.toFixed(3)}
+                </div>
+            )}
+
         </div>
     );
 }

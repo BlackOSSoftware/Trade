@@ -31,6 +31,20 @@ export type LivePosition = {
 
   openTime?: string;         // optional (if socket doesn’t send)
 };
+export type LivePending = {
+  orderId: string;
+  symbol: string;
+  side: "BUY" | "SELL";
+  orderType: string;
+  price: number;
+  volume: number;
+  stopLoss: number | null;
+  takeProfit: number | null;
+  createdAt: number;
+  currentPrice?: number;
+  status: string;
+};
+
 
 export const useLiveTradeSocket = (accountId?: string) => {
   const wsRef = useRef<WebSocket | null>(null);
@@ -39,6 +53,10 @@ export const useLiveTradeSocket = (accountId?: string) => {
   const [positions, setPositions] = useState<
     Record<string, LivePosition>
   >({});
+  const [pendingOrders, setPendingOrders] = useState<
+    Record<string, LivePending>
+  >({});
+
 
   useEffect(() => {
     if (!accountId) return;
@@ -72,6 +90,13 @@ export const useLiveTradeSocket = (accountId?: string) => {
             [message.data.positionId]: message.data,
           }));
         }
+        if (message.type === "live_pending") {
+          setPendingOrders((prev) => ({
+            ...prev,
+            [message.data.orderId]: message.data,
+          }));
+        }
+
       } catch (err) {
         console.error("Socket parse error", err);
       }
@@ -91,5 +116,6 @@ export const useLiveTradeSocket = (accountId?: string) => {
   return {
     account,
     positions: Object.values(positions),
+    pending: Object.values(pendingOrders),
   };
 };

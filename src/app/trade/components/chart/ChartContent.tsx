@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import TopBarSlot from "../layout/TopBarSlot";
 import TradeTopBar from "../layout/TradeTopBar";
@@ -10,20 +10,49 @@ export default function ChartContent() {
   const searchParams = useSearchParams();
   const symbol = searchParams.get("symbol") || "";
 
+  const [theme, setTheme] = useState("dark");
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Theme sync
+  useEffect(() => {
+    const updateTheme = () => {
+      const storedTheme = localStorage.getItem("theme") || "dark";
+      setTheme(storedTheme);
+    };
+
+    updateTheme();
+    window.addEventListener("storage", updateTheme);
+
+    return () => {
+      window.removeEventListener("storage", updateTheme);
+    };
+  }, []);
+
+  // Screen size listener
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   useEffect(() => {
     if (!containerRef.current) return;
 
     containerRef.current.innerHTML = "";
 
-    const isDesktop = window.innerWidth >= 768;
-    const savedTheme = localStorage.getItem("theme");
+    let chartBg = "#000000";
 
-    let bgColor = "#000000";
-
-    if (savedTheme === "light") {
-      bgColor = "#ffffff";
+    if (theme === "light") {
+      chartBg = "#ffffff";
     } else {
-      bgColor = isDesktop ? "#111827" : "#000000";
+      chartBg = isDesktop ? "#111827" : "#000000";
     }
 
     const resolveSymbol = (s: string) => {
@@ -46,30 +75,48 @@ export default function ChartContent() {
       symbol: resolveSymbol(symbol),
       interval: "15",
       timezone: "Asia/Kolkata",
-      theme: savedTheme === "light" ? "light" : "dark",
+      theme: theme === "light" ? "light" : "dark",
       style: "1",
       locale: "en",
       hide_side_toolbar: false,
       allow_symbol_change: true,
       container_id: "tradingview_chart",
+
+      backgroundColor: chartBg,
+
+      overrides: {
+  "paneProperties.background": chartBg,
+  "paneProperties.backgroundType": "solid",
+
+  "paneProperties.vertGridProperties.color":
+    theme === "light" ? "#e5e7eb" : "#1f2937",
+  "paneProperties.horzGridProperties.color":
+    theme === "light" ? "#e5e7eb" : "#1f2937",
+
+  "scalesProperties.textColor":
+    theme === "light" ? "#111827" : "#d1d5db",
+
+  "mainSeriesProperties.candleStyle.upColor": "#22c55e",
+  "mainSeriesProperties.candleStyle.downColor": "#ef4444",
+}
+
     });
 
+
     containerRef.current.appendChild(script);
-  }, [symbol]);
+  }, [symbol, theme, isDesktop]);
 
   return (
-    <>
+    <div className="h-screen w-full overflow-hidden flex flex-col bg-[var(--bg-plan)] md:bg-[var(--bg-card)] pb-30 md:pb-0">
       <TopBarSlot>
         <TradeTopBar title="Chart" showMenu />
       </TopBarSlot>
 
-      <div className="w-full h-full min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-card)]">
-        <div
-          ref={containerRef}
-          id="tradingview_chart"
-          className="w-full h-[calc(100vh-60px)]"
-        />
-      </div>
-    </>
+      <div
+        ref={containerRef}
+        id="tradingview_chart"
+        className="flex-1 w-full"
+      />
+    </div>
   );
 }

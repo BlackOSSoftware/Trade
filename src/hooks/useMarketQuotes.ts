@@ -54,19 +54,30 @@ export function useMarketQuotes(token?: string) {
       try {
         // handle server "subscribed" acknowledgement message
         if (msg.status === "subscribed" && msg.symbol) {
-          const sym = msg.symbol;
-          // optionally update high/low
-          const cur = bufferRef.current[sym];
-          if (cur) {
-            bufferRef.current[sym] = {
-              ...cur,
-              high: msg.dayHigh ? Number(msg.dayHigh) : cur.high,
-              low: msg.dayLow ? Number(msg.dayLow) : cur.low,
-            };
-            scheduleFlush();
-          }
-          return;
-        }
+  const sym = msg.symbol;
+  const cur = bufferRef.current[sym];
+
+  if (cur) {
+    const dayClose =
+      msg.dayClose !== undefined ? String(msg.dayClose) : cur.bid;
+
+    bufferRef.current[sym] = {
+      ...cur,
+      high: msg.dayHigh ? Number(msg.dayHigh) : cur.high,
+      low: msg.dayLow ? Number(msg.dayLow) : cur.low,
+
+      // 🔥 fallback price when market closed
+      bid: dayClose,
+      ask: dayClose,
+      bidDir: "same",
+      askDir: "same",
+    };
+
+    scheduleFlush();
+  }
+
+  return;
+}
 
         // orderbook / market update
         if (msg.type === "orderbook" && msg.data?.code) {
@@ -90,7 +101,13 @@ export function useMarketQuotes(token?: string) {
           const old = bufferRef.current[s] as any;
 
           // update only when we have prices
-          if (bid && ask) {
+          if (
+  bid &&
+  ask &&
+  Number(bid.price) > 0 &&
+  Number(ask.price) > 0
+) {
+
             bufferRef.current[s] = {
               ...old,
               bid: bid.price,

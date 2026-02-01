@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
 
 type ToastProps = {
@@ -9,6 +10,17 @@ type ToastProps = {
 
 export function Toast({ message, type = "success" }: ToastProps) {
   const isSuccess = type === "success";
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVisible(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!visible) return null;
 
   return (
     <div
@@ -31,15 +43,9 @@ export function Toast({ message, type = "success" }: ToastProps) {
       }}
     >
       {isSuccess ? (
-        <CheckCircle
-          size={18}
-          className="text-[var(--success)]"
-        />
+        <CheckCircle size={18} className="text-[var(--success)]" />
       ) : (
-        <XCircle
-          size={18}
-          className="text-[var(--error)]"
-        />
+        <XCircle size={18} className="text-[var(--error)]" />
       )}
 
       <span

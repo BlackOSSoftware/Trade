@@ -72,9 +72,10 @@ export default function NewOrderPage() {
     const [specifiedDate, setSpecifiedDate] = useState<Date | null>(null);
     const [openSpecifiedModal, setOpenSpecifiedModal] = useState(false);
     const [toast, setToast] = useState<{
-  type: "success" | "error";
-  message: string;
-} | null>(null);
+        type: "success" | "error";
+        message: string;
+    } | null>(null);
+    const [processingSide, setProcessingSide] = useState<"BUY" | "SELL" | null>(null);
 
     const STEP = 0.0001; // adjust per symbol
     const marketMutation = useMarketOrder();
@@ -183,110 +184,123 @@ export default function NewOrderPage() {
             : live.askDir === "down"
                 ? "text-[var(--mt-red)]"
                 : "text-white";
+
     const handleMarketOrder = (side: "BUY" | "SELL") => {
-  if (!symbol || volume <= 0) return;
+        if (!symbol || volume <= 0) return;
 
-  marketMutation.mutate(
-    {
-      symbol,
-      side,
-      volume,
-      stopLoss: sl === "" ? undefined : sl,
-      takeProfit: tp === "" ? undefined : tp,
-    },
-    {
-      onSuccess: (data) => {
-        setToast({
-          type: "success",
-          message: `${side} order executed successfully`,
+        setProcessingSide(side);
+
+        marketMutation.mutate(
+            {
+                symbol,
+                side,
+                volume,
+                stopLoss: sl === "" ? undefined : sl,
+                takeProfit: tp === "" ? undefined : tp,
+            },
+            {
+                onSuccess: () => {
+                    setToast({
+                        type: "success",
+                        message: `${side} order executed successfully`,
+                    });
+                    setSl("");
+                    setTp("");
+                    setProcessingSide(null);
+                },
+                onError: (err: any) => {
+                    setToast({
+                        type: "error",
+                        message: err?.message || "Order failed",
+                    });
+                    setProcessingSide(null);
+                },
+            }
+        );
+    };
+
+
+    const handlePendingOrder = () => {
+        if (!symbol || volume <= 0 || price === "") return;
+
+        const mapOrderType = {
+            "BUY LIMIT": "BUY_LIMIT",
+            "SELL LIMIT": "SELL_LIMIT",
+            "BUY STOP": "BUY_STOP",
+            "SELL STOP": "SELL_STOP",
+        } as const;
+
+        const apiOrderType =
+            mapOrderType[orderType as keyof typeof mapOrderType];
+
+        if (!apiOrderType) return;
+
+        const side: "BUY" | "SELL" =
+            orderType.includes("BUY") ? "BUY" : "SELL";
+
+        // 🧠 Base payload (required fields only)
+        const payload: any = {
+            symbol,
+            side,
+            orderType: apiOrderType,
+            price: Number(price),
+            volume: Number(volume),
+        };
+
+        // Optional SL
+        if (sl !== "") {
+            payload.stopLoss = Number(sl);
+        }
+
+        // Optional TP
+        if (tp !== "") {
+            payload.takeProfit = Number(tp);
+        }
+
+        // Expiration logic
+        if (expiration === "SPECIFIED") {
+            if (!specifiedDate) {
+                setToast({
+                    type: "error",
+                    message: "Please select expiration date",
+                });
+                return;
+            }
+
+            payload.expireType = "TIME";
+            payload.expireAt = specifiedDate.toISOString();
+        } else {
+            payload.expireType = expiration; // GTC or TODAY
+        }
+
+        pendingMutation.mutate(payload, {
+            onSuccess: (res: any) => {
+
+                if (res?.status !== "success") {
+                    setToast({
+                        type: "error",
+                        message: res?.message || "Order rejected"
+                    });
+                    return;
+                }
+
+                setToast({
+                    type: "success",
+                    message: `${side} ${apiOrderType} placed successfully`,
+                });
+
+                setPrice("");
+                setSl("");
+                setTp("");
+            },
+            onError: (err: any) => {
+                setToast({
+                    type: "error",
+                    message: err?.message || "Order failed",
+                });
+            },
         });
-
-        setSl("");
-        setTp("");
-      },
-      onError: (err: any) => {
-        setToast({
-          type: "error",
-          message: err?.message || "Order failed",
-        });
-      },
-    }
-  );
-};
-
-
-  const handlePendingOrder = () => {
-  if (!symbol || volume <= 0 || price === "") return;
-
-  const mapOrderType = {
-    "BUY LIMIT": "BUY_LIMIT",
-    "SELL LIMIT": "SELL_LIMIT",
-    "BUY STOP": "BUY_STOP",
-    "SELL STOP": "SELL_STOP",
-  } as const;
-
-  const apiOrderType =
-    mapOrderType[orderType as keyof typeof mapOrderType];
-
-  if (!apiOrderType) return;
-
-  const side: "BUY" | "SELL" =
-    orderType.includes("BUY") ? "BUY" : "SELL";
-
-  // 🧠 Base payload (required fields only)
-  const payload: any = {
-    symbol,
-    side,
-    orderType: apiOrderType,
-    price: Number(price),
-    volume: Number(volume),
-  };
-
-  // Optional SL
-  if (sl !== "") {
-    payload.stopLoss = Number(sl);
-  }
-
-  // Optional TP
-  if (tp !== "") {
-    payload.takeProfit = Number(tp);
-  }
-
-  // Expiration logic
-  if (expiration === "SPECIFIED") {
-    if (!specifiedDate) {
-      setToast({
-        type: "error",
-        message: "Please select expiration date",
-      });
-      return;
-    }
-
-    payload.expireType = "TIME";
-    payload.expireAt = specifiedDate.toISOString();
-  } else {
-    payload.expireType = expiration; // GTC or TODAY
-  }
-
-  pendingMutation.mutate(payload, {
-    onSuccess: () => {
-      setToast({
-        type: "success",
-        message: `${side} ${apiOrderType} placed successfully`,
-      });
-
-      setPrice("");
-      setSl("");
-      setTp("");
-    },
-    onError: (err: any) => {
-      setToast({
-        type: "error",
-        message: err?.message || "Order failed",
-      });
-    },
-  });
-};
+    };
 
     function formatDateTime(date: Date) {
         const pad = (n: number) => n.toString().padStart(2, "0");
@@ -492,7 +506,7 @@ export default function NewOrderPage() {
 
                             {/* Minus */}
                             <button
-                                className="text-blue-400 text-xl font-bold"
+                                className="text-[var(--mt-blue)] text-xl font-bold"
                                 onClick={() => {
                                     const base = price === "" ? Number(live.bid) : price;
                                     const value = Math.max(0, base - STEP);
@@ -527,7 +541,7 @@ export default function NewOrderPage() {
 
                             {/* Plus */}
                             <button
-                                className="text-blue-400 text-xl font-bold"
+                                className="text-[var(--mt-blue)] text-xl font-bold"
                                 onClick={() => {
                                     const base = price === "" ? Number(live.ask) : price;
                                     const value = base + STEP;
@@ -543,13 +557,15 @@ export default function NewOrderPage() {
                 )}
 
                 {/* SL / TP INPUTS */}
-                <div className="flex justify-around items-center px-6 pb-3 text-white">
+                <div className="flex justify-around items-center px-6 pb-3 text-[var(--text-main)]">
 
                     {/* SL */}
-                    <div className="flex items-center gap-3 ">
+                    <div className="relative flex items-center gap-3 border-b border-[var(--warning)] pb-1">
+                        <span className="absolute bottom-0 left-0 h-[20%] w-[1px] bg-[var(--warning)]"></span>
+                        <span className="absolute bottom-0 right-0 h-[20%] w-[1px] bg-[var(--warning)]"></span>
 
                         <button
-                            className="text-blue-400 text-xl font-bold"
+                            className="text-[var(--mt-blue)] text-xl font-bold"
                             onClick={() => {
                                 const value =
                                     sl === ""
@@ -582,11 +598,11 @@ export default function NewOrderPage() {
                                 }
                             }}
                             placeholder="SL"
-                            className="w-24 bg-transparent border-b border-gray-700 text-center text-white outline-none text-lg"
+                            className="w-24 bg-transparent text-center text-[var(--text-main)] outline-none text-lg"
                         />
 
                         <button
-                            className="text-blue-400 text-xl font-bold"
+                            className="text-[var(--mt-blue)] text-xl font-bold"
                             onClick={() => {
                                 const value =
                                     sl === ""
@@ -603,10 +619,12 @@ export default function NewOrderPage() {
                     </div>
 
                     {/* TP */}
-                    <div className="flex items-center gap-3">
+                    <div className="relative flex items-center gap-3 border-b border-[var(--success)] pb-1">
+                        <span className="absolute bottom-0 left-0 h-[20%] w-[1px] bg-[var(--success)]"></span>
+                        <span className="absolute bottom-0 right-0 h-[20%] w-[1px] bg-[var(--success)]"></span>
 
                         <button
-                            className="text-blue-400 text-xl font-bold"
+                            className="text-[var(--mt-blue)] text-xl font-bold"
                             onClick={() => {
                                 const value =
                                     tp === ""
@@ -628,7 +646,7 @@ export default function NewOrderPage() {
                                 const val = e.target.value;
 
                                 if (val === "") {
-                                    setSl("");
+                                    setTp("");
                                     return;
                                 }
 
@@ -639,11 +657,11 @@ export default function NewOrderPage() {
                             }}
 
                             placeholder="TP"
-                            className="w-24 bg-transparent border-b border-gray-700 text-center text-white outline-none text-lg"
+                            className="w-24 bg-transparent text-center text-white outline-none text-lg"
                         />
 
                         <button
-                            className="text-blue-400 text-xl font-bold"
+                            className="text-[var(--mt-blue)] text-xl font-bold"
                             onClick={() => {
                                 const value =
                                     tp === ""
@@ -686,7 +704,7 @@ export default function NewOrderPage() {
 
                         {/* Dropdown */}
                         {openExpiration && (
-                            <div className="absolute left-0 right-0 top-0 mt-2 bg-[var(--bg-plan)] border border-gray-700 z-50">
+                            <div className="absolute left-0 right-0 mt-2 top-full bg-[var(--bg-plan)] border border-gray-700 z-50">
 
                                 {expirationOptions.map((opt) => (
                                     <div
@@ -695,11 +713,13 @@ export default function NewOrderPage() {
                                             setOpenExpiration(false);
 
                                             if (opt === "SPECIFIED") {
+                                                setExpiration("SPECIFIED");
                                                 setOpenSpecifiedModal(true);
                                             } else {
                                                 setExpiration(opt);
                                                 setSpecifiedDate(null);
                                             }
+
                                         }}
 
                                         className="text-right px-6 py-3 text-sm text-white hover:bg-gray-800 cursor-pointer transition"
@@ -721,6 +741,9 @@ export default function NewOrderPage() {
                         key={symbol}   // 👈 add this
                         bid={Number(live.bid)}
                         ask={Number(live.ask)}
+                        sl={sl === "" ? undefined : Number(sl)}
+                        tp={tp === "" ? undefined : Number(tp)}
+                        pendingPrice={price === "" ? undefined : Number(price)}
                     />
                 </Suspense>
 
@@ -737,33 +760,35 @@ export default function NewOrderPage() {
                     {orderType === "MARKET EXECUTION" ? (
                         <div className="grid grid-cols-2">
                             <button
-  disabled={marketMutation.isPending}
-  className="text-red-500 py-4 text-xl font-bold border-r border-gray-800 hover:bg-red-900/20 transition-colors disabled:opacity-50"
-  onClick={() => handleMarketOrder("SELL")}
->
-  {marketMutation.isPending ? "PROCESSING..." : "SELL"}
-  <div className="text-xs font-normal">BY MARKET</div>
-</button>
+                                disabled={processingSide !== null}
+                                className="text-red-500 py-4 text-xl font-bold border-r border-gray-800 hover:bg-red-900/20 transition-colors disabled:opacity-50"
+                                onClick={() => handleMarketOrder("SELL")}
+                            >
+                                {processingSide === "SELL" ? "PROCESSING..." : "SELL"}
+                                <div className="text-xs font-normal">BY MARKET</div>
+                            </button>
 
 
-                           <button
-  disabled={marketMutation.isPending}
-  className="text-blue-400 py-4 text-xl font-bold hover:bg-blue-900/20 transition-colors disabled:opacity-50"
-  onClick={() => handleMarketOrder("BUY")}
->
-  {marketMutation.isPending ? "PROCESSING..." : "BUY"}
-  <div className="text-xs font-normal">BY MARKET</div>
-</button>
+
+                            <button
+                                disabled={processingSide !== null}
+                                className="text-[var(--mt-blue)] py-4 text-xl font-bold hover:bg-blue-900/20 transition-colors disabled:opacity-50"
+                                onClick={() => handleMarketOrder("BUY")}
+                            >
+                                {processingSide === "BUY" ? "PROCESSING..." : "BUY"}
+                                <div className="text-xs font-normal">BY MARKET</div>
+                            </button>
+
 
                         </div>
                     ) : (
                         <button
-  disabled={pendingMutation.isPending}
-  className="w-full py-4 text-xl font-bold text-[var(--text-main)] hover:bg-white/10 transition-colors disabled:opacity-50"
-  onClick={handlePendingOrder}
->
-  {pendingMutation.isPending ? "PROCESSING..." : "PLACE"}
-</button>
+                            disabled={pendingMutation.isPending}
+                            className="w-full py-4 text-xl font-bold text-[var(--text-main)] hover:bg-white/10 transition-colors disabled:opacity-50"
+                            onClick={handlePendingOrder}
+                        >
+                            {pendingMutation.isPending ? "PROCESSING..." : "PLACE"}
+                        </button>
 
                     )}
 
@@ -771,7 +796,7 @@ export default function NewOrderPage() {
 
             </div>
             {openSpecifiedModal && (
-                <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+                <div className="fixed inset-0 z-[999] bg-black/60 flex items-center justify-center">
 
                     <div className="bg-[var(--bg-plan)] w-[90%] max-w-md rounded-2xl p-6">
 
@@ -813,14 +838,14 @@ export default function NewOrderPage() {
                         <div className="flex justify-between mt-8">
 
                             <button
-                                className="text-blue-400"
+                                className="text-[var(--mt-blue)]"
                                 onClick={() => setOpenSpecifiedModal(false)}
                             >
                                 Cancel
                             </button>
 
                             <button
-                                className="text-blue-400"
+                                className="text-[var(--mt-blue)]"
                                 onClick={() => {
                                     if (!specifiedDate) return;
 
@@ -835,12 +860,12 @@ export default function NewOrderPage() {
                     </div>
                 </div>
             )}
-    {toast && (
-  <Toast
-    message={toast.message}
-    type={toast.type}
-  />
-)}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                />
+            )}
 
 
         </>

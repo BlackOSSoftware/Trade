@@ -334,7 +334,7 @@ export default function TradeHistory() {
       </TopBarSlot>
 
       {/* BODY */}
-      <div className="px-2 md:px-4 pt-1 text-[13px] bg-[var(--bg-plan)] min-h-screen">
+      <div className="px-2 md:px-4 pt-1 text-[13px] bg-[var(--bg-plan)]  h-[calc(100vh-60px)] overflow-y-auto">
         <HistoryTabs activeTab={activeTab} onChange={onTabChange} />
 
         <div className="transition-opacity duration-200">
@@ -400,9 +400,9 @@ export default function TradeHistory() {
                           <div className="text-[12px] text-[var(--mt-grey)]">
                             {new Date(order.openTime).toLocaleString()}
                           </div>
-<div className="mt-profit text-[var(--mt-grey)] text-[13px]">
-  {order.status === "CLOSED" ? "FILLED" : order.status}
-</div>
+                          <div className="mt-profit text-[var(--mt-grey)] text-[13px]">
+                            {order.status === "CLOSED" ? "FILLED" : order.status}
+                          </div>
 
                         </div>
                       </div>

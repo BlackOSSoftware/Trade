@@ -70,7 +70,7 @@ export default function QuotesPage() {
                 />
             </TopBarSlot>
 
-            <div className="text-[var(--text-main)]">
+            <div className="text-[var(--text-main)] bg-[var(--bg-plan)] md:bg-[var(--bg-card)] min-h-screen ">
                 <QuotesList
                     onSelect={(symbol) => {
                         setSelected(symbol);

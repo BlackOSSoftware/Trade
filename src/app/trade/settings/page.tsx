@@ -56,7 +56,7 @@ export default function TradePage() {
 
       {/* ACCOUNT CARD */}
       <div
-        className="relative mx-3 mt-3 rounded-xl bg-[var(--bg-glass)] px-4 py-4 cursor-pointer"
+        className="relative mx-3 mt-3 rounded-xl bg-[var(--bg-plan)] px-4 py-4 cursor-pointer"
       >
         <div className="flex flex-col items-center text-center gap-0.5 py-1">
           <div className="text-lg font-semibold">
