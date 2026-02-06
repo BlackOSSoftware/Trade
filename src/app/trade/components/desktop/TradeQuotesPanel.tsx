@@ -15,8 +15,6 @@ export default function TradeQuotesPanel() {
       `}
       style={{
         background: "var(--bg-card)",
-        borderRight: "1px solid var(--border-soft)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
         overflow: "hidden",
       }}
     >
@@ -32,7 +30,7 @@ export default function TradeQuotesPanel() {
           </div>
 
           {/* PANEL CONTENT */}
-          <div className="flex-1 overflow-y-auto px-2 py-2">
+          <div className="flex-1 overflow-y-auto px-2 ">
             <QuotesUI showTopBar />
           </div>
         </div>

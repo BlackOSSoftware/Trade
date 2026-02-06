@@ -44,9 +44,9 @@ export default function TradeLogin() {
                 onSuccess: (res) => {
                     const { tradeToken, accountId } = res;
                     console.log("LOGIN RESPONSE:", res);
-                    document.cookie = `tradeToken=${tradeToken}; path=/; max-age=900`;
-                    document.cookie = `sessionType=${res.sessionType}; path=/; max-age=900`;
-                    document.cookie = `accountId=${accountId}; path=/; max-age=900`;
+                    document.cookie = `tradeToken=${tradeToken}; path=/; max-age=43200`;
+                    document.cookie = `sessionType=${res.sessionType}; path=/; max-age=43200`;
+                    document.cookie = `accountId=${accountId}; path=/; max-age=43200`;
 
                    router.push("/trade");
                 },
@@ -71,13 +71,13 @@ export default function TradeLogin() {
                         <div className="flex bg-[var(--bg-glass)] p-1 rounded-lg">
                             <button
                                 onClick={() => router.push("/login")}
-                                className="px-4 py-2 text-sm rounded-md text-[var(--text-muted)] hover:text-white transition"
+                                className="px-4 py-2 text-sm rounded-md text-[var(--text-muted)] hover:text-[var(--text-main)] transition"
                             >
                                 Broker Login
                             </button>
 
                             <button
-                                className="px-4 py-2 text-sm rounded-md bg-[var(--primary)] text-white transition"
+                                className="px-4 py-2 text-sm rounded-md bg-[var(--primary)] text-[var(--text-main)] transition"
                             >
                                 Trade Panel Login
                             </button>
@@ -116,7 +116,7 @@ export default function TradeLogin() {
                     <button
                         onClick={handleTradeLogin}
                         disabled={tradeLogin.isPending}
-                        className="w-full rounded-lg py-3 font-medium transition text-white bg-[var(--primary)] hover:shadow-[0_0_30px_var(--primary-glow)] disabled:opacity-60"
+                        className="w-full rounded-lg py-3 font-medium transition text-[var(--text-main)] bg-[var(--primary)] hover:shadow-[0_0_30px_var(--primary-glow)] disabled:opacity-60"
                     >
                         {tradeLogin.isPending ? "Signing in..." : "Login"}
                     </button>
@@ -125,7 +125,7 @@ export default function TradeLogin() {
 
             {/* TOAST */}
             {toast && (
-                <div className="fixed bottom-4 right-4 rounded-lg bg-[var(--primary)] text-white px-4 py-2 shadow-xl">
+                <div className="fixed bottom-4 right-4 rounded-lg bg-[var(--primary)] text-[var(--text-main)] px-4 py-2 shadow-xl">
                     {toast}
                 </div>
             )}

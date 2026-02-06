@@ -230,7 +230,7 @@ export default function ProfilePage() {
                     showKycButton ? (
                       <button
                         onClick={() => router.push("/dashboard/kyc")}
-                        className="inline-flex items-center gap-1 rounded-full bg-[var(--primary)] px-3 py-[3px] text-[10px] font-medium text-white shadow-sm transition hover:bg-[var(--primary-dark)]"
+                        className="inline-flex items-center gap-1 rounded-full bg-[var(--primary)] px-3 py-[3px] text-[10px] font-medium text-[var(--text-main)] shadow-sm transition hover:bg-[var(--primary-dark)]"
                       >
                         Complete KYC
                       </button>
@@ -401,7 +401,7 @@ export default function ProfilePage() {
                 <button
                   onClick={handleSave}
                   disabled={updateProfile.isPending}
-                  className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-5 py-2 text-xs font-medium text-white shadow-md shadow-[var(--primary)]/30 transition hover:bg-[var(--primary-dark)] disabled:cursor-not-allowed disabled:opacity-70"
+                  className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-5 py-2 text-xs font-medium text-[var(--text-main)] shadow-md shadow-[var(--primary)]/30 transition hover:bg-[var(--primary-dark)] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Save size={14} />
                   {updateProfile.isPending ? "Saving…" : "Save changes"}

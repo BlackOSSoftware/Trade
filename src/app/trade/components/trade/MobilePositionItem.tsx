@@ -39,7 +39,7 @@ export default function MobilePositionItem({
         <div
             {...longPress}
             onContextMenu={(e) => e.preventDefault()}
-            className="border-b border-[color:var(--text-muted)]/20 bg-[var(--bg-plan)] select-none no-touch-callout select-none"
+            className="border-b border-[var(--border-grey)]/40 bg-[var(--bg-plan)] select-none no-touch-callout select-none"
         >
 
             <button
@@ -54,8 +54,8 @@ export default function MobilePositionItem({
                         <span
                             className={
                                 pos.type === "buy"
-                                    ? "text-[var(--mt-blue)]"
-                                    : "text-[var(--mt-red)]"
+                                    ? "text-[var(--mt-blue)] font-medium"
+                                    : "text-[var(--mt-red)] font-medium"
                             }
                         >
                             {pos.type} {pos.lot}
@@ -69,8 +69,8 @@ export default function MobilePositionItem({
 
                 <div
                     className={`font-semibold ${pos.profit < 0
-                        ? "text-[var(--mt-red)]"
-                        : "text-[var(--mt-blue)]"
+                        ? "text-[var(--mt-red)] font-medium"
+                        : "text-[var(--mt-blue)] font-medium"
                         }`}
                 >
                     {pos.profit.toFixed(2)}

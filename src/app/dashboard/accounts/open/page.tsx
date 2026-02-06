@@ -130,7 +130,7 @@ export default function OpenAccountPage() {
           onClick={handleContinue}
           className={`w-full max-w-xs lg:w-64 rounded-lg py-3 font-medium transition-all ${
             selectedPlan
-              ? "bg-[var(--primary)] text-white hover:scale-[1.02]"
+              ? "bg-[var(--primary)] text-[var(--text-main)] hover:scale-[1.02]"
               : "bg-[var(--bg-glass)] text-[var(--text-muted)]"
           }`}
         >
@@ -204,7 +204,7 @@ export default function OpenAccountPage() {
           setCreatedAccount(null);   // 🔥 CLEAR (one time view)
           router.push("/dashboard/accounts");
         }}
-        className="w-full rounded-lg py-3 bg-[var(--primary)] text-white font-medium"
+        className="w-full rounded-lg py-3 bg-[var(--primary)] text-[var(--text-main)] font-medium"
       >
         Okay
       </button>

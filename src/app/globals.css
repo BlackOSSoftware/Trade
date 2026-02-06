@@ -30,16 +30,17 @@
   /* Borders */
   --border-glass: rgba(15, 23, 42, 0.14);
   --border-soft: rgba(15, 23, 42, 0.1);
+  --border-grey: #211e1e2e;
 
   /* Status */
   --success: #16a34a;
   --error: #dc2626;
   --warning: #d97706;
 
-  --mt-blue: #4aa3ff;
-  --mt-red: #ff4d4d;
+  --mt-blue: #0b71f3;
+  --mt-red: #d80000;
   --mt-grey: #9ca3af;
-  --mt-dim: #6b7280;
+  --mt-dim: #404041;
 }
 
 /* ----------------------------------
@@ -71,6 +72,7 @@
   /* Borders */
   --border-glass: rgba(255, 255, 255, 0.12);
   --border-soft: rgba(255, 255, 255, 0.08);
+  --border-grey: rgba(255, 255, 255, 0.14);
 }
 
 /* ----------------------------------
@@ -80,7 +82,7 @@ html,
 body {
   background-color: #000000;
   color: var(--text-main);
-  font-family: "Roboto", Arial, Helvetica, sans-serif;
+  font-family: Trebuchet MS, Roboto, Ubuntu, sans-serif;
   min-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -228,7 +230,7 @@ body {
 }
 
 .mt-font {
-  font-family: "Roboto", Arial, Helvetica, sans-serif;
+  font-family: Trebuchet MS, Roboto, Ubuntu, sans-serif;
   font-feature-settings: "tnum" 1, "lnum" 1;
   font-variant-numeric: tabular-nums lining-nums;
   letter-spacing: 0.01em;
@@ -290,7 +292,23 @@ body {
 #pwa-install-modal.show-modal>div {
   transform: scale(1);
 }
+
 .no-touch-callout {
   -webkit-touch-callout: none;
   user-select: none;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.25s ease-out;
 }

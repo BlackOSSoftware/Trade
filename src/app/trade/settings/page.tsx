@@ -1,28 +1,65 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  LogOut,
+  ChevronRight,
+  User,
+  Palette,
+  Globe,
+  Calendar,
+  LineChart,
+} from "lucide-react";
 
 import { useTradeAccount } from "@/hooks/accounts/useAccountById";
+import { useTheme } from "@/app/providers";
 
-import GlobalLoader from "@/app/components/ui/GlobalLoader";
-import ConfirmModal from "@/app/components/ui/ConfirmModal";
-import { Toast } from "@/app/components/ui/Toast";
 import TopBarSlot from "../components/layout/TopBarSlot";
 import TradeTopBar from "../components/layout/TradeTopBar";
-import { ChevronRight } from "lucide-react";
+import GlobalLoader from "@/app/components/ui/GlobalLoader";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
+import { useLanguage } from "../components/LanguageProvider";
+import { translations } from "@/types/translations";
 
-export default function TradePage() {
+export default function TradeSettingsPage() {
   const router = useRouter();
-
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
-
-  // ✅ Active trade account (no accountId needed)
   const { data: account, isLoading } = useTradeAccount();
+  const { theme, toggleTheme } = useTheme();
+
+const { language, setLanguage } = useLanguage();
+const t = translations[language];
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [calendarEnabled, setCalendarEnabled] = useState(true);
+  const [quoteView, setQuoteView] = useState<"simple" | "advanced">("simple");
+
+  const handleLogout = () => {
+    document.cookie = "tradeToken=; path=/; max-age=0";
+    document.cookie = "accountId=; path=/; max-age=0";
+    document.cookie = "sessionType=; path=/; max-age=0";
+
+    window.location.href = "/trade-login";
+  };
+  useEffect(() => {
+    const langMap: any = {
+      english: "en",
+      indonesia: "id",
+      russia: "ru",
+    };
+
+    document.documentElement.lang = langMap[language];
+  }, [language]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("trade-lang");
+    if (saved) setLanguage(saved);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("trade-lang", language);
+  }, [language]);
+
+
 
   if (isLoading) {
     return (
@@ -32,79 +69,177 @@ export default function TradePage() {
     );
   }
 
-  if (!account) {
-    return <div className="p-6 text-red-500">Account not found</div>;
-  }
+  const cardClass =
+    "rounded-xl p-4 border border-[var(--border-soft)] shadow-sm bg-[var(--bg-plan)] md:bg-[var(--bg-glass)]";
 
   return (
     <>
-      {/* TOP BAR */}
       <TopBarSlot>
-        <TradeTopBar
-          title="Account Details"
-          showMenu
-          right={
-            <button
-              onClick={() => setShowExitConfirm(true)}
-              className="btn btn-ghost text-sm text-red-500"
-            >
-              Exit
-            </button>
-          }
-        />
+        <TradeTopBar title="Settings" showMenu />
       </TopBarSlot>
 
-      {/* ACCOUNT CARD */}
-      <div
-        className="relative mx-3 mt-3 rounded-xl bg-[var(--bg-plan)] px-4 py-4 cursor-pointer"
-      >
-        <div className="flex flex-col items-center text-center gap-0.5 py-1">
-          <div className="text-lg font-semibold">
-            {account?.name}
+       <div className="flex-1 overflow-y-auto max-w-xl mx-auto w-full h-[calc(80vh)] md:h-[calc(100vh)] px-4 py-4 space-y-4 ">
+
+        {/* ACCOUNT */}
+        <div className={cardClass}>
+          <div className="flex items-center gap-3 mb-4">
+            <User size={18} />
+            <span className="font-semibold text-sm">Account Information</span>
           </div>
 
-          <div className="text-sm py-1">
-            ALS Trade –{" "}
-            <span
-              className={
-                account.account_type === "live"
-                ? "text-[var(--text-muted)]"
-                  : "text-[var(--success)] font-medium"
-              }
+          <div className="space-y-3 text-sm">
+            <Row label="Account No" value={account?.accountNumber} />
+            <Row
+              label="Balance"
+              value={`${account?.balance?.toFixed(2)} ${account?.currency}`}
+            />
+          </div>
+        </div>
+
+        {/* THEME */}
+        <div className={cardClass}>
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <Palette size={18} />
+              <span className="text-sm font-medium">Theme</span>
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+              <span>{theme === "dark" ? "Dark Mode" : "Light Mode"}</span>
+              <ChevronRight size={16} />
+            </div>
+          </button>
+        </div>
+
+        {/* LANGUAGE */}
+        {/* <div className={cardClass}>
+          <div className="flex items-center gap-3 mb-3">
+            <Globe size={18} />
+            <span className="text-sm font-medium">Language</span>
+          </div>
+
+          <div className="flex gap-2">
+            {["english", "indonesia", "russia"].map((lang) => (
+              <button
+                key={lang}
+                onClick={() => setLanguage(lang)}
+                className={`px-3 py-1.5 text-xs rounded-full transition ${language === lang
+                    ? "bg-[var(--primary)] text-white"
+                    : "bg-[var(--bg-main)] text-[var(--text-muted)]"
+                  }`}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
+        </div> */}
+
+        {/* ECONOMIC CALENDAR */}
+        <div className={cardClass}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Calendar size={18} />
+              <span className="text-sm font-medium">
+                Economic Calendar
+              </span>
+            </div>
+
+            <Toggle
+              active={calendarEnabled}
+              onClick={() => setCalendarEnabled(!calendarEnabled)}
+            />
+          </div>
+        </div>
+
+        {/* QUOTES VIEW */}
+        <div className={cardClass}>
+          <div className="flex items-center gap-3 mb-3">
+            <LineChart size={18} />
+            <span className="text-sm font-medium">Quotes View</span>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => setQuoteView("simple")}
+              className={`flex-1 py-2 text-xs rounded-lg ${quoteView === "simple"
+                  ? "bg-[var(--primary)] text-white"
+                  : "bg-[var(--bg-main)] text-[var(--text-muted)]"
+                }`}
             >
-              {account.account_type === "live" ? "Demo" : "Live"}
-            </span>
-          </div>
+              Simple View
+            </button>
 
-          <div className="text-sm py-1">
-            Ac. No : {account.accountNumber?.replace("AC", "") || "--"}
-          </div>
-
-          <div className="text-sm py-1">
-            Balance : {account.balance.toFixed(2)} {account.currency}
+            <button
+              onClick={() => setQuoteView("advanced")}
+              className={`flex-1 py-2 text-xs rounded-lg ${quoteView === "advanced"
+                  ? "bg-[var(--primary)] text-white"
+                  : "bg-[var(--bg-main)] text-[var(--text-muted)]"
+                }`}
+            >
+              Advanced View
+            </button>
           </div>
         </div>
 
-        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-          <ChevronRight size={22} />
+        {/* LOGOUT */}
+        <div className={`${cardClass} border border-red-500/30 bg-[var(--mt-red)]`}>
+          <button
+            onClick={() => setShowLogoutConfirm(true)}
+            className="w-full flex items-center justify-between text-white"
+          >
+            <div className="flex items-center gap-3">
+              <LogOut size={18} />
+              <span className="text-sm font-semibold">Logout from Trade Panel</span>
+            </div>
+            <ChevronRight size={16} />
+          </button>
         </div>
+
       </div>
 
-      {/* EXIT CONFIRM */}
-      {showExitConfirm && (
+      {showLogoutConfirm && (
         <ConfirmModal
-          title="Exit Trading Panel"
-          description="Are you sure you want to exit the trading panel and go back to the dashboard?"
-          onCancel={() => setShowExitConfirm(false)}
-          onConfirm={() => {
-            setShowExitConfirm(false);
-            router.push("/dashboard");
-          }}
+          title="Confirm Logout"
+          description="Are you sure you want to logout from trading panel?"
+          onCancel={() => setShowLogoutConfirm(false)}
+          onConfirm={handleLogout}
         />
       )}
-
-      {/* TOAST */}
-      {toast && <Toast message={toast.message} type={toast.type} />}
     </>
+  );
+}
+
+function Row({ label, value }: { label: string; value?: string }) {
+  return (
+    <div className="flex justify-between text-[var(--text-muted)]">
+      <span>{label}</span>
+      <span className="text-[var(--text-main)] font-medium">
+        {value || "--"}
+      </span>
+    </div>
+  );
+}
+
+function Toggle({
+  active,
+  onClick,
+}: {
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition ${active ? "bg-[var(--primary)]" : "bg-gray-500"
+        }`}
+    >
+      <div
+        className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${active ? "translate-x-5" : "translate-x-0"
+          }`}
+      />
+    </div>
   );
 }

@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import { useSearchParams, useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useMemo, useRef, useCallback, Suspense } from "react";
 import { useMarketQuotes } from "@/hooks/useMarketQuotes";
-import { ArrowLeft, CircleDollarSign, DollarSignIcon } from "lucide-react";
+import { ArrowLeft, CircleDollarSign, DollarSignIcon, FilePlus, FileX } from "lucide-react";
 import GlobalLoader from "@/app/components/ui/GlobalLoader";
 import TopBarSlot from "../components/layout/TopBarSlot";
 import TradeTopBar from "../components/layout/TradeTopBar";
@@ -12,6 +12,17 @@ import LiveChart from "../components/new-order/chart";
 import { useWatchlist } from "@/hooks/watchlist/useWatchlist";
 import { useMarketOrder, usePendingOrder } from "@/hooks/trade/useTrade";
 import { Toast } from "@/app/components/ui/Toast";
+type OrderResult = {
+    status: "loading" | "success" | "error";
+    message?: string;
+    side?: "BUY" | "SELL";
+    orderType?: string;
+    volume?: string;
+    filled?: string;
+    symbol?: string;
+    price?: number;
+};
+
 
 type SplitPrice = {
     int: string;
@@ -59,6 +70,15 @@ function splitPrice(price?: string): SplitPrice {
         big: "",
     };
 }
+function getTradeTokenFromStorageSync(): string {
+    if (typeof window === "undefined") return "";
+    const local = localStorage.getItem("accessToken");
+    if (local) return local;
+    const cookie = document.cookie
+        .split("; ")
+        .find((c) => c.trim().startsWith("tradeToken="));
+    return cookie ? cookie.split("=")[1] : "";
+}
 
 export default function NewOrderPage() {
     const search = useSearchParams();
@@ -71,6 +91,9 @@ export default function NewOrderPage() {
     const [tp, setTp] = useState<number | "">("");
     const [specifiedDate, setSpecifiedDate] = useState<Date | null>(null);
     const [openSpecifiedModal, setOpenSpecifiedModal] = useState(false);
+    const successAudioRef = useRef<HTMLAudioElement | null>(null);
+    const errorAudioRef = useRef<HTMLAudioElement | null>(null);
+
     const [toast, setToast] = useState<{
         type: "success" | "error";
         message: string;
@@ -80,6 +103,36 @@ export default function NewOrderPage() {
     const STEP = 0.0001; // adjust per symbol
     const marketMutation = useMarketOrder();
     const pendingMutation = usePendingOrder();
+    const selectedType = search.get("type");
+    type OrderResultState =
+        | null
+        | {
+            status: "loading" | "success" | "error";
+            message?: string;
+            side?: "BUY" | "SELL";
+        };
+
+    const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
+
+    useEffect(() => {
+        successAudioRef.current = new Audio("/sound/success.mp3");
+        errorAudioRef.current = new Audio("/sound/error.mp3");
+
+        successAudioRef.current.volume = 0.8;
+        errorAudioRef.current.volume = 0.8;
+    }, []);
+    useEffect(() => {
+        if (!orderResult) return;
+
+        if (orderResult.status === "success") {
+            successAudioRef.current?.play().catch(() => { });
+        }
+
+        if (orderResult.status === "error") {
+            errorAudioRef.current?.play().catch(() => { });
+        }
+    }, [orderResult?.status]);
+
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
@@ -96,28 +149,16 @@ export default function NewOrderPage() {
     }, []);
 
     // ✅ Fix 1: Initialize with immediate token fetch
-    const [token, setToken] = useState<string>("");
-    const [isTokenReady, setIsTokenReady] = useState(false);
-    const tokenRef = useRef<string>("");
+    const initialToken = getTradeTokenFromStorageSync();
+    const [token, setToken] = useState<string>(initialToken);
+    const [isTokenReady, setIsTokenReady] = useState(true);
+    const tokenRef = useRef<string>(initialToken);
+
 
     // ✅ Fix 2: Synchronous token fetch on mount + optimistic loading
     useEffect(() => {
-        const fetchToken = () => {
-            const local = localStorage.getItem("accessToken");
-            const cookie = document.cookie
-                .split("; ")
-                .find((c) => c.startsWith("tradeToken="))
-                ?.split("=")[1];
-
-            const finalToken = local || cookie || "";
-
-            tokenRef.current = finalToken;
-            setToken(finalToken);
-            setIsTokenReady(true);
-        };
-
-        fetchToken();
-    }, []);
+        tokenRef.current = token;
+    }, [token]);
 
     // ✅ Fix 3: Pass ref.current instead of state to avoid re-renders
     const quotes = useMarketQuotes(token);
@@ -136,7 +177,28 @@ export default function NewOrderPage() {
         "BUY STOP",
         "SELL STOP",
     ];
+    useEffect(() => {
+        if (!selectedType) return;
 
+        const normalized = selectedType
+            .toLowerCase()
+            .replace("_", " ");
+
+        const map: Record<string, string> = {
+            buy: "MARKET EXECUTION",
+            sell: "MARKET EXECUTION",
+            "buy limit": "BUY LIMIT",
+            "sell limit": "SELL LIMIT",
+            "buy stop": "BUY STOP",
+            "sell stop": "SELL STOP",
+        };
+
+        const mapped = map[normalized];
+
+        if (mapped) {
+            setOrderType(mapped);
+        }
+    }, [selectedType]);
 
     const [volume, setVolume] = useState<number>(0.01);
 
@@ -160,35 +222,38 @@ export default function NewOrderPage() {
         return <GlobalLoader />;
     }
 
-    if (!tokenRef.current || !live) {
-        return (
-            <div className="fixed inset-0 z-[99] bg-[var(--bg-plan)] text-white flex flex-col items-center justify-center pt-12">
-                <GlobalLoader />
-                <div className="mt-4 text-sm text-gray-400">
-                    Loading {symbol} market data...
-                </div>
-            </div>
-        );
-    }
-
+    const marketReady = !!live;
     const bidColor =
-        live.bidDir === "up"
+        live?.bidDir === "up"
             ? "text-[var(--mt-blue)]"
-            : live.bidDir === "down"
+            : live?.bidDir === "down"
                 ? "text-[var(--mt-red)]"
-                : "text-white";
+                : "text-[var(--text-main)]";
 
     const askColor =
-        live.askDir === "up"
+        live?.askDir === "up"
             ? "text-[var(--mt-blue)]"
-            : live.askDir === "down"
+            : live?.askDir === "down"
                 ? "text-[var(--mt-red)]"
-                : "text-white";
+                : "text-[var(--text-main)]";
+
 
     const handleMarketOrder = (side: "BUY" | "SELL") => {
         if (!symbol || volume <= 0) return;
 
         setProcessingSide(side);
+
+        // 🔵 Show QUEUE screen immediately
+        setOrderResult({
+            status: "loading",
+            side,
+            orderType,
+            volume: volume.toFixed(2),
+            filled: "0.00",
+            symbol,
+            price: undefined,
+        });
+
 
         marketMutation.mutate(
             {
@@ -199,26 +264,47 @@ export default function NewOrderPage() {
                 takeProfit: tp === "" ? undefined : tp,
             },
             {
-                onSuccess: () => {
-                    setToast({
-                        type: "success",
-                        message: `${side} order executed successfully`,
-                    });
-                    setSl("");
-                    setTp("");
-                    setProcessingSide(null);
+                onSuccess: (res: any) => {
+                    const data = res?.data;
+
+                    setTimeout(() => {
+
+                        setOrderResult({
+                            status: "success",
+                            side: data?.side,
+                            orderType: orderType, // MARKET EXECUTION
+                            volume: data?.volume?.toFixed(2),
+                            filled: data?.volume?.toFixed(2), // market me fully filled
+                            symbol: data?.symbol,
+                            price: data?.openPrice,
+                            message: data?.positionId?.slice(0, 10) // 10 digit id
+                        });
+
+                        setTimeout(() => {
+                            router.push("/trade/trade");
+                        }, 1000); // 1 sec show success screen
+
+                    }, 700);
                 },
                 onError: (err: any) => {
-                    setToast({
-                        type: "error",
-                        message: err?.message || "Order failed",
-                    });
+                    setTimeout(() => {
+                        setOrderResult({
+                            status: "error",
+                            message: err?.message || "Market closed",
+                        });
+
+                        // stay on same page
+                        setTimeout(() => {
+                            setOrderResult(null);
+                        }, 1500);
+                    }, 700);
+                },
+                onSettled: () => {
                     setProcessingSide(null);
                 },
             }
         );
     };
-
 
     const handlePendingOrder = () => {
         if (!symbol || volume <= 0 || price === "") return;
@@ -273,33 +359,54 @@ export default function NewOrderPage() {
             payload.expireType = expiration; // GTC or TODAY
         }
 
+        setOrderResult({ status: "loading" });
+
         pendingMutation.mutate(payload, {
             onSuccess: (res: any) => {
+                setTimeout(() => {
+                    if (res?.status !== "success") {
+                        setOrderResult({
+                            status: "error",
+                            message: res?.message || "Order rejected",
+                        });
 
-                if (res?.status !== "success") {
-                    setToast({
-                        type: "error",
-                        message: res?.message || "Order rejected"
+                        setTimeout(() => {
+                            setOrderResult(null);
+                        }, 1500);
+
+                        return;
+                    }
+
+                    setOrderResult({
+                        status: "loading",
+                        side,
+                        orderType,
+                        volume: volume.toFixed(2),
+                        filled: "0.00",
+                        symbol,
+                        price: Number(price),
                     });
-                    return;
-                }
 
-                setToast({
-                    type: "success",
-                    message: `${side} ${apiOrderType} placed successfully`,
-                });
 
-                setPrice("");
-                setSl("");
-                setTp("");
+                    setTimeout(() => {
+                        router.push("/trade/trade");
+                    }, 1200);
+                }, 700);
             },
             onError: (err: any) => {
-                setToast({
-                    type: "error",
-                    message: err?.message || "Order failed",
-                });
+                setTimeout(() => {
+                    setOrderResult({
+                        status: "error",
+                        message: err?.message || "Order failed",
+                    });
+
+                    setTimeout(() => {
+                        setOrderResult(null);
+                    }, 1500);
+                }, 700);
             },
         });
+
     };
 
     function formatDateTime(date: Date) {
@@ -363,7 +470,32 @@ export default function NewOrderPage() {
                 />
             </TopBarSlot>
 
-            <div className="fixed inset-0 z-[99] bg-[var(--bg-plan)] md:static md:z-auto md:min-h-screen md:px-6 md:py-10 md:bg-[var(--bg-main)] text-white flex flex-col overflow-hidden pt-12 md:pt-0 ">
+            {/* Desktop Heading */}
+            {/* <div className="hidden md:flex flex-col ">
+
+                <div className="flex items-center justify-between">
+
+                    <div>
+                        <h1 className="text-3xl font-bold text-[var(--text-main)] tracking-wide">
+                            New Order
+                        </h1>
+
+                        <p className="text-sm text-[var(--text-muted)] mt-2">
+                            Execute or schedule trades with precision control
+                        </p>
+                    </div>
+
+                    <div className="px-4 py-2 rounded-xl bg-[var(--bg-plan)] border border-[var(--border-soft)] text-sm text-[var(--text-muted)]">
+                        {symbol}
+                    </div>
+
+                </div>
+
+                <div className="mt-6 h-[1px] w-full bg-[var(--border-soft)]" />
+
+            </div> */}
+
+            <div className="md:hidden relative min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col  md:px-6 ">
 
                 {/* MARKET EXECUTION */}
                 <div className="relative border-b border-gray-800 py-3">
@@ -455,49 +587,50 @@ export default function NewOrderPage() {
                 {/* LIVE PRICES */}
                 <div className="flex justify-around px-6 pb-3 pt-2">
                     <div className={`font-bold ${bidColor}`}>
-                        {(() => {
-                            const bid = splitPrice(live.bid);
-                            return (
-                                <div className="text-right leading-none">
-                                    <span className="text-2xl">{bid.int}.</span>
-                                    {bid.normal && (
-                                        <span className="text-2xl">{bid.normal}</span>
-                                    )}
-                                    {bid.big && (
-                                        <span className="text-4xl">{bid.big}</span>
-                                    )}
-                                    {bid.small && (
-                                        <sup className="text-lg relative -top-3 ml-[2px]">
-                                            {bid.small}
-                                        </sup>
-                                    )}
-                                </div>
-                            );
-                        })()}
+                        {marketReady ? (
+                            (() => {
+                                const bid = splitPrice(live!.bid);
+                                return (
+                                    <div className="text-right leading-none">
+                                        <span className="text-2xl">{bid.int}.</span>
+                                        {bid.normal && <span className="text-2xl">{bid.normal}</span>}
+                                        {bid.big && <span className="text-4xl">{bid.big}</span>}
+                                        {bid.small && (
+                                            <sup className="text-lg relative -top-3 ml-[2px]">{bid.small}</sup>
+                                        )}
+                                    </div>
+                                );
+                            })()
+                        ) : (
+                            <div className="text-right leading-none text-[var(--text-muted)]">
+                                --.--{/* placeholder */}
+                            </div>
+                        )}
                     </div>
 
                     <div className={`font-bold ${askColor}`}>
-                        {(() => {
-                            const ask = splitPrice(live.ask);
-                            return (
-                                <div className="text-right leading-none">
-                                    <span className="text-2xl">{ask.int}.</span>
-                                    {ask.normal && (
-                                        <span className="text-2xl">{ask.normal}</span>
-                                    )}
-                                    {ask.big && (
-                                        <span className="text-4xl">{ask.big}</span>
-                                    )}
-                                    {ask.small && (
-                                        <sup className="text-lg relative -top-3 ml-[2px]">
-                                            {ask.small}
-                                        </sup>
-                                    )}
-                                </div>
-                            );
-                        })()}
+                        {marketReady ? (
+                            (() => {
+                                const ask = splitPrice(live!.ask);
+                                return (
+                                    <div className="text-right leading-none">
+                                        <span className="text-2xl">{ask.int}.</span>
+                                        {ask.normal && <span className="text-2xl">{ask.normal}</span>}
+                                        {ask.big && <span className="text-4xl">{ask.big}</span>}
+                                        {ask.small && (
+                                            <sup className="text-lg relative -top-3 ml-[2px]">{ask.small}</sup>
+                                        )}
+                                    </div>
+                                );
+                            })()
+                        ) : (
+                            <div className="text-right leading-none text-[var(--text-muted)]">
+                                --.--{/* placeholder */}
+                            </div>
+                        )}
                     </div>
                 </div>
+
 
                 {orderType !== "MARKET EXECUTION" && (
                     <div className="flex items-center justify-center px-6 py-2">
@@ -508,7 +641,7 @@ export default function NewOrderPage() {
                             <button
                                 className="text-[var(--mt-blue)] text-xl font-bold"
                                 onClick={() => {
-                                    const base = price === "" ? Number(live.bid) : price;
+                                    const base = price === "" ? Number(live?.bid ?? 0) : price;
                                     const value = Math.max(0, base - STEP);
                                     setPrice(Number(value.toFixed(5)));
                                 }}
@@ -536,14 +669,14 @@ export default function NewOrderPage() {
                                     }
                                 }}
                                 placeholder="Price"
-                                className="flex-1 bg-transparent  border-b border-gray-700 text-center text-white outline-none text-xl"
+                                className="flex-1 bg-transparent  border-b border-gray-700 text-center text-[var(--text-main)] outline-none text-xl"
                             />
 
                             {/* Plus */}
                             <button
                                 className="text-[var(--mt-blue)] text-xl font-bold"
                                 onClick={() => {
-                                    const base = price === "" ? Number(live.ask) : price;
+                                    const base = price === "" ? Number(live?.ask ?? 0) : price;
                                     const value = base + STEP;
                                     setPrice(Number(value.toFixed(5)));
                                 }}
@@ -569,7 +702,7 @@ export default function NewOrderPage() {
                             onClick={() => {
                                 const value =
                                     sl === ""
-                                        ? Number(live.bid) - STEP
+                                        ? Number(live?.bid ?? 0) - STEP
                                         : sl - STEP;
 
                                 setSl(Number(value.toFixed(5)));
@@ -606,7 +739,7 @@ export default function NewOrderPage() {
                             onClick={() => {
                                 const value =
                                     sl === ""
-                                        ? Number(live.bid) + STEP
+                                        ? Number(live?.bid ?? 0) + STEP
                                         : sl + STEP;
 
                                 setSl(Number(value.toFixed(5)));
@@ -628,7 +761,7 @@ export default function NewOrderPage() {
                             onClick={() => {
                                 const value =
                                     tp === ""
-                                        ? Number(live.bid) - STEP
+                                        ? Number(live?.bid ?? 0) - STEP
                                         : tp - STEP;
 
                                 setTp(Number(value.toFixed(5)));
@@ -657,7 +790,7 @@ export default function NewOrderPage() {
                             }}
 
                             placeholder="TP"
-                            className="w-24 bg-transparent text-center text-white outline-none text-lg"
+                            className="w-24 bg-transparent text-center text-[var(--text-main)] outline-none text-lg"
                         />
 
                         <button
@@ -665,7 +798,7 @@ export default function NewOrderPage() {
                             onClick={() => {
                                 const value =
                                     tp === ""
-                                        ? Number(live.bid) + STEP
+                                        ? Number(live?.bid ?? 0) + STEP
                                         : tp + STEP;
 
                                 setTp(Number(value.toFixed(5)));
@@ -691,7 +824,7 @@ export default function NewOrderPage() {
                                 Expiration
                             </span>
 
-                            <span className="text-white text-sm">
+                            <span className="text-[var(--text-main)] text-sm">
                                 {expiration === "SPECIFIED" && specifiedDate
                                     ? formatDateTime(specifiedDate)
                                     : expiration}
@@ -722,7 +855,7 @@ export default function NewOrderPage() {
 
                                         }}
 
-                                        className="text-right px-6 py-3 text-sm text-white hover:bg-gray-800 cursor-pointer transition"
+                                        className="text-right px-6 py-3 text-sm text-[var(--text-main)] hover:bg-gray-800 cursor-pointer transition"
                                     >
                                         {opt}
                                     </div>
@@ -738,14 +871,15 @@ export default function NewOrderPage() {
 
                 <Suspense>
                     <LiveChart
-                        key={symbol}   // 👈 add this
-                        bid={Number(live.bid)}
-                        ask={Number(live.ask)}
+                        key={symbol}
+                        bid={Number(live?.bid ?? 0)}
+                        ask={Number(live?.ask ?? 0)}
                         sl={sl === "" ? undefined : Number(sl)}
                         tp={tp === "" ? undefined : Number(tp)}
                         pendingPrice={price === "" ? undefined : Number(price)}
                     />
                 </Suspense>
+
 
                 {orderType === "MARKET EXECUTION" && (
                     <div className="text-center text-xs text-gray-400 py-2 px-6">
@@ -755,8 +889,7 @@ export default function NewOrderPage() {
                 )}
 
 
-                <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 bg-[var(--bg-plan)]">
-
+                <div className="fixed md:absolute bottom-0 md:bottom-22 left-0 right-0 z-40 border-t border-gray-800 bg-[var(--bg-plan)]">
                     {orderType === "MARKET EXECUTION" ? (
                         <div className="grid grid-cols-2">
                             <button
@@ -796,59 +929,120 @@ export default function NewOrderPage() {
 
             </div>
             {openSpecifiedModal && (
-                <div className="fixed inset-0 z-[999] bg-black/60 flex items-center justify-center">
-
-                    <div className="bg-[var(--bg-plan)] w-[90%] max-w-md rounded-2xl p-6">
-
-                        <div className="text-center text-xl font-semibold mb-6">
+                <div
+                    className="
+      fixed inset-0 z-[999]
+      flex items-center justify-center
+      bg-[var(--bg-main)]/70
+      backdrop-blur-md
+      animate-fadeIn
+    "
+                >
+                    <div
+                        className="
+        w-[92%] max-w-md
+        rounded-2xl
+        bg-[var(--bg-card)]
+        border border-[var(--border-soft)]
+        shadow-2xl
+        p-6
+        animate-slideUp
+      "
+                    >
+                        {/* Header */}
+                        <div className="text-center text-xl font-semibold text-[var(--text-main)] mb-6">
                             Expiration
                         </div>
 
-                        <div className="space-y-4">
+                        {/* Date + Time */}
+                        <div className="space-y-6">
 
-                            <input
-                                type="date"
-                                className="w-full bg-transparent border-b border-gray-700 py-2 outline-none"
-                                onChange={(e) => {
-                                    const current = specifiedDate || new Date();
-                                    const [y, m, d] = e.target.value.split("-");
-                                    const newDate = new Date(current);
-                                    newDate.setFullYear(Number(y));
-                                    newDate.setMonth(Number(m) - 1);
-                                    newDate.setDate(Number(d));
-                                    setSpecifiedDate(newDate);
-                                }}
-                            />
+                            <div>
+                                <label className="block text-xs text-[var(--text-muted)] mb-2 uppercase tracking-wide">
+                                    Date
+                                </label>
+                                <input
+                                    type="date"
+                                    className="
+              w-full
+              bg-[var(--bg-plan)]
+              border border-[var(--border-soft)]
+              rounded-lg
+              px-3 py-2
+              text-[var(--text-main)]
+              outline-none
+              focus:border-[var(--primary)]
+              transition
+            "
+                                    onChange={(e) => {
+                                        const current = specifiedDate || new Date();
+                                        const [y, m, d] = e.target.value.split("-");
+                                        const newDate = new Date(current);
+                                        newDate.setFullYear(Number(y));
+                                        newDate.setMonth(Number(m) - 1);
+                                        newDate.setDate(Number(d));
+                                        setSpecifiedDate(newDate);
+                                    }}
+                                />
+                            </div>
 
-                            <input
-                                type="time"
-                                step="60"
-                                className="w-full bg-transparent border-b border-gray-700 py-2 outline-none"
-                                onChange={(e) => {
-                                    const current = specifiedDate || new Date();
-                                    const [h, min] = e.target.value.split(":");
-                                    const newDate = new Date(current);
-                                    newDate.setHours(Number(h));
-                                    newDate.setMinutes(Number(min));
-                                    setSpecifiedDate(newDate);
-                                }}
-                            />
+                            <div>
+                                <label className="block text-xs text-[var(--text-muted)] mb-2 uppercase tracking-wide">
+                                    Time
+                                </label>
+                                <input
+                                    type="time"
+                                    step="60"
+                                    className="
+              w-full
+              bg-[var(--bg-plan)]
+              border border-[var(--border-soft)]
+              rounded-lg
+              px-3 py-2
+              text-[var(--text-main)]
+              outline-none
+              focus:border-[var(--primary)]
+              transition
+            "
+                                    onChange={(e) => {
+                                        const current = specifiedDate || new Date();
+                                        const [h, min] = e.target.value.split(":");
+                                        const newDate = new Date(current);
+                                        newDate.setHours(Number(h));
+                                        newDate.setMinutes(Number(min));
+                                        setSpecifiedDate(newDate);
+                                    }}
+                                />
+                            </div>
                         </div>
 
-                        <div className="flex justify-between mt-8">
+                        {/* Buttons */}
+                        <div className="flex justify-between items-center mt-8 pt-4 border-t border-[var(--border-soft)]">
 
                             <button
-                                className="text-[var(--mt-blue)]"
+                                className="
+            px-4 py-2
+            text-[var(--text-muted)]
+            hover:text-[var(--text-main)]
+            transition
+          "
                                 onClick={() => setOpenSpecifiedModal(false)}
                             >
                                 Cancel
                             </button>
 
                             <button
-                                className="text-[var(--mt-blue)]"
+                                className="
+            px-6 py-2
+            rounded-lg
+            bg-[var(--primary)]
+            text-[var(--text-invert)]
+            hover:bg-[var(--primary-hover)]
+            transition
+            disabled:opacity-50
+          "
                                 onClick={() => {
                                     if (!specifiedDate) return;
-
                                     setExpiration("SPECIFIED");
                                     setOpenSpecifiedModal(false);
                                 }}
@@ -867,6 +1061,186 @@ export default function NewOrderPage() {
                 />
             )}
 
+            {orderResult && (
+                <div className="fixed inset-0 z-[9999] bg-[var(--bg-plan)] md:bg-[var(--bg-card)] flex flex-col items-center justify-center text-[var(--text-main)]">
+
+                    {/* Circle Icon */}
+                    <div
+                        className={`w-32 h-32 rounded-full flex items-center justify-center mb-8 ${orderResult.status === "loading"
+                            ? "bg-[var(--mt-blue)]"
+                            : orderResult.status === "success"
+                                ? "bg-[var(--success)]"
+                                : "bg-[var(--mt-red)]"
+                            }`}
+                    >
+
+                        {orderResult?.status === "loading" && (
+                            <div className="fixed inset-0 z-[9999] bg-[var(--bg-plan)] md:bg-[var(--bg-card)] flex flex-col items-center pt-[8vh] text-[var(--text-main)]">
+                                {/* ICON CIRCLE */}
+                                <div className="relative w-22 h-22 mb-8">
+                                    {/* Blue background */}
+                                    <div className="absolute inset-0 rounded-full bg-[var(--mt-blue)] flex items-center justify-center">
+                                        {/* File icon */}
+                                        <FilePlus size={44} className="text-var[var(--text-main)]" />
+                                    </div>
+
+                                    {/* Circular loader */}
+                                    <div className="absolute inset-0 rounded-full border-4 border-white/20 border-t-white animate-spin" />
+                                </div>
+
+                                {/* TITLE */}
+                                <div className="text-xl font-semibold mb-4 text-center">
+                                    Order has been placed in queue...
+                                </div>
+
+                                {/* SIDE + TYPE */}
+                                <div className="text-lg font-semibold mb-1">
+                                    <span
+                                        className={
+                                            orderResult.side === "SELL"
+                                                ? "text-[var(--mt-red)]"
+                                                : "text-[var(--mt-blue)]"
+                                        }
+                                    >
+                                        {orderResult.side}
+                                    </span>{" "}
+                                    {orderResult.orderType}
+                                </div>
+
+                                {/* LOT SIZE */}
+                                <div className="text-gray-400 text-sm mb-1">
+                                    {orderResult.volume} / {orderResult.volume}
+                                </div>
+
+                                {/* SYMBOL + MODE */}
+                                <div className="text-gray-400 text-sm">
+                                    {orderResult.symbol}{" "}
+                                    {orderResult.price
+                                        ? `at ${orderResult.price}`
+                                        : "by market"}
+                                </div>
+
+                            </div>
+                        )}
+
+
+                        {orderResult?.status === "success" && (
+                            <div className="fixed inset-0 z-[9999] bg-[var(--bg-plan)] md:bg-[var(--bg-card)] flex flex-col items-center pt-[12vh] text-[var(--text-main)]">
+
+                                {/* ICON CIRCLE */}
+                                <div className="relative w-22 h-22 mb-8">
+                                    <div className="absolute inset-0 rounded-full bg-[var(--success)] flex items-center justify-center">
+                                        <FilePlus size={34} className="text-[var(--text-main)]" />
+                                    </div>
+                                </div>
+
+                                {/* TITLE */}
+                                <div className="text-3xl font-bold mb-4 text-center">
+                                    Done
+                                </div>
+
+                                {/* SIDE + LOT */}
+                                <div className="text-lg font-semibold mb-1">
+                                    <span
+                                        className={
+                                            orderResult.side === "SELL"
+                                                ? "text-[var(--mt-red)]"
+                                                : "text-[var(--mt-blue)]"
+                                        }
+                                    >
+                                        {orderResult.side}
+                                    </span>{" "}
+                                    {orderResult.volume} / {orderResult.volume}
+                                </div>
+
+                                {/* SYMBOL + PRICE */}
+                                <div className="text-gray-400 text-lg mb-1">
+                                    {orderResult.symbol}{" "}
+                                    {orderResult.price !== undefined
+                                        ? `at ${orderResult.price}`
+                                        : "by market"}
+                                </div>
+
+                                {/* OPTIONAL TICKET (agar API se aaye toh) */}
+                                {orderResult.message && (
+                                    <div className="text-gray-400 text-lg">
+                                        #{orderResult.message}
+                                    </div>
+                                )}
+
+                            </div>
+                        )}
+
+
+                        {orderResult?.status === "error" && (
+                            <div className="fixed inset-0 z-[9999] bg-[var(--bg-plan)] md:bg-[var(--bg-card)] flex flex-col items-center pt-[12vh] text-[var(--text-main)]">
+
+                                {/* ICON CIRCLE */}
+                                <div className="relative w-22 h-22 mb-8">
+                                    <div className="absolute inset-0 rounded-full bg-[var(--mt-red)] flex items-center justify-center">
+                                        <FileX size={34} className="text-white" />
+                                    </div>
+                                </div>
+
+                                {/* TITLE */}
+                                <div className="text-3xl font-bold mb-4 text-center">
+                                    Order Failed
+                                </div>
+
+                                {/* SIDE + TYPE */}
+                                {(orderResult.side || orderResult.orderType) && (
+                                    <div className="text-lg font-semibold mb-1">
+                                        {orderResult.side && (
+                                            <span
+                                                className={
+                                                    orderResult.side === "SELL"
+                                                        ? "text-[var(--mt-red)]"
+                                                        : "text-[var(--mt-blue)]"
+                                                }
+                                            >
+                                                {orderResult.side}
+                                            </span>
+                                        )}{" "}
+                                        {orderResult.orderType}
+                                    </div>
+                                )}
+
+                                {/* SYMBOL + PRICE */}
+                                {orderResult.symbol && (
+                                    <div className="text-gray-400 text-lg mb-1">
+                                        {orderResult.symbol}{" "}
+                                        {orderResult.price !== undefined
+                                            ? `at ${orderResult.price}`
+                                            : "by market"}
+                                    </div>
+                                )}
+
+                                {/* ERROR MESSAGE */}
+                                <div className="text-[var(--mt-red)] text-lg mt-2 text-center max-w-md px-6">
+                                    {orderResult.message || "Something went wrong"}
+                                </div>
+
+                            </div>
+                        )}
+
+                    </div>
+
+                    {/* Title */}
+                    <div className="text-3xl font-bold mb-4">
+                        {orderResult.status === "loading" && "Order has been placed in queue..."}
+                        {orderResult.status === "success" && "Done"}
+                        {orderResult.status === "error" && (orderResult.message || "Market closed")}
+                    </div>
+
+                    {/* Sub text */}
+                    {orderResult.side && (
+                        <div className="text-lg text-gray-400">
+                            {orderResult.side}
+                        </div>
+                    )}
+
+                </div>
+            )}
 
         </>
     );

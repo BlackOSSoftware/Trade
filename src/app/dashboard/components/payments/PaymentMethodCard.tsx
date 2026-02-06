@@ -65,7 +65,7 @@ export default function PaymentMethodCard({ method }: { method: PaymentMethod })
                                         className="
             pointer-events-none absolute left-1/2 top-full mt-1
             -translate-x-1/2 whitespace-nowrap
-            rounded-md bg-black px-2 py-1 text-xs text-white
+            rounded-md bg-black px-2 py-1 text-xs text-[var(--text-main)]
             opacity-0 transition group-hover:opacity-100
           "
                                     >

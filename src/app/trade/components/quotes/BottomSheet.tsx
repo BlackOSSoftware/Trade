@@ -2,8 +2,9 @@
 "use client";
 
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import DesktopOrderModal from "../new-order/DesktopOrderModal";
 
 export default function BottomSheet({
   open,
@@ -16,6 +17,7 @@ export default function BottomSheet({
 }) {
   // ESC to close (optional)
   const router = useRouter();
+  const [openDesktopOrder, setOpenDesktopOrder] = useState(false);
 
 
   useEffect(() => {
@@ -30,12 +32,15 @@ export default function BottomSheet({
   if (!open) return null;
 
   return (
+<>
+
     <div
       className={`
     ${isDesktop ? "absolute" : "fixed"}
     inset-0 z-[9999] flex items-end 
   `}
     >
+
       {/* Backdrop */}
       <div
         onClick={onClose}
@@ -83,13 +88,19 @@ export default function BottomSheet({
           <button
             onClick={() => {
               if (!title) return;
-              router.push(`/trade/new-order?symbol=${title}`);
-              onClose();
+
+              if (isDesktop) {
+                setOpenDesktopOrder(true);
+              } else {
+                router.push(`/trade/new-order?symbol=${title}`);
+                onClose();
+              }
             }}
             className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
           >
             New Order
           </button>
+
 
 
           <button
@@ -118,7 +129,19 @@ export default function BottomSheet({
         </div>
       </div>
     </div>
+    {isDesktop && openDesktopOrder && (
+  <DesktopOrderModal
+    open={openDesktopOrder}
+    symbol={title}
+    onClose={() => {
+      setOpenDesktopOrder(false);
+      onClose(); // optional — agar sheet bhi close karna hai
+    }}
+  />
+)}
+</>
   );
+
 
 
 }

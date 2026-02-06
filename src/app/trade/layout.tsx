@@ -8,6 +8,7 @@ import { TradeDesktopProvider, useTradeDesktop } from "./components/desktop/Trad
 import TradeDesktopSidebar from "./components/desktop/TradeDesktopSidebar";
 import TradeQuotesPanel from "./components/desktop/TradeQuotesPanel";
 import { useTradeAccount } from "@/hooks/accounts/useAccountById";
+import { LanguageProvider } from "./components/LanguageProvider";
 
 export default function TradeLayoutClient({
     children,
@@ -15,13 +16,16 @@ export default function TradeLayoutClient({
     children: ReactNode;
 }) {
     return (
-        <TradeSidebarProvider>
-            <TradeDesktopProvider>
-                <TradeLayoutInner>
-                    {children}
-                </TradeLayoutInner>
-            </TradeDesktopProvider>
-        </TradeSidebarProvider>
+        <LanguageProvider>
+
+            <TradeSidebarProvider>
+                <TradeDesktopProvider>
+                    <TradeLayoutInner>
+                        {children}
+                    </TradeLayoutInner>
+                </TradeDesktopProvider>
+            </TradeSidebarProvider>
+        </LanguageProvider>
     );
 }
 
@@ -46,7 +50,7 @@ function TradeLayoutInner({
 
                 <TradeBottomNav />
 
-                <TradeSidebar/>
+                <TradeSidebar />
 
             </div>
 
@@ -60,6 +64,7 @@ function TradeLayoutInner({
             ${quotesOpen ? "ml-[408px]" : "ml-[68px]"}
           `}
                 >
+
                     {children}
                 </main>
 

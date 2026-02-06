@@ -45,7 +45,7 @@ export default function AddSymbolList({
             className={`h-7 w-7 flex items-center justify-center rounded-full text-xs font-semibold transition
               ${
                 i < 2
-                  ? "bg-[var(--primary)] text-white"
+                  ? "bg-[var(--primary)] text-[var(--text-main)]"
                   : "border border-[var(--border-soft)] text-[var(--text-main)] bg-[var(--bg-card)]"
               }`}
           >

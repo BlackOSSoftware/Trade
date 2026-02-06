@@ -150,7 +150,7 @@ const initial =
               onClick={() => setUserPinned((v) => !v)}
               className="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-[var(--bg-glass)]"
             >
-              <div className="h-8 w-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-sm font-semibold">
+              <div className="h-8 w-8 rounded-full bg-[var(--primary)] text-[var(--text-main)] flex items-center justify-center text-sm font-semibold">
                 {initial}
               </div>
               <ChevronDown size={14} />
@@ -236,7 +236,7 @@ const initial =
       </header>
 
       {toast && (
-        <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-[var(--primary)] text-white px-4 py-2 shadow-xl animate-fadeIn">
+        <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-[var(--primary)] text-[var(--text-main)] px-4 py-2 shadow-xl animate-fadeIn">
           {toast}
         </div>
       )}

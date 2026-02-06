@@ -159,7 +159,7 @@ export default function AddSymbolSearch({
                                 }
                                 className={`h-7 w-7 rounded-full flex items-center justify-center
                   ${isAdded
-                                        ? "bg-[var(--primary)] text-white"
+                                        ? "bg-[var(--primary)] text-[var(--text-main)]"
                                         : "border border-[var(--border-soft)]"
                                     }`}
                             >

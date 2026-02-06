@@ -21,13 +21,18 @@ export default function MobilePendingOrderItem({
     const longPress = useLongPress(() => {
         onLongPress(order);
     });
+    const statusLabel =
+        order.status?.toLowerCase() === "pending"
+            ? "PLACED"
+            : order.status;
 
     return (
         <div
             {...longPress}
             onContextMenu={(e) => e.preventDefault()}
-            className="border-b border-[color:var(--text-muted)]/20 bg-[var(--bg-plan)]"
+            className="border-b border-[var(--border-grey)] bg-[var(--bg-plan)]"
         >
+           
             <button
                 onClick={() =>
                     setExpandedId(expanded ? null : order.orderId)
@@ -87,8 +92,13 @@ export default function MobilePendingOrderItem({
                     </div>
 
                     <div className="flex justify-between mr-2">
-                        <span>Status:</span>
-                        <span>{order.status}</span>
+                        <span className="font-semibold text-[var(--mt-blue)]">
+                            {order.status?.toLowerCase() === "pending"
+                                ? "PLACED"
+                                : order.status}
+                        </span>
+
+
                     </div>
                 </div>
             )}

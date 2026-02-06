@@ -9,6 +9,8 @@ import { useTradeSummary } from "@/hooks/history/useTradeSummary";
 import { useTradePositions } from "@/hooks/history/useTradePositions";
 import { useTradeOrders } from "@/hooks/history/useTradeOrders";
 import { useTradeDeals } from "@/hooks/history/useTradeDeals";
+import { useLongPress } from "../trade/page";
+import HistoryActionSheet from "../components/history/HistoryActionSheet";
 
 
 /* ================= TYPES ================= */
@@ -26,6 +28,25 @@ type Order = {
 };
 
 /* ================= TABS ================= */
+const LongPressRow = ({
+  children,
+  onLongPress,
+}: {
+  children: React.ReactNode;
+  onLongPress: () => void;
+}) => {
+  const longPress = useLongPress(onLongPress);
+
+  return (
+    <div
+      {...longPress}
+      onContextMenu={(e) => e.preventDefault()}
+      className="select-none"
+    >
+      {children}
+    </div>
+  );
+};
 
 const HistoryTabs = memo(
   ({
@@ -100,6 +121,8 @@ export default function TradeHistory() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [symbolOpen, setSymbolOpen] = useState(false);
+  const [showSheet, setShowSheet] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -249,7 +272,7 @@ export default function TradeHistory() {
 
   const positionSummary = summary
     ? [
-      { label: "Profit", value: summary.totalPnL.toFixed(2) },
+      { label: "Profit", value: summary.totalPnL.toFixed(2), raw: summary.totalPnL },
       { label: "Deposit", value: summary.totalDeposit.toFixed(2) },
       { label: "Swap", value: summary.totalSwap.toFixed(2) },
       { label: "Commission", value: summary.totalCommission.toFixed(2) },
@@ -334,7 +357,7 @@ export default function TradeHistory() {
       </TopBarSlot>
 
       {/* BODY */}
-      <div className="px-2 md:px-4 pt-1 text-[13px] bg-[var(--bg-plan)]  h-[calc(100vh-60px)] overflow-y-auto pb-7">
+      <div className="px-2 md:px-4 pt-1 text-[13px] bg-[var(--bg-plan)] md:bg-[var(--bg-card)]  h-[calc(100vh-60px)] overflow-y-auto pb-7">
         <HistoryTabs activeTab={activeTab} onChange={onTabChange} />
 
         <div className="transition-opacity duration-200">
@@ -367,14 +390,22 @@ export default function TradeHistory() {
                 const isBuy = order.side === "BUY";
 
                 return (
-                  <div
+                  <LongPressRow
                     key={order.orderId}
-                    className="border-b border-[var(--border-soft)] bg-[var(--bg-plan)]"
+                    onLongPress={() => {
+                      setSelectedItem(order);
+                      setShowSheet(true);
+                    }}
                   >
+
                     <div
                       onClick={() => toggleExpand(order.orderId)}
-                      className="py-3 cursor-pointer active:bg-white/5"
-                    >
+                      className={`
+    py-1 cursor-pointer active:bg-white/5
+    ${expandedId !== order.orderId
+                          ? "border-b border-[var(--border-grey)]"
+                          : ""}
+  `}>
                       <div className="flex justify-between">
                         <div>
                           <div className="font-semibold text-[15px] mt-font">
@@ -382,8 +413,8 @@ export default function TradeHistory() {
                             <span
                               className={
                                 isBuy
-                                  ? "text-[var(--mt-blue)]"
-                                  : "text-[var(--mt-red)]"
+                                  ? "text-[var(--mt-blue)] font-medium"
+                                  : "text-[var(--mt-red)] font-medium"
                               }
                             >
                               {isBuy ? "buy" : "sell"}
@@ -397,10 +428,10 @@ export default function TradeHistory() {
                         </div>
 
                         <div className="text-right">
-                          <div className="text-[12px] text-[var(--mt-grey)]">
+                          <div className="text-[12px] text-[var(--mt-dim)]">
                             {new Date(order.openTime).toLocaleString()}
                           </div>
-                          <div className="mt-profit text-[var(--mt-grey)] text-[13px]">
+                          <div className="mt-profit text-[var(--mt-dim)] text-[13px]">
                             {order.status === "CLOSED" ? "FILLED" : order.status}
                           </div>
 
@@ -409,23 +440,23 @@ export default function TradeHistory() {
                     </div>
 
                     {expandedId === order.orderId && (
-                      <div className="pb-3 text-[12px] text-[var(--mt-grey)] space-y-1 animate-fadeIn grid grid-cols-1 w-50">
+                      <div className="pb-3 text-[12px] text-[var(--mt-dim)] border-b border-[var(--border-grey)] space-y-1 animate-fadeIn grid grid-cols-1 ">
 
-                        <div>#{order.orderId.slice(0, 10)}</div>
+                        <div className="w-50">#{order.orderId.slice(0, 10)}</div>
 
-                        <div className="flex justify-between">
+                        <div className="flex justify-between w-50">
                           <span>S / L:</span>
                           <span>{order.stopLoss ?? "-"}</span>
                         </div>
 
-                        <div className="flex justify-between">
+                        <div className="flex justify-between w-50">
                           <span>T / P:</span>
                           <span>{order.takeProfit ?? "-"}</span>
                         </div>
 
                       </div>
                     )}
-                  </div>
+                  </LongPressRow>
                 );
               })}
 
@@ -444,9 +475,12 @@ export default function TradeHistory() {
 
 
           {activeTab === "positions" && (
+
             <>
+
               {/* SUMMARY */}
               <div className="space-y-[6px] mb-3">
+
                 {positionSummary.map((row) => (
                   <div key={row.label} className="flex items-center gap-2">
                     <span className="text-[var(--text-main)] font-semibold whitespace-nowrap">
@@ -464,9 +498,17 @@ export default function TradeHistory() {
                       }}
                     />
 
-                    <span className="font-semibold whitespace-nowrap text-[var(--text-main)]">
+                    <span
+                      className={`font-semibold whitespace-nowrap ${row.label === "Profit"
+                        ? row.raw >= 0
+                          ? "text-[var(--mt-blue)]"
+                          : "text-[var(--mt-red)]"
+                        : ""
+                        }`}
+                    >
                       {row.value}
                     </span>
+
                   </div>
                 ))}
               </div>
@@ -493,85 +535,104 @@ export default function TradeHistory() {
               {allPositions.map((pos: any) => {
 
                 return (
-                  <div
+                  <LongPressRow
                     key={pos.orderId}
-                    className="border-b border-[var(--border-soft)] bg-[var(--bg-plan)]"
+                    onLongPress={() => {
+                      setSelectedItem(pos);
+                      setShowSheet(true);
+                    }}
                   >
                     {/* MAIN ROW */}
                     <div
                       onClick={() => toggleExpand(pos.orderId)}
-                      className="px-0 py-2 cursor-pointer active:bg-white/5 transition"
+                      className={`
+    py-1 cursor-pointer active:bg-white/5
+    ${expandedId !== pos.orderId
+                          ? "border-b border-[var(--border-grey)]"
+                          : ""}
+  `}
                     >
-                      <div className="flex justify-between items-start">
+
+                      <div className="flex justify-between">
                         <div>
                           <div className="font-semibold text-[15px] mt-font">
                             {pos.symbol},{" "}
                             <span
-                              className={
-                                pos.side === "BUY"
-                                  ? "text-[var(--mt-blue)]"
-                                  : "text-[var(--mt-red)]"
-                              }
+                              className={` ${pos.side === "BUY"
+                                ? "text-[var(--mt-blue)] font-medium"
+                                : "text-[var(--mt-red)] font-medium"
+                                } `}
                             >
                               {pos.side.toLowerCase()} {pos.qty.toFixed(2)}
                             </span>
                           </div>
 
-                          <div className="mt-price-line mt-1">
-                            {pos.openPrice} {pos.closePrice ? `→ ${pos.closePrice}` : ""}
+                          <div className="mt-price-line">
+                            {pos.openPrice}{" "}
+                            {pos.closePrice ? `→ ${pos.closePrice}` : ""}
                           </div>
                         </div>
 
                         <div className="text-right">
-                          <div className="text-[12px] text-[var(--mt-grey)] mt-font">
+                          <div className="text-[12px] text-[var(--mt-dim)]">
                             {new Date(pos.openTime).toLocaleString()}
                           </div>
 
                           <div
-                            className={`mt-profit text-[14px] ${getProfitColor(pos.profitLoss)}`}
+                            className={`mt-profit ${pos.profitLoss > 0
+                              ? "text-[var(--mt-blue)]"
+                              : pos.profitLoss < 0
+                                ? "text-[var(--mt-red)]"
+                                : ""
+                              }`}
                           >
-                            {pos.profitLoss.toFixed(2)}
+                            {pos.profitLoss !== 0
+                              ? Math.abs(pos.profitLoss).toFixed(2)
+                              : ""}
                           </div>
+
                         </div>
                       </div>
                     </div>
 
+
                     {/* EXPANDED DETAILS */}
-                    {expandedId === pos.orderId && (
-                      <div className=" pb-3 animate-fadeIn">
-                        <div className="text-[12px] text-[var(--mt-grey)] mt-font space-y-1 grid grid-cols-2">
+                   {expandedId === pos.orderId && (
+  <div className="pb-3 border-b border-[var(--border-grey)] animate-fadeIn">
+    <div className="text-[12px] text-[var(--mt-dim)] mt-font space-y-1 grid grid-cols-2">
 
-                          <div className="mr-2">#{pos.orderId.slice(0, 10)}</div>
-                          <div className="flex justify-between mr-2">
-                            <span>{pos.status}</span>
-                            <span>{pos.openPrice}</span>
-                          </div>
-                          <div className="flex justify-between mr-2">
-                            <span>S/L:</span>
-                            <span>{pos.stopLoss ?? "-"}</span>
-                          </div>
-                          <div className="flex justify-between mr-2">
-                            <span>Swap:</span>
-                            <span>{pos.swap.toFixed(2)}</span>
-                          </div>
+      <div className="mr-2">#{pos.orderId.slice(0, 10)}</div>
 
-                          <div className="flex justify-between mr-2">
-                            <span>T/P:</span>
-                            <span>{pos.takeProfit ?? "-"}</span>
-                          </div>
+      <div className="flex justify-between mr-2">
+        <span>{pos.status}</span>
+        <span>{pos.openPrice}</span>
+      </div>
 
+      <div className="flex justify-between mr-2">
+        <span>S/L:</span>
+        <span>{pos.stopLoss ?? "-"}</span>
+      </div>
 
-                          <div className="flex justify-between mr-2">
-                            <span>Commission:</span>
-                            <span>{pos.commission.toFixed(2)}</span>
-                          </div>
+      <div className="flex justify-between mr-2">
+        <span>Swap:</span>
+        <span>{pos.swap.toFixed(2)}</span>
+      </div>
 
+      <div className="flex justify-between mr-2">
+        <span>T/P:</span>
+        <span>{pos.takeProfit ?? "-"}</span>
+      </div>
 
+      <div className="flex justify-between mr-2">
+        <span>Commission:</span>
+        <span>{pos.commission.toFixed(2)}</span>
+      </div>
 
-                        </div>
-                      </div>
-                    )}
-                  </div>
+    </div>
+  </div>
+)}
+
+                  </LongPressRow>
                 );
               })}
 
@@ -608,9 +669,17 @@ export default function TradeHistory() {
                       }}
                     />
 
-                    <span className="font-semibold whitespace-nowrap">
+                    <span
+                      className={`font-semibold whitespace-nowrap ${row.label === "Profit"
+                        ? row.raw >= 0
+                          ? "text-[var(--mt-blue)]"
+                          : "text-[var(--mt-red)]"
+                        : ""
+                        }`}
+                    >
                       {row.value}
                     </span>
+
                   </div>
                 ))}
               </div>
@@ -626,13 +695,21 @@ export default function TradeHistory() {
                     : "text-[var(--mt-blue)]";
 
                 return (
-                  <div
+                  <LongPressRow
                     key={deal.tradeId + deal.date}
-                    className="border-b border-[var(--border-soft)] bg-[var(--bg-plan)]"
+                    onLongPress={() => {
+                      setSelectedItem(deal);
+                      setShowSheet(true);
+                    }}
                   >
                     <div
                       onClick={() => toggleExpand(deal.tradeId + deal.date)}
-                      className=" py-3 cursor-pointer active:bg-white/5"
+                      className={`
+    py-1 cursor-pointer active:bg-white/5
+    ${expandedId !== deal.tradeId + deal.date
+                          ? "border-b border-[var(--border-grey)]"
+                          : ""}
+  `}
                     >
                       <div className="flex justify-between">
                         <div>
@@ -641,8 +718,8 @@ export default function TradeHistory() {
                             <span
                               className={
                                 deal.type.includes("BUY")
-                                  ? "text-[var(--mt-blue)]"
-                                  : "text-[var(--mt-red)]"
+                                  ? "text-[var(--mt-blue)] font-medium"
+                                  : "text-[var(--mt-red)] font-medium"
                               }
                             >
                               {deal.type
@@ -658,17 +735,31 @@ export default function TradeHistory() {
                         </div>
 
                         <div className="text-right">
-                          <div className="text-[12px] text-[var(--mt-grey)]">
+                          <div className="text-[12px] text-[var(--mt-dim)]">
                             {new Date(deal.date).toLocaleString()}
                           </div>
 
-
+                          {deal.pnl !== 0 && (
+                            <div
+                              className={`mt-profit ${deal.pnl > 0
+                                ? "text-[var(--mt-blue)]  font-medium"
+                                : deal.pnl < 0
+                                  ? "text-[var(--mt-red)] font-medium"
+                                  : ""
+                                }`}
+                            >
+                              {deal.pnl !== 0
+                                ? Math.abs(deal.pnl).toFixed(2)
+                                : ""}
+                            </div>
+                          )}
                         </div>
+
                       </div>
                     </div>
 
                     {expandedId === deal.tradeId + deal.date && (
-                      <div className=" pb-3 text-[12px] text-[var(--mt-grey)] space-y-1 animate-fadeIn grid grid-cols-2">
+                      <div className=" pb-3 text-[12px] text-[var(--mt-dim)] space-y-1 animate-fadeIn grid grid-cols-2 border-b border-[var(--border-grey)]">
 
                         <div className="flex justify-between mr-2">
                           <span>Deal:</span>
@@ -696,7 +787,7 @@ export default function TradeHistory() {
 
                       </div>
                     )}
-                  </div>
+                  </LongPressRow>
                 );
               })}
 
@@ -713,8 +804,23 @@ export default function TradeHistory() {
             </>
           )}
 
+
         </div>
       </div>
+      <HistoryActionSheet
+        item={selectedItem}
+        type={
+          activeTab === "positions"
+            ? "position"
+            : activeTab === "orders"
+              ? "order"
+              : "deal"
+        }
+        open={showSheet}
+        onClose={() => setShowSheet(false)}
+      />
+
+
     </>
   );
 }

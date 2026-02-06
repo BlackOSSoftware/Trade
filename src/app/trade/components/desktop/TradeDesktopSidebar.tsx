@@ -10,6 +10,7 @@ import {
   TrendingUp,
   ChartBarBigIcon,
   CandlestickChart,
+  History,
 } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useTradeDesktop } from "./TradeDesktopContext";
@@ -74,15 +75,10 @@ export default function TradeDesktopSidebar() {
         active={isExact(`${base}/settings`)}
         onClick={() => router.push(`${base}/settings`)}
       />
-
-
-
-      <NavIcon icon={Copy} />
-      <NavIcon icon={Users} />
       <NavIcon
-        icon={Settings}
-        active={pathname?.includes("/settings")}
-        onClick={() => router.push(`${base}/settings`)}
+        icon={History}
+        active={isExact(`${base}/history`)}
+        onClick={() => router.push(`${base}/history`)}
       />
       <ThemeToggle />
 

@@ -19,7 +19,7 @@ export default function QuotesUI({ showTopBar = false }: Props) {
     useState<string | null>(null);
 
   return (
-    <div className="text-[var(--text-main)] mt-4">
+    <div className="text-[var(--text-main)] mt-2">
       {showTopBar && (
         <div className="flex items-center justify-between mb-2">
           <div className="text-sm font-semibold">
@@ -29,17 +29,31 @@ export default function QuotesUI({ showTopBar = false }: Props) {
           <div className="flex gap-2">
             <button
               onClick={() => setSheet("add")}
-              className="h-8 w-8 flex items-center justify-center rounded-full bg-[var(--primary)] text-white shadow-sm"
+              className="h-12 w-12 flex items-center justify-center text-[var(--text-main)]"
             >
-              <Plus size={16} />
+              <Plus size={22} strokeWidth={2.5} />
             </button>
 
             <button
               onClick={() => setSheet("edit")}
-              className="h-8 w-8 flex items-center justify-center rounded-full bg-[var(--bg-card)] border border-[var(--border-soft)]"
+              className="h-12 w-12 flex items-center justify-center text-[var(--text-main)]"
             >
-              <Edit size={16} />
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 21h18" />
+                <path d="M12 3l9 9-9 9-9-9z" opacity="0" />
+                <path d="M16.5 3.5l4 4L7 21H3v-4L16.5 3.5z" />
+              </svg>
             </button>
+
           </div>
         </div>
       )}

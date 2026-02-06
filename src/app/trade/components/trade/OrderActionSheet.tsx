@@ -104,10 +104,14 @@ export default function OrderActionSheet({ order, open, onClose, onDeleteClick }
                     <ActionItem
                         label="New order"
                         onClick={() => {
-                            router.push(`/trade/new-order?symbol=${order.symbol}`);
+                            router.push(
+                                `/trade/new-order?symbol=${order.symbol}&type=${encodeURIComponent(order.orderType)}`
+                            );
                             onClose();
                         }}
                     />
+
+
 
                     <ActionItem
                         label="Chart"

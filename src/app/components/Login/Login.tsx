@@ -336,7 +336,7 @@ export default function LoginPage() {
               <button
                 onClick={() => router.push("/login")}
                 className={`px-4 py-2 text-sm rounded-md transition ${!params.get("trade")
-                    ? "bg-[var(--primary)] text-white"
+                    ? "bg-[var(--primary)] text-[var(--text-main)]"
                     : "text-[var(--text-muted)]"
                   }`}
               >
@@ -346,7 +346,7 @@ export default function LoginPage() {
               <button
                 onClick={() => router.push("/trade-login")}
                 className={`px-4 py-2 text-sm rounded-md transition ${params.get("trade")
-                    ? "bg-[var(--primary)] text-white"
+                    ? "bg-[var(--primary)] text-[var(--text-main)]"
                     : "text-[var(--text-muted)]"
                   }`}
               >
@@ -376,7 +376,7 @@ export default function LoginPage() {
           <button
             onClick={current.onSubmit}
             disabled={login.isPending}
-            className={`w-full rounded-lg py-3 font-medium transition text-white
+            className={`w-full rounded-lg py-3 font-medium transition text-[var(--text-main)]
     ${step === "reset"
                 ? "bg-emerald-500 hover:opacity-90"
                 : "bg-[var(--primary)] hover:shadow-[0_0_30px_var(--primary-glow)]"
@@ -395,7 +395,7 @@ export default function LoginPage() {
 
       {/* SUCCESS TOAST */}
       {toast && (
-        <div className="fixed bottom-4 right-4 rounded-lg bg-[var(--primary)] text-white px-4 py-2 shadow-xl">
+        <div className="fixed bottom-4 right-4 rounded-lg bg-[var(--primary)] text-[var(--text-main)] px-4 py-2 shadow-xl">
           {toast}
         </div>
       )}

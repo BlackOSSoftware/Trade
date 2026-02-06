@@ -44,7 +44,6 @@ export default function TradeSidebar() {
   };
 
   const base = `/trade`;
-
   return (
     <>
       {/* OVERLAY */}
@@ -57,7 +56,7 @@ export default function TradeSidebar() {
       {/* SIDEBAR */}
       <aside
         ref={ref}
-        className={`fixed left-0 top-0 z-[999] h-full w-[85%] max-w-[360px]
+        className={`fixed left-0 top-0 z-[999] h-full w-[75%] max-w-[360px]
         transform transition-transform duration-300 ease-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
         style={{
@@ -75,8 +74,8 @@ export default function TradeSidebar() {
               style={{
                 background:
                   account?.accountType === "demo"
-                    ? "#16A34A"   // Green for Demo
-                    : "#DC2626",  // Red for Live
+                    ? "var(--success)"   // Green for Demo
+                    : "var(--mt-red)",  // Red for Live
                 color: "#ffffff",
                 letterSpacing: "0.5px",
               }}
@@ -86,15 +85,31 @@ export default function TradeSidebar() {
           </div>
         )}
 
+        {account?.sessionType === "WATCH" && (
+          <div className="absolute top-0 right-0 w-24 h-24 overflow-hidden pointer-events-none">
+            <div
+              className="absolute right-[-20px] top-[44px] rotate-45 text-[10px] font-semibold px-8 py-[3px] text-center shadow-md"
+              style={{
+                background: "var(--bg-muted-card)", // grey tone
+                color: "#ffffff",
+                letterSpacing: "0.5px",
+              }}
+            >
+              WATCH ONLY
+            </div>
+          </div>
+        )}
+
+
         <div className="flex items-center gap-3 mt-4">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center mb-5"
             style={{ background: "var(--bg-plan)" }}
           >
             <img
               src="/logo/logo.png"
               alt="Platform Logo"
-              className="w-6 h-6 object-contain"
+              className="w-8 h-8 object-contain rounded-full"
             />
           </div>
 

@@ -14,8 +14,8 @@ type Props = {
     high?: number;
     low?: number;
     change?: number;
-changePercent?: number;
-tickTime?: string;
+    changePercent?: number;
+    tickTime?: string;
   };
 };
 
@@ -97,38 +97,58 @@ function QuoteRow({ live }: Props) {
         ? "text-red-600"
         : "text-[var(--text-main)]";
 
-        const isPositive = (live.change ?? 0) >= 0;
+const change = live.change ?? 0;
+const changePercent = live.changePercent ?? 0;
 
-const changeColor = isPositive
-  ? "text-blue-600"
-  : "text-red-600";
+const isPositive = change > 0;
+const isNegative = change < 0;
+
+const changeColor =
+  isPositive
+    ? "text-blue-600"
+    : isNegative
+      ? "text-red-600"
+      : "text-[var(--text-muted)]";
+
+// MT5 proper formatting
+const formattedChange =
+  isPositive
+    ? `+${change.toFixed(2)}`
+    : change.toFixed(2);
+
+const formattedPercent =
+  isPositive
+    ? `+${changePercent.toFixed(2)}%`
+    : `${changePercent.toFixed(2)}%`;
+
+
 
   return (
     <div className="flex items-center justify-between px-4 md:px-0 py-3 border-b border-[var(--border-soft)]">
       {/* LEFT */}
-<div className="flex flex-col gap-[2px] min-w-[130px]">
+      <div className="flex flex-col gap-[2px] min-w-[130px]">
 
-  {/* CHANGE + % */}
-<div className="text-[13px] text-[var(--text-muted)] font-semibold">
-  {(live.change ?? 0).toFixed(2)}{" "}
-  <span className={changeColor}>
-    ({(live.changePercent ?? 0).toFixed(2)}%)
-  </span>
-</div>
+        {/* CHANGE + % */}
+        <div className="text-[13px] text-[var(--text-muted)] font-semibold">
+          {formattedChange}{" "}
+          <span className={changeColor}>
+            {formattedPercent}%
+          </span>
+        </div>
 
 
-  {/* SYMBOL */}
-  <div className="font-semibold text-[14px]">
-    {live.symbol}
-  </div>
+        {/* SYMBOL */}
+        <div className="font-semibold text-[14px]">
+          {live.symbol}
+        </div>
 
-  {/* TIME + SPREAD */}
-  <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-2">
-    {live.tickTime ?? "--:--:--"}
-    <HGapSeparatorIcon />
-    {diff}
-  </div>
-</div>
+        {/* TIME + SPREAD */}
+        <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-2">
+          {live.tickTime ?? "--:--:--"}
+          <HGapSeparatorIcon />
+          {diff}
+        </div>
+      </div>
 
 
       {/* RIGHT */}
