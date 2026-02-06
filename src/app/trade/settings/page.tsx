@@ -31,7 +31,11 @@ const { language, setLanguage } = useLanguage();
 const t = translations[language];
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [calendarEnabled, setCalendarEnabled] = useState(true);
-  const [quoteView, setQuoteView] = useState<"simple" | "advanced">("simple");
+  const [quoteView, setQuoteView] = useState<"simple" | "advanced">(() => {
+    if (typeof window === "undefined") return "simple";
+    const saved = localStorage.getItem("trade-quote-view");
+    return saved === "advanced" || saved === "simple" ? saved : "simple";
+  });
 
   const handleLogout = () => {
     document.cookie = "tradeToken=; path=/; max-age=0";
@@ -59,6 +63,16 @@ const t = translations[language];
     localStorage.setItem("trade-lang", language);
   }, [language]);
 
+  const setQuoteViewAndPersist = (next: "simple" | "advanced") => {
+    setQuoteView(next);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("trade-quote-view", next);
+      window.dispatchEvent(
+        new CustomEvent("trade-quote-view-change", { detail: next })
+      );
+    }
+  };
+
 
 
   if (isLoading) {
@@ -70,7 +84,7 @@ const t = translations[language];
   }
 
   const cardClass =
-    "rounded-xl p-4 border border-[var(--border-soft)] shadow-sm bg-[var(--bg-plan)] md:bg-[var(--bg-glass)]";
+    "rounded-xl p-4 lg:p-5 border border-[var(--border-soft)] shadow-sm lg:shadow-md bg-[var(--bg-plan)] md:bg-[var(--bg-glass)]";
 
   return (
     <>
@@ -78,7 +92,16 @@ const t = translations[language];
         <TradeTopBar title="Settings" showMenu />
       </TopBarSlot>
 
-       <div className="flex-1 overflow-y-auto max-w-xl mx-auto w-full h-[calc(80vh)] md:h-[calc(100vh)] px-4 py-4 space-y-4 ">
+       <div className="flex-1 overflow-y-auto w-full h-[calc(80vh)] md:h-[calc(100vh)] px-4 py-4">
+        <div className="mx-auto w-full max-w-5xl">
+          <div className="hidden md:block mb-4">
+            <h1 className="text-2xl font-semibold">Settings</h1>
+            <p className="text-sm text-[var(--text-muted)]">
+              Manage your account, appearance, and trading preferences.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
         {/* ACCOUNT */}
         <div className={cardClass}>
@@ -163,7 +186,7 @@ const t = translations[language];
 
           <div className="flex gap-2">
             <button
-              onClick={() => setQuoteView("simple")}
+              onClick={() => setQuoteViewAndPersist("simple")}
               className={`flex-1 py-2 text-xs rounded-lg ${quoteView === "simple"
                   ? "bg-[var(--primary)] text-white"
                   : "bg-[var(--bg-main)] text-[var(--text-muted)]"
@@ -173,7 +196,7 @@ const t = translations[language];
             </button>
 
             <button
-              onClick={() => setQuoteView("advanced")}
+              onClick={() => setQuoteViewAndPersist("advanced")}
               className={`flex-1 py-2 text-xs rounded-lg ${quoteView === "advanced"
                   ? "bg-[var(--primary)] text-white"
                   : "bg-[var(--bg-main)] text-[var(--text-muted)]"
@@ -185,10 +208,10 @@ const t = translations[language];
         </div>
 
         {/* LOGOUT */}
-        <div className={`${cardClass} border border-red-500/30 bg-[var(--mt-red)]`}>
+        <div className={`${cardClass} border border-red-500/30 bg-[var(--mt-red)] lg:col-span-2`}>
           <button
             onClick={() => setShowLogoutConfirm(true)}
-            className="w-full flex items-center justify-between text-white"
+            className="w-full flex items-center justify-between text-[var(--text-main)]"
           >
             <div className="flex items-center gap-3">
               <LogOut size={18} />
@@ -198,6 +221,8 @@ const t = translations[language];
           </button>
         </div>
 
+          </div>
+        </div>
       </div>
 
       {showLogoutConfirm && (

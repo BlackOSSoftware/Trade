@@ -145,15 +145,22 @@ export default function ChartContent() {
   }, [paramSymbol]);
 
   // theme sync (keep your background/theme behavior unchanged)
-  useEffect(() => {
-    const updateTheme = () => {
-      const stored = localStorage.getItem("theme") || "dark";
-      setTheme(stored);
-    };
-    updateTheme();
-    window.addEventListener("storage", updateTheme);
-    return () => window.removeEventListener("storage", updateTheme);
-  }, []);
+ useEffect(() => {
+  const updateTheme = () => {
+    const stored = localStorage.getItem("theme") || "dark";
+    setTheme(stored);
+  };
+
+  updateTheme();
+
+  window.addEventListener("storage", updateTheme);
+  window.addEventListener("themeChange", updateTheme);
+
+  return () => {
+    window.removeEventListener("storage", updateTheme);
+    window.removeEventListener("themeChange", updateTheme);
+  };
+}, []);
 
   // screen resize
   useEffect(() => {
@@ -170,7 +177,12 @@ export default function ChartContent() {
     // remove any previous contents (script/iframe)
     containerRef.current.innerHTML = "";
 
-    const chartBg = theme === "light" ? "#ffffff" : isDesktop ? "#111827" : "#000000";
+   let chartBg = "#ffffff";
+    console.log(theme)
+if (theme === "dark") {
+  chartBg = isDesktop ? "#111827" : "#000000";
+}
+
 
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";

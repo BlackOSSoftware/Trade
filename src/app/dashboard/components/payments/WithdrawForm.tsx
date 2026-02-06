@@ -7,10 +7,12 @@ import Select from "@/app/components/ui/Select";
 import { PremiumInput } from "@/app/components/ui/TextInput";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { Toast } from "@/app/components/ui/Toast";
+import { useSearchParams } from "next/navigation";
 
 export default function WithdrawForm() {
     const { data: accounts } = useMyAccounts();
     const { mutateAsync, isPending } = useCreateWithdrawal();
+    const searchParams = useSearchParams();
 
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -28,6 +30,16 @@ export default function WithdrawForm() {
         const timer = setTimeout(() => setToast(null), 3000);
         return () => clearTimeout(timer);
     }, [toast]);
+
+    useEffect(() => {
+        if (form.accountId) return;
+        const fromQuery = searchParams.get("account") || searchParams.get("accountId");
+        if (!fromQuery) return;
+        const exists = accounts?.some((a: any) => a._id === fromQuery);
+        if (exists) {
+            setForm((prev: any) => ({ ...prev, accountId: fromQuery }));
+        }
+    }, [accounts, form.accountId, searchParams]);
 
     const handleSubmit = async () => {
         // Close modal immediately

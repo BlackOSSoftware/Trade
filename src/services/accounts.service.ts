@@ -54,6 +54,12 @@ export const getAccountById = async (id: string) => {
   return res.data.data;
 };
 
+/* Reset demo account balance */
+export const resetDemoAccount = async (id: string) => {
+  const res = await api.post(`/accounts/${id}/reset-demo`);
+  return res.data;
+};
+
 export async function fetchTradeAccount() {
   const { data } = await tradeApi.get("/trade/account");
   return data.data;

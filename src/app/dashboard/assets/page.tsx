@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { useMyAccounts } from "@/hooks/useMyAccounts";
 import GlobalLoader from "@/app/components/ui/GlobalLoader";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
 import TipBanner from "@/app/components/ui/TipBanner";
 
 export default function AssetsPage() {
@@ -78,7 +77,7 @@ export default function AssetsPage() {
                         return (
                             <div
                                 key={acc._id}
-                                onClick={() => router.push(`/dashboard/trade/${acc._id}`)}
+                                onClick={() => router.push(`/trade/${acc.account_number}`)}
                                 className={`rounded-xl border p-4 cursor-pointer transition relative overflow-hidden
           ${isLive
                                         ? "border-[var(--primary)] bg-[var(--bg-glass)] hover:shadow-lg"
@@ -100,7 +99,17 @@ export default function AssetsPage() {
 
                                 {/* PLAN NAME */}
                                 <p className="text-xs text-[var(--text-muted)]">
-                                    {acc.plan_name}
+                                    {acc.plan_name}{" "}
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            router.push(`/trade-login?account=${encodeURIComponent(acc.account_number)}`);
+                                        }}
+                                        className="mx-2 text-[var(--primary)] hover:underline"
+                                    >
+                                        {acc.account_number}
+                                    </button>
                                 </p>
 
                                 {/* BALANCE */}

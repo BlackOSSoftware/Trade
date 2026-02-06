@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle, AlertCircle, Upload, CreditCard, Banknote, Bitcoin } from "lucide-react";
 import { useCreateDeposit } from "@/hooks/deposits/useCreateDeposit";
 import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
@@ -9,12 +9,15 @@ import { getClientIp } from "../../../../../utils/getClientIp";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { Toast } from "@/app/components/ui/Toast";
 import { useActivePaymentMethods } from "@/hooks/useActivePaymentMethods";
+import { useSearchParams } from "next/navigation";
+import Select from "@/app/components/ui/Select";
 
 type DepositMethod = "UPI" | "BANK" | "CRYPTO";
 export default function DepositForm() {
     const { data: accounts = [] } = useMyAccounts();
     const createDeposit = useCreateDeposit();
     const upload = useCloudinaryUpload();
+    const searchParams = useSearchParams();
 
     const [method, setMethod] = useState<DepositMethod>("UPI");
     const [accountId, setAccountId] = useState("");
@@ -27,6 +30,19 @@ export default function DepositForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const selectedAccount = accounts.find((a) => a._id === accountId);
+    const paymentMethodOptions = paymentMethods.reduce(
+        (acc: { value: string; label: string }[], pm: any) => {
+            const type = pm?.type;
+            if (!type) return acc;
+            if (acc.some((o) => o.value === type)) return acc;
+            acc.push({
+                value: type,
+                label: pm?.title || type,
+            });
+            return acc;
+        },
+        []
+    );
     const methodIcons = {
         UPI: <Banknote className="w-5 h-5" />,
         BANK: <CreditCard className="w-5 h-5" />,
@@ -40,6 +56,14 @@ export default function DepositForm() {
         setFile(null);
         setError("");
     };
+
+    useEffect(() => {
+        if (accountId) return;
+        const fromQuery = searchParams.get("account") || searchParams.get("accountId");
+        if (!fromQuery) return;
+        const exists = accounts.some((a) => a._id === fromQuery);
+        if (exists) setAccountId(fromQuery);
+    }, [accounts, accountId, searchParams]);
 
     const handleSubmit = async () => {
         setError("");
@@ -124,71 +148,36 @@ export default function DepositForm() {
 
 
 
-                {/* 💳 Account Select */}
-                <div className="space-y-2 mb-6">
-                    <label className="text-sm font-medium text-[var(--text-main)] flex items-center gap-2">
-                        <CreditCard className="w-4 h-4" />
-                        Select Account
-                    </label>
-                    <select
-                        value={accountId}
-                        onChange={(e) => setAccountId(e.target.value)}
-                        className="w-full input-field px-4 py-3 rounded-xl
-                                   border border-[var(--border-soft)]
-                                   bg-[var(--bg-card)]
-                                   text-[var(--text-main)]
-                                   focus:ring-2 focus:ring-[var(--primary-glow)]
-                                   focus:border-[var(--primary)]
-                                   transition-all duration-200"
-                    >
-                        <option value="">Choose your account</option>
-                        {accounts.map((acc) => (
-                            <option
-                                key={acc._id}
-                                value={acc._id}
-                                className="text-[var(--inverted)]"
-                            >
-                                {acc.account_number} • Balance: $
-                                {Number(acc.balance).toLocaleString(undefined, {
+                {/* 💳 Account Select */
+                <><div className="space-y-2 mb-6">
+                        <label className="text-sm font-medium text-[var(--text-main)] flex items-center gap-2">
+                            <CreditCard className="w-4 h-4" />
+                            Select Account
+                        </label>
+                        <Select
+                            value={accountId}
+                            onChange={setAccountId}
+                            options={accounts.map((acc) => ({
+                                value: acc._id,
+                                label: `${acc.account_number} ??? Balance: $${Number(
+                                    acc.balance
+                                ).toLocaleString(undefined, {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2,
-                                })}
-                            </option>
+                                })}`,
+                            }))} />
+                    </div>
+                        <div className="space-y-2 mb-6">
+                            <label className="text-sm font-medium text-[var(--text-main)] flex items-center gap-2">
+                                Payment Method
+                            </label>
+                            <Select
+                                value={method}
+                                onChange={(v) => setMethod(v as DepositMethod)}
+                                options={paymentMethodOptions} />
+                        </div></>
 
-                        ))}
-                    </select>
-                </div>
-
-
-
-                {/* 🔄 Method */}
-                <div className="space-y-2 mb-6">
-                    <label className="text-sm font-medium text-[var(--text-main)] flex items-center gap-2">
-                        Payment Method
-                    </label>
-                    <select
-                        value={method}
-                        onChange={(e) => setMethod(e.target.value as DepositMethod)}
-                        className="
-    w-full input-field px-4 py-3 rounded-xl
-    border border-[var(--border-soft)]
-    bg-[var(--bg-card)]
-    text-[var(--text-main)]
-    focus:ring-2 focus:ring-[var(--primary-glow)]
-    focus:border-[var(--primary)]
-    transition-all duration-200
-  "
-                    >
-                        {paymentMethods.map((pm: any) => (
-                            <option key={pm._id} value={pm.type}>
-                                {pm.title}
-                            </option>
-                        ))}
-                    </select>
-
-                </div>
-
-                {/* 💰 Amount */}
+                /* 💰 Amount */}
                 <div className="space-y-2 mb-6">
                     <label className="text-sm font-medium text-[var(--text-main)] flex items-center gap-2">
                         Deposit Amount

@@ -19,9 +19,16 @@ export const getTradePositions = async ({ pageParam = 1 }) => {
   };
 };
 
-export const getTradeOrders = async ({ pageParam = 1 }) => {
+export const getTradeOrders = async ({
+  pageParam = 1,
+  symbol,
+}: {
+  pageParam?: number;
+  symbol?: string | null;
+}) => {
+  const symbolParam = symbol ? `&symbol=${encodeURIComponent(symbol)}` : "";
   const { data } = await tradeApi.get(
-    `/trade/orders?page=${pageParam}&limit=20`
+    `/trade/orders?page=${pageParam}&limit=20${symbolParam}`
   );
 
   return {

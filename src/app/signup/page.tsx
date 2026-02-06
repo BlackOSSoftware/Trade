@@ -18,7 +18,7 @@ export default function SignupPage() {
   const router = useRouter();
   const signup = useSignup();
   const { data: countries } = useCountries();
-    
+
   const defaultCountry = useMemo(
     () => countries?.[0] ?? null,
     [countries]
@@ -45,7 +45,7 @@ export default function SignupPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
-if (!countries || !defaultCountry) return null;
+  if (!countries || !defaultCountry) return null;
 
   const isPasswordValid = (password: string) =>
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,16}$/.test(password);
@@ -81,8 +81,14 @@ if (!countries || !defaultCountry) return null;
           setStep("verify");
         },
         onError: (err: any) => {
-          showToast(err?.message || "Signup failed");
+          const backendMessage =
+            err?.response?.data?.message ||
+            err?.response?.data?.error ||
+            err?.message;
+
+          showToast(backendMessage || "Signup failed");
         },
+
       }
     );
   };

@@ -17,6 +17,7 @@ type Props = {
     changePercent?: number;
     tickTime?: string;
   };
+  viewMode?: "advanced" | "simple";
 };
 
 type SplitPrice = {
@@ -78,7 +79,7 @@ function decimalDiff(bid: string, ask: string): string {
   return diff.toString().padStart(3,);
 }
 
-function QuoteRow({ live }: Props) {
+function QuoteRow({ live, viewMode = "advanced" }: Props) {
   const bid = splitPrice(live.bid);
   const ask = splitPrice(live.ask);
   const diff = decimalDiff(live.bid, live.ask);
@@ -122,6 +123,40 @@ const formattedPercent =
     : `${changePercent.toFixed(2)}%`;
 
 
+
+  if (viewMode === "simple") {
+    return (
+      <div className="px-1 md:px-0 py-1 border-b border-[var(--border-soft)]">
+       
+
+        <div className="mt-2 flex items-center justify-between">
+          <div className="font-semibold text-[14px]">
+            {live.symbol}
+          </div>
+
+          <div className="flex gap-10">
+            <div className={`text-right font-semibold text-[18px] ${bidColor}`}>
+              {bid.int}.
+              <span>{bid.normal}</span>
+              <span className="text-[22px]">{bid.big}</span>
+              <sup className="text-[11px] relative top-[-13px]">
+                {bid.small}
+              </sup>
+            </div>
+
+            <div className={`text-right font-semibold text-[18px] ${askColor}`}>
+              {ask.int}.
+              <span>{ask.normal}</span>
+              <span className="text-[22px]">{ask.big}</span>
+              <sup className="text-[11px] relative top-[-13px]">
+                {ask.small}
+              </sup>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-between px-4 md:px-0 py-3 border-b border-[var(--border-soft)]">

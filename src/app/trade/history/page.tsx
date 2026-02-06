@@ -119,10 +119,15 @@ const OrdersSummary = memo(
 export default function TradeHistory() {
   const [activeTab, setActiveTab] = useState<TabType>("orders");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+  const [selectedSymbolKey, setSelectedSymbolKey] = useState<string | null>(null);
+  const [selectedSymbolLabel, setSelectedSymbolLabel] = useState<string | null>(null);
   const [symbolOpen, setSymbolOpen] = useState(false);
+  const [debugLastSelect, setDebugLastSelect] = useState<string | null>(null);
   const [showSheet, setShowSheet] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [symbolsCache, setSymbolsCache] = useState<
+    { key: string; label: string }[]
+  >([]);
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -150,7 +155,9 @@ export default function TradeHistory() {
     fetchNextPage: fetchNextOrders,
     hasNextPage: hasNextOrders,
     isFetchingNextPage: isFetchingOrders,
-  } = useTradeOrders();
+  } = useTradeOrders({
+    symbol: selectedSymbolKey ? selectedSymbolLabel ?? undefined : undefined,
+  });
 
 
   const orderSummaryData =
@@ -174,6 +181,10 @@ export default function TradeHistory() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries[0].isIntersecting) return;
+
+        // 🔥 IMPORTANT: agar symbol filter laga hua hai
+        // toh next page fetch mat karo
+        if (selectedSymbolKey) return;
 
         if (activeTab === "positions" && hasNextPage) {
           fetchNextPage();
@@ -200,11 +211,12 @@ export default function TradeHistory() {
     fetchNextPage,
     fetchNextOrders,
     fetchNextDeals,
+    selectedSymbolKey,   // 👈 dependency add karna mat bhoolna
   ]);
-
 
   useEffect(() => {
     if (!loadMoreRef.current || activeTab !== "deals") return;
+    if (selectedSymbolKey) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -217,9 +229,10 @@ export default function TradeHistory() {
 
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
-  }, [activeTab, hasNextDeals, fetchNextDeals]);
+  }, [activeTab, hasNextDeals, fetchNextDeals, selectedSymbolKey]);
   useEffect(() => {
     if (!loadMoreRef.current || activeTab !== "orders") return;
+    if (selectedSymbolKey) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -232,7 +245,7 @@ export default function TradeHistory() {
 
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
-  }, [activeTab, hasNextOrders, fetchNextOrders]);
+  }, [activeTab, hasNextOrders, fetchNextOrders, selectedSymbolKey]);
 
   const rawOrders =
     ordersPages?.pages.flatMap((p) => p.orders) || [];
@@ -242,33 +255,99 @@ export default function TradeHistory() {
 
   const rawDeals =
     dealsPages?.pages.flatMap((p) => p.deals) || [];
+
+  const resolveSymbol = useCallback((item: any) => {
+    if (!item) return "";
+    const candidates = [
+      item.symbol,
+      item.symbolName,
+      item.pair,
+      item.instrument,
+      item.product,
+      item.ticker,
+      item.asset,
+      item.code,
+      item?.symbol?.name,
+      item?.symbol?.symbol,
+      item?.symbol?.code,
+      item?.instrument?.symbol,
+      item?.instrument?.code,
+    ];
+    const found = candidates.find(
+      (value) => typeof value === "string" && value.trim().length > 0
+    );
+    return found ?? "";
+  }, []);
+
+  const toSymbolKey = useCallback((value: unknown) => {
+    return String(value ?? "")
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
+  }, []);
+
+  const isSymbolMatch = useCallback(
+    (item: any) => {
+      if (!selectedSymbolKey) return true;
+      const itemKey = toSymbolKey(resolveSymbol(item));
+      if (!itemKey) return false;
+      return (
+        itemKey === selectedSymbolKey ||
+        itemKey.startsWith(selectedSymbolKey) ||
+        itemKey.includes(selectedSymbolKey)
+      );
+    },
+    [resolveSymbol, selectedSymbolKey, toSymbolKey]
+  );
+
   const allPositions = useMemo(() => {
-    return selectedSymbol
-      ? rawPositions.filter((p) => p.symbol === selectedSymbol)
+    return selectedSymbolKey
+      ? rawPositions.filter((p) => isSymbolMatch(p))
       : rawPositions;
-  }, [rawPositions, selectedSymbol]);
+  }, [rawPositions, selectedSymbolKey, isSymbolMatch]);
 
   const allOrders = useMemo(() => {
-    return selectedSymbol
-      ? rawOrders.filter((o) => o.symbol === selectedSymbol)
+    return selectedSymbolKey
+      ? rawOrders.filter(
+        (o) => isSymbolMatch(o)
+      )
       : rawOrders;
-  }, [rawOrders, selectedSymbol]);
+  }, [rawOrders, selectedSymbolKey, isSymbolMatch]);
 
   const allDeals = useMemo(() => {
-    return selectedSymbol
-      ? rawDeals.filter((d) => d.symbol === selectedSymbol)
+    return selectedSymbolKey
+      ? rawDeals.filter(
+        (d) => isSymbolMatch(d)
+      )
       : rawDeals;
-  }, [rawDeals, selectedSymbol]);
+  }, [rawDeals, selectedSymbolKey, isSymbolMatch]);
 
   const allSymbols = useMemo(() => {
-    const set = new Set<string>();
+    const map = new Map<string, string>();
 
-    rawOrders.forEach((o) => set.add(o.symbol));
-    rawPositions.forEach((p) => set.add(p.symbol));
-    rawDeals.forEach((d) => set.add(d.symbol));
+    const addSymbol = (item: any) => {
+      const label = String(resolveSymbol(item) ?? "").trim();
+      const key = toSymbolKey(label);
+      if (!key || map.has(key)) return;
+      map.set(key, label.toUpperCase());
+    };
 
-    return Array.from(set);
-  }, [rawOrders, rawPositions, rawDeals]);
+    rawOrders.forEach(addSymbol);
+    rawPositions.forEach(addSymbol);
+    rawDeals.forEach(addSymbol);
+
+    return Array.from(map.entries()).map(([key, label]) => ({ key, label }));
+  }, [rawOrders, rawPositions, rawDeals, resolveSymbol, toSymbolKey]);
+
+  const symbolsForDropdown = selectedSymbolKey
+    ? symbolsCache
+    : allSymbols;
+
+  useEffect(() => {
+    if (!selectedSymbolKey && allSymbols.length > 0) {
+      setSymbolsCache(allSymbols);
+    }
+  }, [allSymbols, selectedSymbolKey]);
 
   const positionSummary = summary
     ? [
@@ -279,6 +358,20 @@ export default function TradeHistory() {
       { label: "Balance", value: summary.balance.toFixed(2) },
     ]
     : [];
+
+  const symbolOrderSummary = useMemo(() => {
+    if (!selectedSymbolKey) return orderSummaryData || null;
+
+    const totalOrders = allOrders.length;
+    const totalFilled = allOrders.filter((o: any) =>
+      ["FILLED", "CLOSED"].includes(String(o.status).toUpperCase())
+    ).length;
+    const totalCancelled = allOrders.filter((o: any) =>
+      ["CANCELLED", "CANCELED"].includes(String(o.status).toUpperCase())
+    ).length;
+
+    return { totalOrders, totalFilled, totalCancelled };
+  }, [allOrders, orderSummaryData, selectedSymbolKey]);
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -292,10 +385,21 @@ export default function TradeHistory() {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    setExpandedId(null);
+
+    // optional: scroll to top
+    const container = document.querySelector("[data-history-scroll]");
+    if (container) {
+      container.scrollTop = 0;
+    }
+  }, [selectedSymbolKey]);
+
 
   return (
     <>
@@ -303,26 +407,31 @@ export default function TradeHistory() {
       <TopBarSlot>
         <TradeTopBar
           title="History"
-          subtitle="All symbols"
+          subtitle={selectedSymbolLabel ? selectedSymbolLabel : "All symbols"}
           showMenu
           right={
             <div className="flex items-center gap-4">
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setSymbolOpen((prev) => !prev)}
                   className="flex items-center gap-1 font-semibold text-[14px] text-[var(--text-main)]"
                 >
                   <DollarSign size={16} />
+                  <span className="text-[12px] uppercase">
+                    {selectedSymbolLabel ? selectedSymbolLabel : "ALL"}
+                  </span>
 
                 </button>
 
                 {symbolOpen && (
-                  <div className="absolute right-0 mt-2 w-22 bg-[var(--bg-muted-card)] border border-[var(--border-soft)] rounded-md shadow-lg z-50 animate-dropdown">
+                  <div className="absolute right-0 mt-2 w-22 bg-[var(--bg-card)] border border-[var(--border-soft)] rounded-md shadow-lg z-50 animate-dropdown">
 
                     {/* ALL OPTION */}
                     <div
                       onClick={() => {
-                        setSelectedSymbol(null);
+                        setSelectedSymbolKey(null);
+                        setSelectedSymbolLabel(null);
+                        setDebugLastSelect("ALL | null");
                         setSymbolOpen(false);
                       }}
                       className="px-3 py-2 cursor-pointer hover:bg-[var(--bg-glass)] text-[13px]"
@@ -330,20 +439,23 @@ export default function TradeHistory() {
                       ALL
                     </div>
 
-                    {allSymbols.map((sym) => (
+                    {symbolsForDropdown.map((sym) => (
                       <div
-                        key={sym}
+                        key={sym.key}
                         onClick={() => {
-                          setSelectedSymbol(sym);
+                          setSelectedSymbolKey(sym.key || null);
+                          setSelectedSymbolLabel(sym.label);
+                          setDebugLastSelect(`${sym.label} | ${sym.key || "null"}`);
                           setSymbolOpen(false);
                         }}
-                        className={`px-3 py-2 cursor-pointer hover:bg-[var(--bg-glass)] text-[13px] ${selectedSymbol === sym
-                          ? "text-[var(--mt-blue)] font-semibold"
-                          : ""
+                        className={`px-3 py-2 cursor-pointer hover:bg-[var(--bg-glass)] text-[13px] ${selectedSymbolKey === sym.key
+                            ? "text-[var(--mt-blue)] font-semibold"
+                            : ""
                           }`}
                       >
-                        {sym}
+                        {sym.label}
                       </div>
+
                     ))}
                   </div>
                 )}
@@ -357,28 +469,30 @@ export default function TradeHistory() {
       </TopBarSlot>
 
       {/* BODY */}
-      <div className="px-2 md:px-4 pt-1 text-[13px] bg-[var(--bg-plan)] md:bg-[var(--bg-card)]  h-[calc(100vh-60px)] overflow-y-auto pb-7">
+      <div data-history-scroll className="px-2 md:px-4 pt-1 text-[13px] bg-[var(--bg-plan)] md:bg-[var(--bg-card)]  h-[calc(100vh-60px)] overflow-y-auto pb-7">
+        {/* DEBUG PANEL */}
+      
         <HistoryTabs activeTab={activeTab} onChange={onTabChange} />
 
         <div className="transition-opacity duration-200">
           {activeTab === "orders" && (
             <>
               {/* SUMMARY */}
-              {orderSummaryData && (
+              {symbolOrderSummary && (
                 <div className="space-y-[6px] mb-3">
                   <OrdersSummary
                     summary={[
                       {
                         label: "Filled",
-                        value: orderSummaryData.totalFilled.toString(),
+                        value: symbolOrderSummary.totalFilled.toString(),
                       },
                       {
                         label: "Canceled",
-                        value: orderSummaryData.totalCancelled.toString(),
+                        value: symbolOrderSummary.totalCancelled.toString(),
                       },
                       {
                         label: "Total",
-                        value: orderSummaryData.totalOrders.toString(),
+                        value: symbolOrderSummary.totalOrders.toString(),
                       },
                     ]}
                   />
@@ -387,6 +501,7 @@ export default function TradeHistory() {
 
               {/* ORDERS LIST */}
               {allOrders.map((order: any) => {
+                if (selectedSymbolKey && !isSymbolMatch(order)) return null;
                 const isBuy = order.side === "BUY";
 
                 return (
@@ -427,11 +542,11 @@ export default function TradeHistory() {
                           </div>
                         </div>
 
-                        <div className="text-right">
-                          <div className="text-[12px] text-[var(--mt-dim)]">
+                        <div className="text-right mt-price-line">
+                          <div className="text-[12px]">
                             {new Date(order.openTime).toLocaleString()}
                           </div>
-                          <div className="mt-profit text-[var(--mt-dim)] text-[13px]">
+                          <div className="mt-profit text-[13px]">
                             {order.status === "CLOSED" ? "FILLED" : order.status}
                           </div>
 
@@ -440,7 +555,7 @@ export default function TradeHistory() {
                     </div>
 
                     {expandedId === order.orderId && (
-                      <div className="pb-3 text-[12px] text-[var(--mt-dim)] border-b border-[var(--border-grey)] space-y-1 animate-fadeIn grid grid-cols-1 ">
+                      <div className="pb-3 text-[12px] mt-price-line border-b border-[var(--border-grey)] space-y-1 animate-fadeIn grid grid-cols-1 ">
 
                         <div className="w-50">#{order.orderId.slice(0, 10)}</div>
 
@@ -533,6 +648,7 @@ export default function TradeHistory() {
 
               {/* POSITIONS LIST */}
               {allPositions.map((pos: any) => {
+                if (selectedSymbolKey && !isSymbolMatch(pos)) return null;
 
                 return (
                   <LongPressRow
@@ -574,7 +690,7 @@ export default function TradeHistory() {
                         </div>
 
                         <div className="text-right">
-                          <div className="text-[12px] text-[var(--mt-dim)]">
+                          <div className="text-[12px] mt-price-line">
                             {new Date(pos.openTime).toLocaleString()}
                           </div>
 
@@ -597,40 +713,40 @@ export default function TradeHistory() {
 
 
                     {/* EXPANDED DETAILS */}
-                   {expandedId === pos.orderId && (
-  <div className="pb-3 border-b border-[var(--border-grey)] animate-fadeIn">
-    <div className="text-[12px] text-[var(--mt-dim)] mt-font space-y-1 grid grid-cols-2">
+                    {expandedId === pos.orderId && (
+                      <div className="pb-3 border-b border-[var(--border-grey)] animate-fadeIn">
+                        <div className="text-[12px] mt-price-line mt-font space-y-1 grid grid-cols-2">
 
-      <div className="mr-2">#{pos.orderId.slice(0, 10)}</div>
+                          <div className="mr-2">#{pos.orderId.slice(0, 10)}</div>
 
-      <div className="flex justify-between mr-2">
-        <span>{pos.status}</span>
-        <span>{pos.openPrice}</span>
-      </div>
+                          <div className="flex justify-between mr-2">
+                            <span>{pos.status}</span>
+                            <span>{pos.openPrice}</span>
+                          </div>
 
-      <div className="flex justify-between mr-2">
-        <span>S/L:</span>
-        <span>{pos.stopLoss ?? "-"}</span>
-      </div>
+                          <div className="flex justify-between mr-2">
+                            <span>S/L:</span>
+                            <span>{pos.stopLoss ?? "-"}</span>
+                          </div>
 
-      <div className="flex justify-between mr-2">
-        <span>Swap:</span>
-        <span>{pos.swap.toFixed(2)}</span>
-      </div>
+                          <div className="flex justify-between mr-2">
+                            <span>Swap:</span>
+                            <span>{pos.swap.toFixed(2)}</span>
+                          </div>
 
-      <div className="flex justify-between mr-2">
-        <span>T/P:</span>
-        <span>{pos.takeProfit ?? "-"}</span>
-      </div>
+                          <div className="flex justify-between mr-2">
+                            <span>T/P:</span>
+                            <span>{pos.takeProfit ?? "-"}</span>
+                          </div>
 
-      <div className="flex justify-between mr-2">
-        <span>Commission:</span>
-        <span>{pos.commission.toFixed(2)}</span>
-      </div>
+                          <div className="flex justify-between mr-2">
+                            <span>Commission:</span>
+                            <span>{pos.commission.toFixed(2)}</span>
+                          </div>
 
-    </div>
-  </div>
-)}
+                        </div>
+                      </div>
+                    )}
 
                   </LongPressRow>
                 );
@@ -688,6 +804,7 @@ export default function TradeHistory() {
 
               {/* DEALS LIST */}
               {allDeals.map((deal: any) => {
+                if (selectedSymbolKey && !isSymbolMatch(deal)) return null;
                 const isBuy = deal.type.includes("BUY");
                 const pnlColor =
                   deal.pnl < 0
@@ -735,7 +852,7 @@ export default function TradeHistory() {
                         </div>
 
                         <div className="text-right">
-                          <div className="text-[12px] text-[var(--mt-dim)]">
+                          <div className="text-[12px] mt-price-line">
                             {new Date(deal.date).toLocaleString()}
                           </div>
 
@@ -759,7 +876,7 @@ export default function TradeHistory() {
                     </div>
 
                     {expandedId === deal.tradeId + deal.date && (
-                      <div className=" pb-3 text-[12px] text-[var(--mt-dim)] space-y-1 animate-fadeIn grid grid-cols-2 border-b border-[var(--border-grey)]">
+                      <div className=" pb-3 text-[12px] mt-price-line space-y-1 animate-fadeIn grid grid-cols-2 border-b border-[var(--border-grey)]">
 
                         <div className="flex justify-between mr-2">
                           <span>Deal:</span>

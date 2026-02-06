@@ -312,3 +312,57 @@ body {
 .animate-slideDown {
   animation: slideDown 0.25s ease-out;
 }
+
+/* ----------------------------------
+   INPUT AUTOFILL FIX (TRADE LOGIN)
+---------------------------------- */
+.trade-auth-input:-webkit-autofill,
+.trade-auth-input:-webkit-autofill:hover,
+.trade-auth-input:-webkit-autofill:focus,
+.trade-auth-input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--text-main);
+  box-shadow: 0 0 0px 1000px var(--bg-plan) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.trade-auth-input:autofill {
+  background-color: var(--bg-card) !important;
+  color: var(--text-main) !important;
+}
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glowPulse {
+  0%,100% { text-shadow: 0 0 10px rgba(79,140,255,0.4); }
+  50% { text-shadow: 0 0 25px rgba(79,140,255,0.9); }
+}
+
+.animate-fadeUp {
+  animation: fadeUp 1s ease forwards;
+}
+
+.animate-glow {
+  animation: glowPulse 2.5s infinite ease-in-out;
+}
+@keyframes cardsEnter {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-cardsEnter {
+  animation: cardsEnter 0.9s ease forwards;
+}

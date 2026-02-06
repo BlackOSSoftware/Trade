@@ -14,6 +14,8 @@ import {
   HelpCircle,
   Info,
   ChevronRight,
+  CandlestickChart,
+  Clock,
 } from "lucide-react";
 import { useTradeSidebar } from "./TradeSidebarContext";
 import { useTradeAccount } from "@/hooks/accounts/useAccountById";
@@ -144,26 +146,20 @@ export default function TradeSidebar() {
             active={pathname === `${base}/trade`}
             onClick={() => go(`${base}/trade`)}
           />
+          <Item
+            icon={CandlestickChart}
+            label="Chart"
+            active={pathname === `${base}/charts`}
+            onClick={() => go(`${base}/charts`)}
+          />
+          <Item
+            icon={Clock}
+            label="History"
+            active={pathname === `${base}/history`}
+            onClick={() => go(`${base}/history`)}
+          />
 
-          <Item
-            icon={Newspaper}
-            label="News"
-            active={pathname === "/news"}
-            onClick={() => go("/news")}
-          />
-          <Item
-            icon={Mail}
-            label="Mailbox"
-            badge={<Badge color="red">8</Badge>}
-            active={pathname === "/mail"}
-            onClick={() => go("/mail")}
-          />
-          <Item
-            icon={BookOpen}
-            label="Journal"
-            active={pathname === "/journal"}
-            onClick={() => go("/journal")}
-          />
+         
           <Item
             icon={Settings}
             label="Settings"
@@ -176,18 +172,6 @@ export default function TradeSidebar() {
             badge={<Badge color="blue">Ads</Badge>}
             active={pathname === "/calendar"}
             onClick={() => go("/calendar")}
-          />
-          <Item
-            icon={Users}
-            label="Traders Community"
-            active={pathname === "/community"}
-            onClick={() => go("/community")}
-          />
-          <Item
-            icon={Bot}
-            label="MQL5 Algo Trading"
-            active={pathname === "/mql5"}
-            onClick={() => go("/mql5")}
           />
         </nav>
 

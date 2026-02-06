@@ -10,10 +10,14 @@ export default function BottomSheet({
   open,
   onClose,
   title,
+  viewMode,
+  onToggleViewMode,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
+  viewMode: "advanced" | "simple";
+  onToggleViewMode: () => void;
 }) {
   // ESC to close (optional)
   const router = useRouter();
@@ -85,6 +89,8 @@ export default function BottomSheet({
 
         {/* Actions */}
         <div className="overflow-y-auto">
+        
+
           <button
             onClick={() => {
               if (!title) return;
@@ -125,7 +131,15 @@ export default function BottomSheet({
           >
             Market Statistics
           </button>
-
+              <button
+            onClick={() => {
+              onToggleViewMode();
+              onClose();
+            }}
+            className="w-full px-6 py-4 text-left text-sm border-b border-[var(--border-soft)]"
+          >
+            {viewMode === "advanced" ? "Simple View Mode" : "Advanced View Mode"}
+          </button>
         </div>
       </div>
     </div>

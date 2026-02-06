@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Edit } from "lucide-react";
 
 import QuotesList from "./QuotesList";
@@ -17,6 +17,37 @@ export default function QuotesUI({ showTopBar = false }: Props) {
     useState<null | "actions" | "edit" | "add">(null);
   const [selected, setSelected] =
     useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"advanced" | "simple">(() => {
+    if (typeof window === "undefined") return "advanced";
+    const saved = localStorage.getItem("trade-quote-view");
+    return saved === "advanced" || saved === "simple" ? saved : "advanced";
+  });
+
+  useEffect(() => {
+    const syncFromStorage = () => {
+      const saved = localStorage.getItem("trade-quote-view");
+      if (saved === "advanced" || saved === "simple") {
+        setViewMode(saved);
+      }
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "trade-quote-view") syncFromStorage();
+    };
+    const onCustom = (e: Event) => {
+      const next = (e as CustomEvent).detail;
+      if (next === "advanced" || next === "simple") {
+        setViewMode(next);
+      } else {
+        syncFromStorage();
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("trade-quote-view-change", onCustom);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("trade-quote-view-change", onCustom);
+    };
+  }, []);
 
   return (
     <div className="text-[var(--text-main)] mt-2">
@@ -59,6 +90,7 @@ export default function QuotesUI({ showTopBar = false }: Props) {
       )}
 
       <QuotesList
+        viewMode={viewMode}
         onSelect={(symbol) => {
           setSelected(symbol);
           setSheet("actions");
@@ -69,6 +101,19 @@ export default function QuotesUI({ showTopBar = false }: Props) {
         open={sheet === "actions"}
         onClose={() => setSheet(null)}
         title={selected ?? ""}
+        viewMode={viewMode}
+        onToggleViewMode={() =>
+          setViewMode((prev) => {
+            const next = prev === "advanced" ? "simple" : "advanced";
+            if (typeof window !== "undefined") {
+              localStorage.setItem("trade-quote-view", next);
+              window.dispatchEvent(
+                new CustomEvent("trade-quote-view-change", { detail: next })
+              );
+            }
+            return next;
+          })
+        }
       />
 
       <EditSymbols

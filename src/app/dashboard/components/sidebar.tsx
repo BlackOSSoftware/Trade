@@ -34,8 +34,8 @@ const paymentItems = [
 ];
 
 const bottomItems = [
-  { label: "Trading Platform", icon: Layers, href: "/dashboard/platform" },
-  { label: "Task Center", icon: Gift, href: "/dashboard/tasks" },
+  { label: "Trading Platform", icon: Layers, href: "/trade" },
+  // { label: "Task Center", icon: Gift, href: "/dashboard/tasks" },
   { label: "Support", icon: Headphones, href: "/dashboard/support" },
 ];
 
@@ -260,11 +260,11 @@ export default function Sidebar({
                 <NavButton
                   key={item.label}
                   {...item}
-                  active={pathname.startsWith("/dashboard/trade")}
+                  active={pathname.startsWith("/trade")}
                   onClick={() => {
                     const accountId = getFirstTradingAccount();
                     if (accountId) {
-                      router.push(`/dashboard/trade/${accountId}`);
+                      router.push(`/trade`);
                     } else {
                       router.push(item.href);
                     }

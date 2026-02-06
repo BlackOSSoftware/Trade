@@ -16,6 +16,11 @@ import { useRouter } from "next/navigation";
 export default function QuotesPage() {
     const [sheet, setSheet] = useState<null | "actions" | "edit" | "add">(null);
     const [selected, setSelected] = useState<string | null>(null);
+    const [viewMode, setViewMode] = useState<"advanced" | "simple">(() => {
+        if (typeof window === "undefined") return "advanced";
+        const saved = localStorage.getItem("trade-quote-view");
+        return saved === "advanced" || saved === "simple" ? saved : "advanced";
+    });
     const [mounted, setMounted] = useState(false);
     const router = useRouter();
     const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -26,6 +31,32 @@ export default function QuotesPage() {
     }, [mounted, isDesktop, router]);
     useEffect(() => {
         setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        const syncFromStorage = () => {
+            const saved = localStorage.getItem("trade-quote-view");
+            if (saved === "advanced" || saved === "simple") {
+                setViewMode(saved);
+            }
+        };
+        const onStorage = (e: StorageEvent) => {
+            if (e.key === "trade-quote-view") syncFromStorage();
+        };
+        const onCustom = (e: Event) => {
+            const next = (e as CustomEvent).detail;
+            if (next === "advanced" || next === "simple") {
+                setViewMode(next);
+            } else {
+                syncFromStorage();
+            }
+        };
+        window.addEventListener("storage", onStorage);
+        window.addEventListener("trade-quote-view-change", onCustom);
+        return () => {
+            window.removeEventListener("storage", onStorage);
+            window.removeEventListener("trade-quote-view-change", onCustom);
+        };
     }, []);
 
     if (!mounted) return null;
@@ -72,6 +103,7 @@ export default function QuotesPage() {
 
             <div className="text-[var(--text-main)] bg-[var(--bg-plan)] md:bg-[var(--bg-card)] min-h-screen ">
                 <QuotesList
+                    viewMode={viewMode}
                     onSelect={(symbol) => {
                         setSelected(symbol);
                         setSheet("actions");
@@ -81,6 +113,19 @@ export default function QuotesPage() {
                     open={sheet === "actions"}
                     onClose={() => setSheet(null)}
                     title={selected || ""}
+                    viewMode={viewMode}
+                    onToggleViewMode={() =>
+                        setViewMode((prev) => {
+                            const next = prev === "advanced" ? "simple" : "advanced";
+                            if (typeof window !== "undefined") {
+                                localStorage.setItem("trade-quote-view", next);
+                                window.dispatchEvent(
+                                    new CustomEvent("trade-quote-view-change", { detail: next })
+                                );
+                            }
+                            return next;
+                        })
+                    }
                 />
 
 

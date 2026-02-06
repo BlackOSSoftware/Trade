@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Toast } from "@/app/components/ui/Toast";
@@ -18,9 +18,16 @@ export default function OpenAccountPage() {
   const [createdAccount, setCreatedAccount] = useState<any>(null);
 
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [accountType, setAccountType] = useState<"live" | "demo">("live");
   const [confirmOpen, setConfirmOpen] = useState(false);
  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   const handleContinue = () => {
     if (!selectedPlan) return;
@@ -31,13 +38,18 @@ export default function OpenAccountPage() {
   try {
     const res = await createAccount.mutateAsync({
       account_plan_id: selectedPlan._id,
-      account_type: "live",
+      account_type: accountType,
     });
 
     setConfirmOpen(false);
 
     // 🔥 SAVE FULL RESPONSE
     setCreatedAccount(res.data);
+    setToast({
+      message:
+        "Account created successfully. The account credentials have been sent to your registered email.",
+      type: "success",
+    });
 
   } catch (err: any) {
     setConfirmOpen(false);
@@ -63,13 +75,36 @@ export default function OpenAccountPage() {
 
       <h1 className="text-2xl font-semibold">Open account</h1>
 
+      <div className="flex gap-6 overflow-x-auto border-b border-[var(--border-soft)]">
+        {["live", "demo"].map((t) => (
+          <button
+            key={t}
+            onClick={() => {
+              setAccountType(t as "live" | "demo");
+              setSelectedPlan(null);
+            }}
+            className={`pb-3 text-sm font-medium whitespace-nowrap ${
+              accountType === t
+                ? "border-b-2 border-[var(--primary)] text-[var(--text-main)]"
+                : "text-[var(--text-muted)]"
+            }`}
+          >
+            {t === "live" ? "Live account" : "Demo account"}
+          </button>
+        ))}
+      </div>
+
       {isLoading ? (
         <div><GlobalLoader /></div>
       ) : (
         <>
           {/* DESKTOP LIST */}
           <div className="hidden lg:block space-y-4">
-            {data?.map((plan) => (
+            {data
+              ?.filter((plan) =>
+                accountType === "demo" ? plan.is_demo_allowed : true
+              )
+              .map((plan) => (
               <AccountPlanCard
                 key={plan._id}
                 plan={plan}
@@ -92,7 +127,11 @@ export default function OpenAccountPage() {
                 pb-4
               "
             >
-              {data?.map((plan) => (
+              {data
+                ?.filter((plan) =>
+                  accountType === "demo" ? plan.is_demo_allowed : true
+                )
+                .map((plan) => (
                 <div
                   key={plan._id}
                   className="snap-center flex-shrink-0 w-[90%]"
@@ -108,7 +147,11 @@ export default function OpenAccountPage() {
 
             {/* DOTS */}
             <div className="mt-4 flex justify-center gap-2">
-              {data?.map((plan) => (
+              {data
+                ?.filter((plan) =>
+                  accountType === "demo" ? plan.is_demo_allowed : true
+                )
+                .map((plan) => (
                 <span
                   key={plan._id}
                   className={`h-2.5 w-2.5 rounded-full transition ${
@@ -217,7 +260,7 @@ export default function OpenAccountPage() {
       {confirmOpen && selectedPlan && (
         <ConfirmModal
           title="Create trading account?"
-          description={`You are about to create a ${selectedPlan.name} account.`}
+          description={`You are about to create a ${accountType} ${selectedPlan.name} account.`}
           onCancel={() => setConfirmOpen(false)}
           onConfirm={handleConfirmCreate}
           loading={createAccount.isPending}

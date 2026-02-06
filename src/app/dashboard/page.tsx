@@ -61,7 +61,7 @@ export default function DashboardPage() {
         </div>
 
         <button
-          onClick={() => router.push("/dashboard/platform")}
+          onClick={() => router.push("/trade")}
           className="px-5 py-2 rounded-xl bg-[var(--primary)] text-[var(--text-invert)] text-sm font-medium"
         >
           Open Trading Terminal

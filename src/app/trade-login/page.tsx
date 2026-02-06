@@ -1,20 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { User, Lock } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { User, Lock, Eye, EyeOff } from "lucide-react";
 import { useTradeLogin } from "@/hooks/trade/useTradeLogin";
-import { AuthShell } from "../components/auth/AuthCard";
-import { PremiumInput } from "../components/ui/TextInput";
 
 export default function TradeLogin() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const tradeLogin = useTradeLogin();
 
     const [form, setForm] = useState({
         account_number: "",
         password: "",
     });
+    const [savePassword, setSavePassword] = useState(true);
+    const [showPassword, setShowPassword] = useState(false);
 
     const [toast, setToast] = useState<string | null>(null);
 
@@ -28,6 +29,16 @@ export default function TradeLogin() {
             return () => clearTimeout(t);
         }
     }, [toast]);
+
+    useEffect(() => {
+        const account = searchParams.get("account");
+        if (account) {
+            setForm((prev) => ({
+                ...prev,
+                account_number: account,
+            }));
+        }
+    }, [searchParams]);
 
     const handleTradeLogin = () => {
         if (!form.account_number || !form.password) {
@@ -59,71 +70,97 @@ export default function TradeLogin() {
     };
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center bg-[var(--bg-main)] px-4">
-            {/* BACKGROUND GLOW */}
-            <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[var(--primary)] opacity-20 blur-3xl" />
-            <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500 opacity-20 blur-3xl" />
+        <div className="min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-main)] text-[var(--text-main)] px-4 flex items-center justify-center">
+            <div className="w-full max-w-md md:max-w-3xl py-10">
+                <div className="text-center font-semibold text-[18px] md:text-[20px] md:hidden">
+                    Login to an existing account
+                </div>
 
-            <AuthShell>
-                <div className="space-y-8 animate-fadeIn">
-                    {/* LOGIN SWITCH */}
-                    <div className="flex justify-center">
-                        <div className="flex bg-[var(--bg-glass)] p-1 rounded-lg">
-                            <button
-                                onClick={() => router.push("/login")}
-                                className="px-4 py-2 text-sm rounded-md text-[var(--text-muted)] hover:text-[var(--text-main)] transition"
-                            >
-                                Broker Login
-                            </button>
+                <div className="mt-6 border border-[var(--border-soft)] rounded-2xl md:rounded-xl bg-[var(--bg-plan)] md:bg-[var(--bg-card)] shadow-[0_10px_30px_rgba(0,0,0,0.12)] overflow-hidden">
+                    <div className="hidden md:flex items-center justify-between px-6 py-3 bg-[var(--primary)] text-white">
+                        <span className="text-sm font-medium">Trading accounts ALS Forex.</span>
+                    </div>
 
+                    <div className="md:flex">
+                        <div className="md:w-full md:p-7 md:bg-[var(--bg-glass)]">
+                            <div className="hidden md:block text-[16px] font-semibold text-[var(--text-main)] mb-4">
+                                Connect to account
+                            </div>
+
+                    <div className="px-4 py-4 border-b border-[var(--border-soft)] md:px-0 md:py-0 md:border-b-0 md:grid md:grid-cols-[110px_1fr] md:items-center md:gap-4">
+                        <label className="block text-[13px] text-[var(--text-muted)] mb-1">
+                            Login
+                        </label>
+                        <div className="flex items-center gap-2">
+                            <User size={16} className="text-[var(--text-muted)]" />
+                            <input
+                                value={form.account_number}
+                                onChange={(e) => updateForm("account_number", e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") handleTradeLogin();
+                                }}
+                                placeholder="Enter login"
+                                className="trade-auth-input w-full bg-transparent outline-none text-[15px] py-2 border-b border-[var(--border-soft)] focus:border-[var(--primary)] md:bg-[var(--bg-card)] md:px-3 md:rounded-md md:border md:h-10"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="px-4 py-4 border-b border-[var(--border-soft)] md:px-0 md:pt-4 md:pb-3 md:border-b-0 md:grid md:grid-cols-[110px_1fr] md:items-center md:gap-4">
+                        <label className="block text-[13px] text-[var(--text-muted)] mb-1">
+                            Password
+                        </label>
+                        <div className="flex items-center gap-2">
+                            <Lock size={16} className="text-[var(--text-muted)]" />
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={form.password}
+                                onChange={(e) => updateForm("password", e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") handleTradeLogin();
+                                }}
+                                placeholder="Enter password"
+                                className="trade-auth-input w-full bg-transparent outline-none text-[15px] py-2 border-b border-[var(--border-soft)] focus:border-[var(--primary)] md:bg-[var(--bg-card)] md:px-3 md:rounded-md md:border md:h-10"
+                            />
                             <button
-                                className="px-4 py-2 text-sm rounded-md bg-[var(--primary)] text-[var(--text-main)] transition"
+                                type="button"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                                className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition"
+                                aria-label={showPassword ? "Hide password" : "Show password"}
                             >
-                                Trade Panel Login
+                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
                         </div>
                     </div>
 
-                    {/* BRAND */}
-                    <div className="text-center space-y-2">
-                        <h1 className="text-3xl font-bold tracking-tight">
-                            Trade Panel Access
-                        </h1>
-                        <p className="text-sm text-[var(--text-muted)]">
-                            Login using Account Number & Password
-                        </p>
+                    <div className="px-4 py-4 flex items-center justify-between bg-[var(--bg-plan)] md:bg-transparent rounded-b-2xl md:px-0 md:pt-3 md:pb-0 md:rounded-b-none">
+                        <span className="text-[13px] text-[var(--text-muted)]">
+                            Save password
+                        </span>
+                        <button
+                            onClick={() => setSavePassword((prev) => !prev)}
+                            aria-pressed={savePassword}
+                            className={`h-6 w-6 rounded-md border flex items-center justify-center transition ${
+                                savePassword
+                                    ? "bg-[var(--primary)] border-[var(--primary)] text-white"
+                                    : "border-[var(--border-soft)] text-[var(--text-muted)] bg-[var(--bg-card)]"
+                            }`}
+                        >
+                            ✓
+                        </button>
                     </div>
-
-                    {/* INPUTS */}
-                    <div className="space-y-6">
-                        <PremiumInput
-                            label="Account Number"
-                            value={form.account_number}
-                            onChange={(v) => updateForm("account_number", v)}
-                            icon={User}
-                        />
-
-                        <PremiumInput
-                            label="Trade / Watch Password"
-                            type="password"
-                            value={form.password}
-                            onChange={(v) => updateForm("password", v)}
-                            icon={Lock}
-                        />
+                        </div>
                     </div>
-
-                    {/* LOGIN BUTTON */}
-                    <button
-                        onClick={handleTradeLogin}
-                        disabled={tradeLogin.isPending}
-                        className="w-full rounded-lg py-3 font-medium transition text-[var(--text-main)] bg-[var(--primary)] hover:shadow-[0_0_30px_var(--primary-glow)] disabled:opacity-60"
-                    >
-                        {tradeLogin.isPending ? "Signing in..." : "Login"}
-                    </button>
                 </div>
-            </AuthShell>
 
-            {/* TOAST */}
+                <button
+                    onClick={handleTradeLogin}
+                    disabled={tradeLogin.isPending}
+                    className="mt-6 w-full rounded-full py-3 font-semibold tracking-wide bg-[var(--primary)] text-white shadow-sm disabled:opacity-60 md:rounded-md md:py-2.5 md:w-[220px] md:ml-auto md:block"
+                >
+                    {tradeLogin.isPending ? "Signing in..." : "LOGIN"}
+                </button>
+            </div>
+
             {toast && (
                 <div className="fixed bottom-4 right-4 rounded-lg bg-[var(--primary)] text-[var(--text-main)] px-4 py-2 shadow-xl">
                     {toast}
