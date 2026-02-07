@@ -7,7 +7,13 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://trade-pi-khaki.vercel.app',
     cleartext: false
-  }
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 0,
+      autoHide: false,
+    },
+  },
 };
 
 export default config;
