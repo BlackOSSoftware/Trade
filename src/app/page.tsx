@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { LineChart, LogIn, UserPlus } from "lucide-react";
 import AppIntro from "./components/AppIntro";
+import SplashHandler from "./SplashHandler";
 
 type Slide = {
   title: string;
@@ -46,6 +47,7 @@ export default function Home() {
 
   return (
     <>
+    <SplashHandler />
     { showIntro && <AppIntro onFinish={() => setShowIntro(false)} /> }
     <div className="min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-main)] text-[var(--text-main)] relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none hidden md:block bg-[radial-gradient(circle_at_20%_20%,rgba(79,140,255,0.12),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(16,185,129,0.10),transparent_40%),radial-gradient(circle_at_50%_90%,rgba(245,158,11,0.10),transparent_45%)]" />
