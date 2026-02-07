@@ -366,3 +366,74 @@ body {
 .animate-cardsEnter {
   animation: cardsEnter 0.9s ease forwards;
 }
+/* Cinematic logo entrance */
+@keyframes logoEntrance {
+  0% {
+    transform: translateY(60px) scale(.8);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+.animate-logoEntrance {
+  animation: logoEntrance 1.4s cubic-bezier(.22,1,.36,1) forwards;
+}
+
+/* Controlled glow */
+@keyframes glowControlled {
+  0%,100% { opacity: .5; transform: scale(1); }
+  50% { opacity: .8; transform: scale(1.15); }
+}
+.animate-glowControlled {
+  animation: glowControlled 4s ease-in-out infinite;
+}
+
+/* Light sweep */
+@keyframes lightSweep {
+  0% { transform: translateX(-150%) skewX(12deg); }
+  100% { transform: translateX(300%) skewX(12deg); }
+}
+.animate-lightSweep {
+  animation: lightSweep 3.5s linear infinite;
+}
+
+/* Advanced letter animation */
+.letter-advanced {
+  opacity: 0;
+  transform: translateY(20px);
+  display: inline-block;
+  animation: letterPremium .6s ease forwards;
+}
+
+.letter-advanced:nth-child(1){animation-delay:1.2s;}
+.letter-advanced:nth-child(2){animation-delay:1.35s;}
+.letter-advanced:nth-child(3){animation-delay:1.5s;}
+.letter-advanced:nth-child(4){animation-delay:1.65s;}
+.letter-advanced:nth-child(5){animation-delay:1.8s;}
+.letter-advanced:nth-child(6){animation-delay:1.95s;}
+.letter-advanced:nth-child(7){animation-delay:2.1s;}
+.letter-advanced:nth-child(8){animation-delay:2.25s;}
+.letter-advanced:nth-child(9){animation-delay:2.4s;}
+
+@keyframes letterPremium {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Premium tagline */
+.tagline-advanced {
+  opacity: 0;
+  transform: translateY(15px);
+  animation: taglinePremium 1s ease forwards 2.8s;
+}
+
+@keyframes taglinePremium {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

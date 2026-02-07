@@ -84,6 +84,7 @@ export default function RootLayout({
       >
         <InstallPrompt />
         <SWRegister />
+
         <AppProviders>
           <FcmRegister />
           <InitNotifications />
