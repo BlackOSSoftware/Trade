@@ -55,7 +55,7 @@ export default function TradeTopBar({
           <span
             className={
               hasSubtitle
-                ? "text-[14px] font-semibold"
+                ? "text-[12px] font-semibold"
                 : "text-lg font-semibold"
             }
           >
@@ -64,7 +64,7 @@ export default function TradeTopBar({
 
           {hasSubtitle && (
             <span
-  className={`text-[11px] font-medium ${
+  className={`text-[16px] font-medium ${
     subtitleClassName ?? "text-[var(--text-muted)]"
   }`}
 >

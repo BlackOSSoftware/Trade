@@ -9,13 +9,17 @@ export default function TradeQuotesPanel() {
   return (
     <aside
       className={`
-        hidden md:flex fixed top-0 h-full z-30
+        hidden md:flex relative z-10 flex-col
         transition-all duration-300 ease-in-out
-        ${quotesOpen ? "left-[68px] w-[340px]" : "left-[68px] w-0"}
+        h-[calc(100vh)]
+        ${quotesOpen ? "w-[340px] opacity-100 pointer-events-auto" : "w-0 opacity-0 pointer-events-none"}
       `}
       style={{
         background: "var(--bg-card)",
         overflow: "hidden",
+        border: "1px solid var(--border-soft)",
+        borderRadius: "16px",
+        boxShadow: "0 18px 40px rgba(0,0,0,0.08)",
       }}
     >
       {quotesOpen && (

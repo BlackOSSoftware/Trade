@@ -43,12 +43,23 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <link rel="manifest" href="/manifest.json" />
-      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-      <meta name="apple-mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      {/* <link rel="manifest" href="/manifest.json" /> */}
+      {/* <link rel="apple-touch-icon" href="/apple-touch-icon.png" /> */}
+      {/* <meta name="apple-mobile-web-app-capable" content="yes" /> */}
+      {/* <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /> */}
 
       <head className={mtFont.className}>
+        <link rel="manifest" href="/manifest.json" />
+
+        <meta name="theme-color" content="#2563eb" />
+        <meta name="mobile-web-app-capable" content="yes" />
+
+        {/* iOS */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="ALS Trader" />
+
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         {/* 🔥 THEME INIT SCRIPT (RUNS BEFORE REACT) */}
         <script
           dangerouslySetInnerHTML={{
