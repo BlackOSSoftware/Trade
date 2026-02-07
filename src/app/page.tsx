@@ -52,17 +52,26 @@ export default function Home() {
   useEffect(() => {
     const accessToken = getCookieValue("accessToken");
     const tradeToken = getCookieValue("tradeToken");
+
     if (accessToken) {
       router.replace("/dashboard");
       return;
     }
+
     if (tradeToken) {
       router.replace("/trade");
       return;
     }
 
+    const hasSeenIntro = localStorage.getItem("homeAvoidSlides");
+
+    if (hasSeenIntro === "true") {
+      setShowSlides(false);
+    }
+
     setReady(true);
   }, [router]);
+
 
   useEffect(() => {
     if (!showSlides) return;
@@ -138,7 +147,11 @@ export default function Home() {
 
                 {/* Get Started Button */}
                 <button
-                  onClick={() => setShowSlides(false)}
+                  onClick={() => {
+                    localStorage.setItem("homeAvoidSlides", "true");
+                    setShowSlides(false);
+                  }}
+
                   className="px-6 py-3 rounded-full bg-[var(--primary)] text-white font-semibold shadow-[0_0_30px_rgba(79,140,255,0.6)] hover:scale-105 transition"
                 >
                   Get Started →
@@ -148,18 +161,18 @@ export default function Home() {
           </div>
         )}
         {!showSlides && (
-  <div className="w-full min-h-screen flex items-center justify-center px-4 py-10">
+          <div className="w-full min-h-screen flex items-center justify-center px-4 py-10">
 
-    <div className="
+            <div className="
       w-full max-w-6xl
       flex flex-col gap-5
       md:grid md:grid-cols-3 md:gap-10
     ">
 
-      {/* Create Broker */}
-      <button
-        onClick={() => router.push("/signup")}
-        className="
+              {/* Create Broker */}
+              <button
+                onClick={() => router.push("/signup")}
+                className="
           group relative overflow-hidden
           rounded-2xl md:rounded-3xl
           border border-[var(--border-soft)]
@@ -170,40 +183,40 @@ export default function Home() {
           hover:-translate-y-2
           hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]
         "
-      >
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top_left,rgba(79,140,255,0.25),transparent_60%)]" />
+              >
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top_left,rgba(79,140,255,0.25),transparent_60%)]" />
 
-        <div className="flex items-center gap-4 md:block">
+                <div className="flex items-center gap-4 md:block">
 
-          <div className="
+                  <div className="
             h-14 w-14 md:h-16 md:w-16
             rounded-2xl
             bg-gradient-to-br from-blue-500/30 to-blue-600/10
             flex items-center justify-center
           ">
-            <UserPlus size={28} className="text-blue-400" />
-          </div>
+                    <UserPlus size={28} className="text-blue-400" />
+                  </div>
 
-          <div className="md:mt-6">
-            <div className="text-lg md:text-xl font-semibold">
-              Create Broker Account
-            </div>
+                  <div className="md:mt-6">
+                    <div className="text-lg md:text-xl font-semibold">
+                      Create Broker Account
+                    </div>
 
-            <div className="mt-2 text-sm text-[var(--text-muted)]">
-              Secure onboarding with verified identity and full compliance.
-            </div>
+                    <div className="mt-2 text-sm text-[var(--text-muted)]">
+                      Secure onboarding with verified identity and full compliance.
+                    </div>
 
-            <div className="mt-4 text-sm font-semibold text-[var(--primary)]">
-              Get Started →
-            </div>
-          </div>
-        </div>
-      </button>
+                    <div className="mt-4 text-sm font-semibold text-[var(--primary)]">
+                      Get Started →
+                    </div>
+                  </div>
+                </div>
+              </button>
 
-      {/* Broker Login */}
-      <button
-        onClick={() => router.push("/login")}
-        className="
+              {/* Broker Login */}
+              <button
+                onClick={() => router.push("/login")}
+                className="
           group relative overflow-hidden
           rounded-2xl md:rounded-3xl
           border border-[var(--border-soft)]
@@ -214,40 +227,40 @@ export default function Home() {
           hover:-translate-y-2
           hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]
         "
-      >
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.25),transparent_60%)]" />
+              >
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.25),transparent_60%)]" />
 
-        <div className="flex items-center gap-4 md:block">
+                <div className="flex items-center gap-4 md:block">
 
-          <div className="
+                  <div className="
             h-14 w-14 md:h-16 md:w-16
             rounded-2xl
             bg-gradient-to-br from-emerald-500/30 to-emerald-600/10
             flex items-center justify-center
           ">
-            <LogIn size={28} className="text-emerald-400" />
-          </div>
+                    <LogIn size={28} className="text-emerald-400" />
+                  </div>
 
-          <div className="md:mt-6">
-            <div className="text-lg md:text-xl font-semibold">
-              Broker Login
-            </div>
+                  <div className="md:mt-6">
+                    <div className="text-lg md:text-xl font-semibold">
+                      Broker Login
+                    </div>
 
-            <div className="mt-2 text-sm text-[var(--text-muted)]">
-              Access your dashboard with complete account control.
-            </div>
+                    <div className="mt-2 text-sm text-[var(--text-muted)]">
+                      Access your dashboard with complete account control.
+                    </div>
 
-            <div className="mt-4 text-sm font-semibold text-[var(--primary)]">
-              Login →
-            </div>
-          </div>
-        </div>
-      </button>
+                    <div className="mt-4 text-sm font-semibold text-[var(--primary)]">
+                      Login →
+                    </div>
+                  </div>
+                </div>
+              </button>
 
-      {/* Trade Login */}
-      <button
-        onClick={() => router.push("/trade-login")}
-        className="
+              {/* Trade Login */}
+              <button
+                onClick={() => router.push("/trade-login")}
+                className="
           group relative overflow-hidden
           rounded-2xl md:rounded-3xl
           border border-[var(--border-soft)]
@@ -258,39 +271,39 @@ export default function Home() {
           hover:-translate-y-2
           hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]
         "
-      >
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.25),transparent_60%)]" />
+              >
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.25),transparent_60%)]" />
 
-        <div className="flex items-center gap-4 md:block">
+                <div className="flex items-center gap-4 md:block">
 
-          <div className="
+                  <div className="
             h-14 w-14 md:h-16 md:w-16
             rounded-2xl
             bg-gradient-to-br from-amber-500/30 to-amber-600/10
             flex items-center justify-center
           ">
-            <LineChart size={28} className="text-amber-400" />
+                    <LineChart size={28} className="text-amber-400" />
+                  </div>
+
+                  <div className="md:mt-6">
+                    <div className="text-lg md:text-xl font-semibold">
+                      Trade Login
+                    </div>
+
+                    <div className="mt-2 text-sm text-[var(--text-muted)]">
+                      Direct access to the live trading workspace.
+                    </div>
+
+                    <div className="mt-4 text-sm font-semibold text-[var(--primary)]">
+                      Enter Platform →
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+            </div>
           </div>
-
-          <div className="md:mt-6">
-            <div className="text-lg md:text-xl font-semibold">
-              Trade Login
-            </div>
-
-            <div className="mt-2 text-sm text-[var(--text-muted)]">
-              Direct access to the live trading workspace.
-            </div>
-
-            <div className="mt-4 text-sm font-semibold text-[var(--primary)]">
-              Enter Platform →
-            </div>
-          </div>
-        </div>
-      </button>
-
-    </div>
-  </div>
-)}
+        )}
 
       </div>
     </div>

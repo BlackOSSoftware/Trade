@@ -6,6 +6,7 @@ import FcmRegister from "./components/FcmRegister";
 import InitNotifications from "./components/InitNotifications";
 import { Roboto } from "next/font/google";
 import InstallPrompt from "./components/InstallPrompt";
+import SWRegister from "./sw-register";
 
 const mtFont = Roboto({
   subsets: ["latin"],
@@ -35,11 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
 
-  if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-      navigator.serviceWorker.register("/sw.js");
-    });
-  }
+ 
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -58,12 +55,17 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="ALS Trader" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="format-detection" content="telephone=no" />
 
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        {/* 🔥 THEME INIT SCRIPT (RUNS BEFORE REACT) */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+
+          <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+          {/* 🔥 THEME INIT SCRIPT (RUNS BEFORE REACT) */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
 (function () {
   try {
     const theme = localStorage.getItem("theme");
@@ -73,14 +75,15 @@ export default function RootLayout({
   } catch (e) {}
 })();
             `,
-          }}
-        />
+            }}
+          />
       </head>
 
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased mt-font`}
       >
         <InstallPrompt />
+        <SWRegister />
         <AppProviders>
           <FcmRegister />
           <InitNotifications />
