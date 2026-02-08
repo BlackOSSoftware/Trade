@@ -1,4 +1,4 @@
-package com.alstrader.app;
+package com.alstrades.portal;
 
 import com.getcapacitor.BridgeActivity;
 
