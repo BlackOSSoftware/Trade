@@ -437,3 +437,30 @@ body {
     transform: translateY(0);
   }
 }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slowPulse {
+  0% { opacity: 0.35; transform: translate(-50%, 0) scale(1); }
+  50% { opacity: 0.55; transform: translate(-50%, 0) scale(1.05); }
+  100% { opacity: 0.35; transform: translate(-50%, 0) scale(1); }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.8s ease forwards;
+}
+
+.animate-fadeUp {
+  animation: fadeUp 1s ease forwards;
+}
+
+.animate-slowPulse {
+  animation: slowPulse 6s ease-in-out infinite;
+}

@@ -3,19 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { LineChart, LogIn, UserPlus } from "lucide-react";
+import { UserPlus, LogIn, LineChart, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import AppIntro from "./components/AppIntro";
 import SplashHandler from "./SplashHandler";
-
-type Slide = {
-  title: string;
-  subtitle: string;
-  accent: string;
-  image: string;
-};
-
-
-
 
 function getCookieValue(name: string): string | null {
   if (typeof document === "undefined") return null;
@@ -25,11 +16,44 @@ function getCookieValue(name: string): string | null {
   return match ? decodeURIComponent(match.split("=")[1]) : null;
 }
 
+const options = [
+  {
+    id: "broker-signup",
+    title: "Create Broker Account",
+    subtitle: "Secure onboarding with verified identity",
+    icon: UserPlus,
+    color: "from-blue-500/20 via-blue-500/10 to-blue-600/20",
+    glow: "rgba(59,130,246,0.3)",
+    route: "/signup",
+    gradient: "bg-gradient-to-br from-[var(--primary)]/10 to-[var(--primary)]/5"
+  },
+  {
+    id: "broker-login",
+    title: "Broker Login",
+    subtitle: "Access your dashboard instantly",
+    icon: LogIn,
+    color: "from-emerald-500/20 via-emerald-500/10 to-emerald-600/20",
+    glow: "rgba(34,197,94,0.3)",
+    route: "/login",
+    gradient: "bg-gradient-to-br from-[var(--success)]/10 to-[var(--success)]/5"
+  },
+  {
+    id: "trade-login",
+    title: "Trade Login",
+    subtitle: "Live trading workspace access",
+    icon: LineChart,
+    color: "from-amber-500/20 via-amber-500/10 to-amber-600/20",
+    glow: "rgba(251,146,60,0.3)",
+    route: "/trade-login",
+    gradient: "bg-gradient-to-br from-[var(--warning)]/10 to-[var(--warning)]/5"
+  }
+];
+
 export default function Home() {
   const router = useRouter();
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const [ready, setReady] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+
   useEffect(() => {
     const accessToken = getCookieValue("accessToken");
     const tradeToken = getCookieValue("tradeToken");
@@ -38,168 +62,176 @@ export default function Home() {
       router.replace("/dashboard");
       return;
     }
-
     if (tradeToken) {
       router.replace("/trade");
       return;
     }
   }, [router]);
 
+  const handleOptionClick = (route: string) => {
+    router.push(route);
+  };
+
   return (
     <>
-    <SplashHandler />
-    { showIntro && <AppIntro onFinish={() => setShowIntro(false)} /> }
-    <div className="min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-main)] text-[var(--text-main)] relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none hidden md:block bg-[radial-gradient(circle_at_20%_20%,rgba(79,140,255,0.12),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(16,185,129,0.10),transparent_40%),radial-gradient(circle_at_50%_90%,rgba(245,158,11,0.10),transparent_45%)]" />
-      <div className="mx-auto w-full max-w-full px-0 py-0 md:px-0 md:py-0 relative">
+      <SplashHandler />
+      {showIntro && <AppIntro onFinish={() => setShowIntro(false)} />}
+      <div className="min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-main)] text-[var(--text-main)] relative overflow-hidden flex items-center justify-center px-4 py-12">
+        
+        {/* Background Gradient */}
+        <div className="absolute inset-0 pointer-events-none hidden md:block bg-[radial-gradient(circle_at_20%_20%,rgba(37,99,235,0.08),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(22,163,74,0.06),transparent_40%),radial-gradient(circle_at_50%_90%,rgba(217,119,6,0.06),transparent_45%)]" />
+        
         {!showIntro && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="w-full max-w-md md:max-w-6xl mx-auto space-y-6 md:space-y-10"
+          >
+            {/* DESKTOP: Heading + 3 Boxes */}
+            {isDesktop ? (
+              <>
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="text-center mb-12"
+                >
+                  <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-[var(--text-main)] via-[var(--primary)] to-[var(--text-muted)] bg-clip-text text-transparent mb-4">
+                    Trading Hub
+                  </h1>
+                  <p className="text-xl text-[var(--text-muted)] max-w-2xl mx-auto">
+                    Choose your access point
+                  </p>
+                </motion.div>
 
-          <div className="w-full min-h-screen flex items-center justify-center px-4 py-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
+                  {options.map((option, index) => (
+                    <motion.button
+                      key={option.id}
+                      initial={{ opacity: 0, y: 40 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.5 }}
+                      whileHover={{ y: -8, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleOptionClick(option.route)}
+                      className={`
+                        group relative h-64 rounded-3xl p-8
+                        border border-[var(--border-soft)]
+                        bg-[var(--bg-card)] backdrop-blur-xl
+                        shadow-xl hover:shadow-2xl
+                        transition-all duration-500
+                        ${option.gradient}
+                      `}
+                    >
+                      {/* Shine Effect */}
+                      <motion.div 
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-150%] group-hover:translate-x-[150%]"
+                        transition={{ duration: 0.8 }}
+                      />
+                      
+                      {/* Glow */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ boxShadow: `inset 0 0 50px ${option.glow}` }} />
 
-            <div className="
-      w-full max-w-6xl
-      flex flex-col gap-5
-      md:grid md:grid-cols-3 md:gap-10
-    ">
+                      <div className="relative z-10 flex flex-col h-full justify-between">
+                        {/* Icon */}
+                        <motion.div
+                          className={`
+                            w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center
+                            shadow-xl backdrop-blur-xl border border-[var(--border-glass)]
+                            bg-gradient-to-br ${option.color}
+                          `}
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                        >
+                          <option.icon size={32} className="drop-shadow-lg" />
+                        </motion.div>
 
-              {/* Create Broker */}
-              <button
-                onClick={() => router.push("/signup")}
-                className="
-          group relative overflow-hidden
-          rounded-2xl md:rounded-3xl
-          border border-[var(--border-soft)]
-          bg-[var(--bg-card)]
-          shadow-[0_12px_32px_rgba(0,0,0,0.12)]
-          p-6 md:p-8
-          transition-all duration-500
-          hover:-translate-y-2
-          hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]
-        "
-              >
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top_left,rgba(79,140,255,0.25),transparent_60%)]" />
+                        {/* Content */}
+                        <div className="text-center flex-1 flex flex-col justify-center">
+                          <h3 className="text-2xl font-bold mb-3">{option.title}</h3>
+                          <p className="text-[var(--text-muted)] text-sm leading-relaxed">{option.subtitle}</p>
+                        </div>
 
-                <div className="flex items-center gap-4 md:block">
-
-                  <div className="
-            h-14 w-14 md:h-16 md:w-16
-            rounded-2xl
-            bg-gradient-to-br from-blue-500/30 to-blue-600/10
-            flex items-center justify-center
-          ">
-                    <UserPlus size={28} className="text-blue-400" />
-                  </div>
-
-                  <div className="md:mt-6">
-                    <div className="text-lg md:text-xl font-semibold">
-                      Create Broker Account
-                    </div>
-
-                    <div className="mt-2 text-sm text-[var(--text-muted)]">
-                      Secure onboarding with verified identity and full compliance.
-                    </div>
-
-                    <div className="mt-4 text-sm font-semibold text-[var(--primary)]">
-                      Get Started →
-                    </div>
-                  </div>
+                        {/* Arrow */}
+                        <motion.div 
+                          className="w-12 h-12 bg-[var(--primary)] text-white rounded-full flex items-center justify-center mx-auto shadow-lg group-hover:shadow-xl ml-auto"
+                          whileHover={{ scale: 1.15, x: 8 }}
+                        >
+                          <ChevronRight size={24} />
+                        </motion.div>
+                      </div>
+                    </motion.button>
+                  ))}
                 </div>
-              </button>
+              </>
+            ) : (
+              /* MOBILE: Small Rectangle Boxes - No Scroll */
+              <div className="space-y-4 max-h-screen overflow-hidden">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="text-center mb-12"
+                >
+                  <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-[var(--text-main)] via-[var(--primary)] to-[var(--text-muted)] bg-clip-text text-transparent mb-4">
+                    Trading Hub
+                  </h1>
+                  <p className="text-xl text-[var(--text-muted)] max-w-2xl mx-auto">
+                    Choose your access point
+                  </p>
+                </motion.div>
+                {options.map((option, index) => (
+                  <motion.button
+                    key={option.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.08, duration: 0.4 }}
+                    whileHover={{ y: -4, scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => handleOptionClick(option.route)}
+                    className={`
+                      group relative h-28 w-full rounded-2xl p-5
+                      border border-[var(--border-soft)]
+                      bg-[var(--bg-card)] backdrop-blur-lg
+                      shadow-lg hover:shadow-xl
+                      transition-all duration-400
+                      ${option.gradient}
+                    `}
+                  >
+                    {/* Shine */}
+                    <motion.div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-120%] group-hover:translate-x-[120%]"
+                      transition={{ duration: 0.6 }}
+                    />
 
-              {/* Broker Login */}
-              <button
-                onClick={() => router.push("/login")}
-                className="
-          group relative overflow-hidden
-          rounded-2xl md:rounded-3xl
-          border border-[var(--border-soft)]
-          bg-[var(--bg-card)]
-          shadow-[0_12px_32px_rgba(0,0,0,0.12)]
-          p-6 md:p-8
-          transition-all duration-500
-          hover:-translate-y-2
-          hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]
-        "
-              >
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.25),transparent_60%)]" />
-
-                <div className="flex items-center gap-4 md:block">
-
-                  <div className="
-            h-14 w-14 md:h-16 md:w-16
-            rounded-2xl
-            bg-gradient-to-br from-emerald-500/30 to-emerald-600/10
-            flex items-center justify-center
-          ">
-                    <LogIn size={28} className="text-emerald-400" />
-                  </div>
-
-                  <div className="md:mt-6">
-                    <div className="text-lg md:text-xl font-semibold">
-                      Broker Login
+                    <div className="relative z-10 flex items-center justify-between h-full">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`
+                          h-12 w-12 rounded-xl flex items-center justify-center
+                          shadow-lg backdrop-blur-lg border border-[var(--border-glass)]
+                          bg-gradient-to-br ${option.color}
+                        `}>
+                          <option.icon size={22} className="drop-shadow-sm" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-lg font-bold truncate">{option.title}</div>
+                          <div className="text-xs text-[var(--text-muted)] line-clamp-2">{option.subtitle}</div>
+                        </div>
+                      </div>
+                      <motion.div 
+                        className="text-[var(--primary)] opacity-70 group-hover:opacity-100 ml-2"
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <ChevronRight size={20} />
+                      </motion.div>
                     </div>
-
-                    <div className="mt-2 text-sm text-[var(--text-muted)]">
-                      Access your dashboard with complete account control.
-                    </div>
-
-                    <div className="mt-4 text-sm font-semibold text-[var(--primary)]">
-                      Login →
-                    </div>
-                  </div>
-                </div>
-              </button>
-
-              {/* Trade Login */}
-              <button
-                onClick={() => router.push("/trade-login")}
-                className="
-          group relative overflow-hidden
-          rounded-2xl md:rounded-3xl
-          border border-[var(--border-soft)]
-          bg-[var(--bg-card)]
-          shadow-[0_12px_32px_rgba(0,0,0,0.12)]
-          p-6 md:p-8
-          transition-all duration-500
-          hover:-translate-y-2
-          hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]
-        "
-              >
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.25),transparent_60%)]" />
-
-                <div className="flex items-center gap-4 md:block">
-
-                  <div className="
-            h-14 w-14 md:h-16 md:w-16
-            rounded-2xl
-            bg-gradient-to-br from-amber-500/30 to-amber-600/10
-            flex items-center justify-center
-          ">
-                    <LineChart size={28} className="text-amber-400" />
-                  </div>
-
-                  <div className="md:mt-6">
-                    <div className="text-lg md:text-xl font-semibold">
-                      Trade Login
-                    </div>
-
-                    <div className="mt-2 text-sm text-[var(--text-muted)]">
-                      Direct access to the live trading workspace.
-                    </div>
-
-                    <div className="mt-4 text-sm font-semibold text-[var(--primary)]">
-                      Enter Platform →
-                    </div>
-                  </div>
-                </div>
-              </button>
-
-            </div>
-          </div>
+                  </motion.button>
+                ))}
+              </div>
+            )}
+          </motion.div>
         )}
       </div>
-    </div>
     </>
-
   );
 }
