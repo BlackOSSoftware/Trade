@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'ALS Trader',
   webDir: 'out',
   server: {
-    url: 'https://trade-portal-uiub.vercel.app',
+    url: 'https://trade-portal-uiub.vercel.app/',
     cleartext: false
   }
 };
