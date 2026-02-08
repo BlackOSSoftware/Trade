@@ -1,6 +1,6 @@
 "use client";
 
-import { useLongPress } from "../../trade/page";
+import { useLongPress } from "@/lib/useLongPress";
 
 export type Position = {
     id: string;

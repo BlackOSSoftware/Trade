@@ -9,8 +9,8 @@ import { useTradeSummary } from "@/hooks/history/useTradeSummary";
 import { useTradePositions } from "@/hooks/history/useTradePositions";
 import { useTradeOrders } from "@/hooks/history/useTradeOrders";
 import { useTradeDeals } from "@/hooks/history/useTradeDeals";
-import { useLongPress } from "../trade/page";
 import HistoryActionSheet from "../components/history/HistoryActionSheet";
+import { useLongPress } from "@/lib/useLongPress";
 
 
 /* ================= TYPES ================= */
