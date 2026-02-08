@@ -31,7 +31,7 @@ export function middleware(req: NextRequest) {
   }
 
   // LOGIN BLOCK
-  if (pathname === "/login" && accessToken) {
+  if ((pathname === "/login" || pathname === "/signup") && accessToken) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
@@ -43,6 +43,7 @@ export const config = {
     "/dashboard/:path*",
     "/trade/:path*",
     "/login",
+    "/signup",
     "/trade-login",
   ],
 };

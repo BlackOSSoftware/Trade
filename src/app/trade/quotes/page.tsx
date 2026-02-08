@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Plus, Edit, Pencil } from "lucide-react";
 
 import QuotesList from "../components/quotes/QuotesList";
-import BottomSheet from "../components/quotes/BottomSheet";
 import EditSymbols from "../components/quotes/EditSymbols";
 import AddSymbol from "../components/quotes/AddSymbol";
 
@@ -12,6 +11,7 @@ import TradeTopBar from "../components/layout/TradeTopBar";
 import TopBarSlot from "../components/layout/TopBarSlot";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useRouter } from "next/navigation";
+import BottomSheet from "../components/quotes/BottomSheet";
 
 export default function QuotesPage() {
     const [sheet, setSheet] = useState<null | "actions" | "edit" | "add">(null);
@@ -110,24 +110,26 @@ export default function QuotesPage() {
                     }} />
 
                 <BottomSheet
-                    open={sheet === "actions"}
-                    onClose={() => setSheet(null)}
-                    title={selected || ""}
-                    viewMode={viewMode}
-                    onToggleViewMode={() =>
-                        setViewMode((prev) => {
-                            const next = prev === "advanced" ? "simple" : "advanced";
-                            if (typeof window !== "undefined") {
-                                localStorage.setItem("trade-quote-view", next);
-                                window.dispatchEvent(
-                                    new CustomEvent("trade-quote-view-change", { detail: next })
-                                );
-                            }
-                            return next;
-                        })
-                    }
-                />
-
+  open={sheet === "actions"}
+  onClose={() => setSheet(null)}
+  title={selected || ""}
+  viewMode={viewMode}
+  onToggleViewMode={() =>
+    setViewMode((prev) => {
+      const next = prev === "advanced" ? "simple" : "advanced";
+      if (typeof window !== "undefined") {
+        localStorage.setItem("trade-quote-view", next);
+        window.dispatchEvent(
+          new CustomEvent("trade-quote-view-change", { detail: next })
+        );
+      }
+      return next;
+    })
+  }
+  onOpenProperty={() => {
+    // TODO: property open logic
+  }}
+/>
 
                 <EditSymbols open={sheet === "edit"} onClose={() => setSheet(null)} />
 
