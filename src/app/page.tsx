@@ -60,7 +60,7 @@ export default function Home() {
 
   return (
     <>
-      <SplashHandler />
+      {/* <SplashHandler /> */}
       {showIntro && <AppIntro onFinish={() => setShowIntro(false)} />}
       <div className="min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-main)] text-[var(--text-main)] relative overflow-hidden flex items-center justify-center px-4 py-12">
         
