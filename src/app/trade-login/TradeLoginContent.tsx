@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { User, Lock, Eye, EyeOff } from "lucide-react";
 import { useTradeLogin } from "@/hooks/trade/useTradeLogin";
+import BackButton from "../components/ui/BackButton";
 
 export default function TradeLogin() {
     const router = useRouter();
@@ -70,9 +71,11 @@ export default function TradeLogin() {
     };
 
     return (
+        <>
         <div className="min-h-screen bg-[var(--bg-plan)] md:bg-[var(--bg-main)] text-[var(--text-main)] px-4 flex items-center justify-center">
             <div className="w-full max-w-md md:max-w-3xl py-10">
                 <div className="text-center font-semibold text-[18px] md:text-[20px] md:hidden">
+                <BackButton />
                     Login to an existing account
                 </div>
 
@@ -167,5 +170,6 @@ export default function TradeLogin() {
                 </div>
             )}
         </div>
+        </>
     );
 }

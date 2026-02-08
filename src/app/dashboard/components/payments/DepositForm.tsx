@@ -121,9 +121,13 @@ export default function DepositForm() {
             setIsSubmitting(false);
         }
     };
+    const liveAccounts = accounts.filter(
+        (acc) => acc.account_type === "live"
+    );
 
     return (
         <>
+        
             <div className="card p-8 max-w-md mx-auto animate-dropdown">
                 {/* 🏷️ Header */}
                 <div className="text-center mb-8">
@@ -149,7 +153,7 @@ export default function DepositForm() {
 
 
                 {/* 💳 Account Select */
-                <><div className="space-y-2 mb-6">
+                    <><div className="space-y-2 mb-6">
                         <label className="text-sm font-medium text-[var(--text-main)] flex items-center gap-2">
                             <CreditCard className="w-4 h-4" />
                             Select Account
@@ -157,15 +161,17 @@ export default function DepositForm() {
                         <Select
                             value={accountId}
                             onChange={setAccountId}
-                            options={accounts.map((acc) => ({
+                            options={liveAccounts.map((acc) => ({
                                 value: acc._id,
-                                label: `${acc.account_number} ??? Balance: $${Number(
+                                label: `${acc.account_number} Balance: $${Number(
                                     acc.balance
                                 ).toLocaleString(undefined, {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2,
                                 })}`,
-                            }))} />
+                            }))}
+                        />
+
                     </div>
                         <div className="space-y-2 mb-6">
                             <label className="text-sm font-medium text-[var(--text-main)] flex items-center gap-2">

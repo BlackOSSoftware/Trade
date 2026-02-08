@@ -19,8 +19,8 @@ function getCookieValue(name: string): string | null {
 const options = [
   {
     id: "broker-signup",
-    title: "Create Broker Account",
-    subtitle: "Secure onboarding with verified identity",
+    title: "Open Broker Account",
+    subtitle: "Secure identity verification",
     icon: UserPlus,
     color: "from-blue-500/20 via-blue-500/10 to-blue-600/20",
     glow: "rgba(59,130,246,0.3)",
@@ -29,8 +29,8 @@ const options = [
   },
   {
     id: "broker-login",
-    title: "Broker Login",
-    subtitle: "Access your dashboard instantly",
+    title: "Broker Portal",
+    subtitle: "Manage accounts securely",
     icon: LogIn,
     color: "from-emerald-500/20 via-emerald-500/10 to-emerald-600/20",
     glow: "rgba(34,197,94,0.3)",
@@ -39,8 +39,8 @@ const options = [
   },
   {
     id: "trade-login",
-    title: "Trade Login",
-    subtitle: "Live trading workspace access",
+    title: "Trading Workspace",
+    subtitle: "Live market access",
     icon: LineChart,
     color: "from-amber-500/20 via-amber-500/10 to-amber-600/20",
     glow: "rgba(251,146,60,0.3)",
@@ -54,19 +54,7 @@ export default function Home() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [showIntro, setShowIntro] = useState(true);
 
-  useEffect(() => {
-    const accessToken = getCookieValue("accessToken");
-    const tradeToken = getCookieValue("tradeToken");
 
-    if (accessToken) {
-      router.replace("/dashboard");
-      return;
-    }
-    if (tradeToken) {
-      router.replace("/trade");
-      return;
-    }
-  }, [router]);
 
   const handleOptionClick = (route: string) => {
     router.push(route);

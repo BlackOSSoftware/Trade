@@ -19,6 +19,7 @@ import { PremiumInput } from "../ui/TextInput";
 import { AuthShell } from "../auth/AuthCard";
 import { useVerifyEmail } from "@/hooks/useAuth";
 import { useResendVerifyEmail } from "@/hooks/useUser";
+import BackButton from "../ui/BackButton";
 
 type Step = "login" | "forgot" | "reset" | "verify";
 
@@ -295,8 +296,8 @@ export default function LoginPage() {
       {/* BACKGROUND GLOW */}
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[var(--primary)] opacity-20 blur-3xl" />
       <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500 opacity-20 blur-3xl" />
-
       <AuthShell>
+      <BackButton />
         <div className="space-y-8 animate-fadeIn">
           {/* BRAND */}
           <div className="text-center space-y-2">

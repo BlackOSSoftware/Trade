@@ -122,32 +122,41 @@ export default function Sidebar({
 
       <aside
         className={`
-          fixed md:static z-50 h-screen transition-all duration-300
-          ${collapsed ? "w-20" : "w-64"}
-          bg-[var(--bg-card)]
-          border-r border-[var(--border-glass)]
-          ${open ? "left-0" : "-left-full md:left-0"}
-        `}
+    fixed md:static z-[100] h-screen transition-all duration-300
+    ${collapsed ? "w-20" : "w-64"}
+    bg-[var(--bg-card)]
+    border-r border-[var(--border-glass)]
+    ${open ? "left-0" : "-left-full md:left-0"}
+  `}
       >
-        {/* HEADER */}
-        <div className="flex items-center justify-between px-4 py-5 border-b border-[var(--border-soft)]">
+
+
+        <div className="flex items-center justify-between px-4 py-5 border-b border-[var(--border-soft)] relative">
+
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/5 to-transparent pointer-events-none" />
+
           {!collapsed && (
-            <div>
-              <p className="text-xs uppercase text-[var(--text-muted)]">ALS</p>
-              <p className="text-lg font-semibold">Dashboard</p>
+            <div className="relative z-10">
+              <p className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+                ALS
+              </p>
+              <p className="text-lg font-semibold text-[var(--text-main)]">
+                Dashboard
+              </p>
             </div>
           )}
 
           <button
             onClick={onToggleCollapse}
-            className="rounded-lg p-1.5 hover:bg-[var(--bg-glass)]"
+            className="relative z-10 rounded-lg p-2 hover:bg-[var(--bg-glass)] transition"
           >
             <ChevronLeft
               size={18}
-              className={`transition ${collapsed ? "rotate-180" : ""}`}
+              className={`transition duration-300 ${collapsed ? "rotate-180" : ""}`}
             />
           </button>
         </div>
+
 
         <nav className="mt-4 pl-2 space-y-1">
           {items.map((item) => (
@@ -202,11 +211,11 @@ export default function Sidebar({
             {paymentOpen && (
               <div
                 className={`
-      ${collapsed
-                    ? "absolute left-13 top-0 ml-2 z-[9999]"
-                    : "relative ml-3 mt-1 z-[9999]"
+                   ${collapsed
+                    ? "absolute left-26 top-0 ml-2 z-[110]"
+                    : "relative ml-3 mt-1 z-[110]"
                   }
-      overflow-hidden
+      overflow-visible
       rounded-xl
       bg-[var(--bg-card)]
       shadow-lg
@@ -229,16 +238,22 @@ export default function Sidebar({
                           onClose?.();
                         }}
                         className={`
-    flex items-center gap-3 w-full rounded-xl px-3 py-2.5 transition z-[9999]
-    ${active
-                            ? "bg-[var(--bg-glass)] text-[var(--primary)]"
-                            : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)]"
+  group relative flex items-center gap-3 w-full rounded-xl px-3 py-2.5
+  transition-all duration-300
+  ${active
+                            ? "bg-[var(--bg-glass)] text-[var(--primary)] shadow-[0_0_20px_var(--primary-glow)]"
+                            : "text-[var(--text-muted)] hover:bg-[var(--bg-glass)] hover:shadow-[0_0_15px_var(--primary-glow)]"
                           }
-  `}
+`}
                       >
-                        <span className="h-9 w-9 flex items-center justify-center rounded-lg">
+                        <span className={`
+  h-9 w-9 flex items-center justify-center rounded-lg
+  transition-all duration-300
+  ${active ? "bg-[var(--primary)]/10" : "group-hover:bg-[var(--primary)]/5"}
+`}>
                           <Icon size={18} />
                         </span>
+
 
                         <span className="text-sm font-medium whitespace-nowrap">
                           {sub.label}

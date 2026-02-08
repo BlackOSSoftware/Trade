@@ -7,6 +7,7 @@ import QuotesList from "./QuotesList";
 import BottomSheet from "./BottomSheet";
 import EditSymbols from "./EditSymbols";
 import AddSymbol from "./AddSymbol";
+import PropertySheet from "./PropertySheet";
 
 type Props = {
   showTopBar?: boolean;
@@ -17,6 +18,8 @@ export default function QuotesUI({ showTopBar = false }: Props) {
     useState<null | "actions" | "edit" | "add">(null);
   const [selected, setSelected] =
     useState<string | null>(null);
+  const [openProperty, setOpenProperty] = useState(false);
+
   const [viewMode, setViewMode] = useState<"advanced" | "simple">(() => {
     if (typeof window === "undefined") return "advanced";
     const saved = localStorage.getItem("trade-quote-view");
@@ -102,6 +105,7 @@ export default function QuotesUI({ showTopBar = false }: Props) {
         onClose={() => setSheet(null)}
         title={selected ?? ""}
         viewMode={viewMode}
+        onOpenProperty={() => setOpenProperty(true)}
         onToggleViewMode={() =>
           setViewMode((prev) => {
             const next = prev === "advanced" ? "simple" : "advanced";
@@ -125,6 +129,12 @@ export default function QuotesUI({ showTopBar = false }: Props) {
         open={sheet === "add"}
         onClose={() => setSheet(null)}
       />
+      <PropertySheet
+        open={openProperty}
+        symbol={selected ?? ""}
+        onClose={() => setOpenProperty(false)}
+      />
+
     </div>
   );
 }

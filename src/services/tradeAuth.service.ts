@@ -26,7 +26,7 @@ export const resetTradePassword = async (
   accountId: string,
   newPassword: string
 ) => {
-  const res = await api.patch(
+  const res = await api.post(
     `/account-auth/${accountId}/reset-trade-password`,
     { newPassword }
   );
@@ -39,7 +39,7 @@ export const resetWatchPassword = async (
   accountId: string,
   newPassword: string
 ) => {
-  const res = await api.patch(
+  const res = await api.post(
     `/account-auth/${accountId}/reset-watch-password`,
     { newPassword }
   );

@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'ALS Trader',
   webDir: 'out',
   server: {
-    url: 'https://trade-pi-khaki.vercel.app',
+    url: 'https://trade-portal-ten.vercel.app/',
     cleartext: false
   }
 };
