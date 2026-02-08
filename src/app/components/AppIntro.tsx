@@ -39,7 +39,7 @@ export default function AppIntro({ onFinish }: Props) {
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,var(--primary-glow),transparent_60%)] opacity-40" />
 
     {/* Soft noise texture layer */}
-    <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('/noise.png')]" />
+    <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none " />
 
     <div className="relative flex flex-col items-center text-center">
 
