@@ -53,13 +53,10 @@ export default function Home() {
   const router = useRouter();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [showIntro, setShowIntro] = useState(true);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
-  if (!mounted) return null;
+
+ 
 
   return (
     <>
@@ -97,13 +94,13 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
                   {options.map((option, index) => (
                     <motion.button
-                    key={`desktop-${option.id}`}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.08, duration: 0.4 }}
-                    whileHover={{ y: -4, scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                   onClick={() => router.push(option.route)}
+                      key={`desktop-${option.id}`}
+                      initial={{ opacity: 0, y: 40 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.5 }}
+                      whileHover={{ y: -8, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => router.push(option.route)}
                       className={`
                         group relative h-64 rounded-3xl p-8
                         border border-[var(--border-soft)]
