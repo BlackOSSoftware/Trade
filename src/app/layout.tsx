@@ -7,6 +7,7 @@ import InitNotifications from "./components/InitNotifications";
 import { Roboto } from "next/font/google";
 import InstallPrompt from "./components/InstallPrompt";
 import SWRegister from "./sw-register";
+import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
 
 const mtFont = Roboto({
   subsets: ["latin"],
@@ -44,6 +45,11 @@ export default function RootLayout({
       {/* <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /> */}
 
       <head className={mtFont.className}>
+        <meta httpEquiv="Cache-Control" content="no-store, no-cache, must-revalidate, proxy-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+        <meta httpEquiv="Surrogate-Control" content="no-store" />
+
         <link rel="manifest" href="/manifest.json" />
 
         <meta name="theme-color" content="#2563eb" />
@@ -59,11 +65,11 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
 
 
-          <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-          {/* 🔥 THEME INIT SCRIPT (RUNS BEFORE REACT) */}
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* 🔥 THEME INIT SCRIPT (RUNS BEFORE REACT) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
 (function () {
   try {
     const theme = localStorage.getItem("theme");
@@ -73,8 +79,8 @@ export default function RootLayout({
   } catch (e) {}
 })();
             `,
-            }}
-          />
+          }}
+        />
       </head>
 
       <body
@@ -82,7 +88,7 @@ export default function RootLayout({
       >
         <InstallPrompt />
         <SWRegister />
-
+          <ChunkErrorBoundary/>
         <AppProviders>
           <FcmRegister />
           <InitNotifications />
