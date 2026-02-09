@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
 
 export default function FcmRegister() {
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
+    if (!Capacitor.isNativePlatform() && "serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")
         .then((registration) => {
